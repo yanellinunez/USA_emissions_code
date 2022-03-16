@@ -1,0 +1,327 @@
+---
+title: "Income and Property value in 1970"
+author: "Yanelli Nunez"
+date: "3/11/2021"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+Objective: 
+
+Estimate property and income for 1970 using aggregate values and household counts. We are doing this because for 1970 we have a categorical variable for median household income and property value but we want to use a continuous variable. Here we try multiple ways of estimating the values for 1970. 
+
+Conclusions:
+
+We selected family mean income as the proxi to family median income for 1970. The correlation between the estimated mean family for 1970 and median family income for 1980 is 0.84. Overall all the estimated mean income is much lower than the median family income. 
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+#source(paste0(file.locations.folder,'file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+
+```
+
+## 1. Load data
+
+### a. Load hosehold counts and family counts 1970 datasets
+
+Notes:
+- The information in this dataset comes all from decennial census 
+- DC doesn't appear in this datasets for some reason
+
+```{r}
+
+# number of households in 1970
+household_num <- read_csv(paste0(data.folder, "census_data/household_counts_csv/nhgis0020_ts_nominal_county.csv"), guess_max = 10000) %>%
+  clean_names() %>%
+  dplyr::rename(total_households = ar5aa) %>%
+  dplyr::filter(!state %in% c("Alaska", "Puerto Rico", "Hawaii"),
+                year == 1970) # select year 1970
+
+summary(household_num)
+
+
+# number of families in 1970
+
+family_num <- read_csv(paste0(data.folder, "census_data/family_counts_csv/nhgis0022_ts_nominal_county.csv"), guess_max = 10000) %>%
+  clean_names() %>%
+  dplyr::rename(total_families = a68aa) %>%
+  dplyr::filter(!state %in% c("Alaska", "Puerto Rico", "Hawaii"),
+                year == 1970) # select year 1970
+```
+
+
+### b. Load aggregated family income 1970 dataset
+
+```{r}
+
+agg_incom <- read_csv(paste0(data.folder, "census_data/aggregate_family_income_csv/nhgis0025_ds99_1970_county.csv")) %>%
+  clean_names() %>%
+  dplyr::rename(agg_fam_incom = c1k001) %>%
+  dplyr::filter(!state %in% c("Alaska", "Puerto Rico", "Hawaii")) %>%
+  dplyr::select(gisjoin, year, state, agg_fam_incom)
+
+```
+
+### c. Load unrelated individuals income 1970 dataset
+
+```{r}
+
+agg_incom_unrel <- read_csv(paste0(data.folder, "census_data/aggregated_unrelated_indv_income_csv/nhgis0025_ds99_1970_county.csv")) %>%
+  clean_names() %>%
+  dplyr::rename(agg_unrel_incom = c19001) %>%
+  dplyr::filter(!state %in% c("Alaska", "Puerto Rico", "Hawaii")) %>%
+  dplyr::select(gisjoin, year, state, agg_unrel_incom)
+
+```
+
+### d. Load aggregated property value 1970 dataset
+
+Missing data for adams county
+
+```{r}
+ 
+agg_house_val <- read_csv(paste0(data.folder, "census_data/aggregated_property_value/nhgis0026_ds94_1970_county.csv")) %>%
+  clean_names() %>%
+  dplyr::rename(agg_prop_val = cbh001) %>%
+  dplyr::filter(!state %in% c("Alaska", "Puerto Rico", "Hawaii")) %>%
+  dplyr::select(gisjoin, year, state, agg_prop_val)
+
+```
+
+### e. Bind datasets
+
+Notes:
+-There is a variable called total families and another one call total households. 
+-The number of households is slightly higher than the number of families
+
+```{r}
+
+merged_dat <- full_join(household_num, family_num) %>%
+  full_join(., agg_incom, by = c("gisjoin", "year", "state")) %>%
+  full_join(., agg_incom_unrel, by = c("gisjoin", "year", "state")) %>%
+  full_join(., agg_house_val, by = c("gisjoin", "year", "state")) %>%
+  dplyr::select(-name, -statefp, -statenh, -countyfp, -countynh)
+
+summary(merged_dat)
+
+```
+
+## 2. Estimate new variables
+We have one option for estimating the mean property value for 1970 but multiple ways in which we could create an approximation for median household income or median family income
+
+- Mean property value -> aggregate value for owner-occupied units divided by household counts
+- Mean family income -> aggregate family income divide by family counts
+- Mean household income using aggregate family income divide by household counts
+- Mean household income_2 -> aggregate family and unrelated individuals (≥14yrs) income sum divide by household counts
+- Mean household income_3 -> aggregated unrelated individuals income divided by total household counts
+
+NOTE: For property value we have a negative number for Yellowstone National Park
+
+```{r}
+
+new_var <- merged_dat %>%
+  mutate(mean_pro_value = agg_prop_val/total_households, 
+         mean_fam_incom = agg_fam_incom/total_families,
+         mean_hous_incom = agg_fam_incom/total_households,
+         mean_hous_incom_2 = (agg_fam_incom + agg_unrel_incom)/total_households,
+         mean_hous_incom_3 = agg_unrel_incom/total_households) %>%
+   mutate(county = replace_na(county, "District of Columbia"))
+
+summary(new_var)
+
+```
+
+## 3. Compare 1970 estimated variables to those in year 1980
+
+- The estimated mean property value for 1970 is overall much lower than the values observed in 1980 
+
+```{r}
+
+# load data from the other years so I can compare 1970 estimates to those of 1980
+
+data_1980 <- read_csv(paste0(data.folder, "generated_data/data_indp_varib_1.csv"), guess_max = 10000) %>%
+  dplyr::filter(year == 1980) %>%
+  dplyr::select(gisjoin, state, county, fam_median_incom, house_median_incom, median_house_value) %>%
+  dplyr::rename(fam_median_incom1980 = fam_median_incom,
+                house_median_incom1980 = house_median_incom,
+                median_house_val1980 = median_house_value)
+
+
+
+data_1980_70 <- full_join(new_var, data_1980) %>%
+  dplyr::select(gisjoin, year, state, county, everything()) %>%
+  drop_na(year) # missing refers to counties that exist in 1980 but not 1970 so we do not have worry about those here
+
+summary(data_1980_70)
+
+
+```
+
+## 4. Viz
+### a. Correlations
+
+```{r}
+
+# Family income
+
+library(corrplot)
+
+incom_var <- data_1980_70 %>%
+  dplyr::select(total_households, total_families, agg_fam_incom, agg_unrel_incom, sum_agg_incom, mean_fam_incom, mean_hous_incom, mean_hous_incom_2, mean_hous_incom_3, fam_median_incom1980, house_median_incom1980) %>%
+  drop_na()
+
+summary(incom_var)
+
+corr_mat <- cor(incom_var)
+corr_mat
+
+corrplot::corrplot(corr_mat, method = "color")
+
+# Property value
+
+data_1980_70 %>%
+  ggplot(aes(x = median_house_val1980, y = mean_pro_value)) +
+  facet_wrap(~state) +
+  geom_point(alpha = 0.5) +
+  ylab("Mean Property Value 1980") +
+  xlab("Media Property Value 1970") +
+  theme(axis.text.x = element_text(angle = 90))
+  
+
+```
+
+
+### b. Histograms
+
+In the histograms we can see that the estimated mean and 1980 media distribution for income and property value does differ
+
+```{r}
+
+# Income
+
+ data_1980_70 %>%
+  ggplot() +
+#  facet_grid(~ mean_hous_incom, mean_fam_incom) +
+  geom_histogram(binwidth = 100, aes(x = mean_hous_incom_2), fill = "darkgreen", alpha = 0.6) +
+  geom_histogram(binwidth = 100, aes(x = house_median_incom1980), fill = "blue", alpha = 0.5) +
+  geom_histogram(binwidth = 100, aes(x = mean_fam_incom), fill = "orange", alpha = 0.5) +
+   geom_histogram(binwidth = 100, aes(x = fam_median_incom1980), fill = "red", alpha = 0.5) +
+  ggtitle("Income distribution 1970 vs 1980") +
+     xlab("Media/mean house income") +
+  ylim(0,100) +
+ggtitle("Property value distribution 1970 vs 1980") +
+  xlab("Median/mean") +
+  geom_label(
+    label="Yellow: agg. family income/total families
+           Green: agg. family + indiv income/household counts
+           Blue: median household incom 1980
+           Peach: median family incom 1980", 
+    x=20000,
+    y=75,
+    label.padding = unit(0.40, "lines"),
+    label.size = 0.10)
+   
+  
+  
+# Property value
+  
+data_1980_70 %>%
+  ggplot() +
+  geom_histogram(binwidth = 100, aes(x = median_house_val1980), fill = "darkgreen", alpha = 0.6) +
+  geom_histogram(binwidth = 100, aes(x = mean_pro_value), fill = "blue", alpha = 0.5) +
+  ggtitle("Property value distribution 1970 vs 1980") +
+  xlab("Median/mean") +
+  geom_label(
+    label="Mean house value 1970 ", 
+    x=25000,
+    y=40,
+    label.padding = unit(0.40, "lines"),
+    label.size = 0.10) +
+  geom_label(label="Median house value 1980 ", 
+    x=50000,
+    y=20,
+    label.padding = unit(0.40, "lines"),
+    label.size = 0.10)
+    
+
+```
+
+## 5. Save data
+
+```{r}
+
+# Save the estimated variables for family income & Property for 1970
+
+write_csv(new_var, paste0(data.folder, "generated_data/income_propt_estim1970.csv"))
+```
+
+
+
+## 6. 1970 income & property value
+
+Select the fallowing variables to use as proxies for the 1970 median family income and median property value:
+
+mean_pro_value = agg_prop_val/total_households, 
+mean_fam_incom = agg_fam_incom/total_families
+
+
+```{r}
+
+estimated_variables <- new_var %>%
+  dplyr::select(gisjoin, year, state, county, mean_fam_incom, mean_pro_value) %>%
+  mutate(year = as.character(year)) 
+
+```
+
+
+### b. Merge 1970 estimates with  covariates
+
+Notes:
+
+DC is missing info in property and income for 1970
+
+```{r}
+
+# load covariates
+
+covariates <- read_csv(paste0(data.folder, "generated_data/data_indp_varib_1.csv")) %>%
+  mutate(year = as.factor(year))
+
+all_covariates <- full_join(covariates, mean_fam_income_variable) %>%
+  mutate(fam_income = coalesce(fam_median_incom, mean_fam_incom),
+         propty_val = coalesce(median_house_value, mean_pro_value))
+
+
+summary(all_covariates)
+  
+```
+
+### c. Save dataset
+
+```{r}
+
+# new version of the data_indp_varib_1 including the estimated mean family income and property value for 1970
+
+write_csv(all_covariates, paste0(data.folder, "generated_data/data_indp_varib_2.csv"))
+
+```
+

@@ -1,0 +1,326 @@
+--------------------------------------------------------------------------------
+Codebook for NHGIS data file 'nhgis0006_ts_nominal_county'
+--------------------------------------------------------------------------------
+ 
+Contents
+    - Data Summary
+    - Data Dictionary
+    - Geographic Integration Methods
+    - Source Data
+    - Citation and Use
+ 
+Detailed notes on time series design and comparability are available at: 
+    https://www.nhgis.org/sites/www.nhgis.org/files/nhgis_time_series_tables.pdf 
+ 
+--------------------------------------------------------------------------------
+Data Summary
+--------------------------------------------------------------------------------
+ 
+Time series layout:     Time varies by row
+Geographic level:       County (by State)
+Geographic integration: Nominal
+Measurement times:      1970, 1980, 1990, 2000, 2008-2012
+ 
+Tables:
+ 
+1. Households by Income* in Previous Year [4]
+   Valid years in file: 1970, 1980, 1990, 2000, 2008-2012
+   Code: BS7
+ 
+--------------------------------------------------------------------------------
+Data Dictionary
+--------------------------------------------------------------------------------
+ 
+Context Fields 
+        GISJOIN:     GIS Join Match Code
+        YEAR:        Row Source Year
+        STATE:       NHGIS Integrated State Name
+        STATEFP:     FIPS State Code
+        STATENH:     NHGIS Integrated State Code
+        COUNTY:      NHGIS Integrated County Name
+        COUNTYFP:    FIPS County Code
+        COUNTYNH:    NHGIS Integrated County Code
+        NAME:        Year-Specific Area Name
+ 
+Table 1: (BS7) Households by Income* in Previous Year [4]
+        BS7AA:       Households: Income less than $10,000
+        BS7AB:       Households: Income $10,000 to $14,999
+        BS7AC:       Households: Income $15,000 to $24,999
+        BS7AD:       Households: Income $25,000 or more
+ 
+Margins of Error 
+(Provided for American Community Survey data only) 
+        BS7AAM:      Margin of error: Households: Income less than $10,000
+        BS7ABM:      Margin of error: Households: Income $10,000 to $14,999
+        BS7ACM:      Margin of error: Households: Income $15,000 to $24,999
+        BS7ADM:      Margin of error: Households: Income $25,000 or more
+ 
+--------------------------------------------------------------------------------
+Geographic Integration Methods
+--------------------------------------------------------------------------------
+ 
+Nominal Integration:
+
+    Nominally integrated tables link geographic units across time according to
+    their names and codes, disregarding any changes in unit boundaries. The
+    identified geographic units match those from each census source, so the
+    spatial definitions and total number of units may vary from one time to
+    another (e.g., a city may annex land, a tract may be split in two, a new
+    county may be created, etc.). The tables include data for a particular
+    geographic unit only at times when the unit's name or code was in use,
+    resulting in truncated time series for some areas.
+    
+    Users should be cautious when interpreting changes in nominally integrated
+    time series because a single unit code may refer to distinctly different
+    areas at different times. If you are uncertain whether any boundaries
+    changed in your areas of interest, we recommend inspecting NHGIS GIS files
+    to confirm. (NHGIS supplies GIS boundary files for all units and years in
+    nominally integrated time series *except* 1970 places and county
+    subdivisions.)
+    
+    Alternatively, for some topics and time periods, NHGIS provides
+    "geographically standardized" time series, which provide data from multiple
+    times for a single census's geographic units (e.g., 2000 and 2010 data for
+    2010 census units). A disadvantage of standardized time series is that, in
+    areas where source units do not nest perfectly within a unit of the standard
+    year (e.g., where a source 2000 unit intersects multiple 2010 units), NHGIS
+    applies interpolation to standardize the data, a process which may
+    occasionally produce substantial errors.
+
+Complete documentation on time series integration methods is available at:
+    https://www.nhgis.org/documentation/time-series
+ 
+--------------------------------------------------------------------------------
+Source Data
+--------------------------------------------------------------------------------
+ 
+Additional documentation on NHGIS data sources is available at:
+    https://www.nhgis.org/documentation/tabular-data
+
+Table 1: (BS7) Households by Income* in Previous Year [4]
+ 
+    Time series AA: Households: Income less than $10,000
+        Year: 1970
+            Source dataset: 1970 Census: Count 4H - Sample-Based Housing Data
+                Source table: NT142A. Plumbing Facilities by Income
+                    Universe: Occupied Units
+                        Variable: [CP8001] With all plumbing facilities >> Less than $2,000
+                        Variable: [CP8002] With all plumbing facilities >> $2,000-$2,999
+                        Variable: [CP8003] With all plumbing facilities >> $3,000-$4,999
+                        Variable: [CP8004] With all plumbing facilities >> $5,000-$6,999
+                        Variable: [CP8005] With all plumbing facilities >> $7,000-$9,999
+                        Variable: [CP8009] Lacking one or more plumbing facilities >> Less than $2,000
+                        Variable: [CP8010] Lacking one or more plumbing facilities >> $2,000-$2,999
+                        Variable: [CP8011] Lacking one or more plumbing facilities >> $3,000-$4,999
+                        Variable: [CP8012] Lacking one or more plumbing facilities >> $5,000-$6,999
+                        Variable: [CP8013] Lacking one or more plumbing facilities >> $7,000-$9,999
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT68. Income in 1979
+                    Universe: Households
+                        Variable: [DID001] Less than $2,500
+                        Variable: [DID002] $2,500-$4,999
+                        Variable: [DID003] $5,000-$7,499
+                        Variable: [DID004] $7,500-$9,999
+        Year: 1990
+            Source dataset: 1990 Census: STF 3 - Sample-Based Data
+                Source table: NP80. Household Income in 1989
+                    Universe: Households
+                        Variable: [E4T001] Less than $5,000
+                        Variable: [E4T002] $5,000 to $9,999
+        Year: 2000
+            Source dataset: 2000 Census: SF 3a - Sample-Based Data [Areas Larger Than Block Groups]
+                Source table: NP052A. Household Income in 1999
+                    Universe: Households
+                        Variable: [GMX001] Less than $10,000
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B19001. Household Income in the Past 12 Months (in 2012 Inflation-Adjusted Dollars)
+                    Universe: Households
+                        Variable: [QU0002] Less than $10,000
+ 
+    Time series AB: Households: Income $10,000 to $14,999
+        Year: 1970
+            Source dataset: 1970 Census: Count 4H - Sample-Based Housing Data
+                Source table: NT142A. Plumbing Facilities by Income
+                    Universe: Occupied Units
+                        Variable: [CP8006] With all plumbing facilities >> $10,000-$14,999
+                        Variable: [CP8014] Lacking one or more plumbing facilities >> $10,000-$14,999
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT68. Income in 1979
+                    Universe: Households
+                        Variable: [DID005] $10,000-$12,499
+                        Variable: [DID006] $12,500-$14,999
+        Year: 1990
+            Source dataset: 1990 Census: STF 3 - Sample-Based Data
+                Source table: NP80. Household Income in 1989
+                    Universe: Households
+                        Variable: [E4T003] $10,000 to $12,499
+                        Variable: [E4T004] $12,500 to $14,999
+        Year: 2000
+            Source dataset: 2000 Census: SF 3a - Sample-Based Data [Areas Larger Than Block Groups]
+                Source table: NP052A. Household Income in 1999
+                    Universe: Households
+                        Variable: [GMX002] $10,000 to $14,999
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B19001. Household Income in the Past 12 Months (in 2012 Inflation-Adjusted Dollars)
+                    Universe: Households
+                        Variable: [QU0003] $10,000 to $14,999
+ 
+    Time series AC: Households: Income $15,000 to $24,999
+        Year: 1970
+            Source dataset: 1970 Census: Count 4H - Sample-Based Housing Data
+                Source table: NT142A. Plumbing Facilities by Income
+                    Universe: Occupied Units
+                        Variable: [CP8007] With all plumbing facilities >> $15,000-$24,999
+                        Variable: [CP8015] Lacking one or more plumbing facilities >> $15,000-$24,999
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT68. Income in 1979
+                    Universe: Households
+                        Variable: [DID007] $15,000-$17,499
+                        Variable: [DID008] $17,500-$19,999
+                        Variable: [DID009] $20,000-$22,499
+                        Variable: [DID010] $22,500-$24,999
+        Year: 1990
+            Source dataset: 1990 Census: STF 3 - Sample-Based Data
+                Source table: NP80. Household Income in 1989
+                    Universe: Households
+                        Variable: [E4T005] $15,000 to $17,499
+                        Variable: [E4T006] $17,500 to $19,999
+                        Variable: [E4T007] $20,000 to $22,499
+                        Variable: [E4T008] $22,500 to $24,999
+        Year: 2000
+            Source dataset: 2000 Census: SF 3a - Sample-Based Data [Areas Larger Than Block Groups]
+                Source table: NP052A. Household Income in 1999
+                    Universe: Households
+                        Variable: [GMX003] $15,000 to $19,999
+                        Variable: [GMX004] $20,000 to $24,999
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B19001. Household Income in the Past 12 Months (in 2012 Inflation-Adjusted Dollars)
+                    Universe: Households
+                        Variable: [QU0004] $15,000 to $19,999
+                        Variable: [QU0005] $20,000 to $24,999
+ 
+    Time series AD: Households: Income $25,000 or more
+        Year: 1970
+            Source dataset: 1970 Census: Count 4H - Sample-Based Housing Data
+                Source table: NT142A. Plumbing Facilities by Income
+                    Universe: Occupied Units
+                        Variable: [CP8008] With all plumbing facilities >> $25,000 or more
+                        Variable: [CP8016] Lacking one or more plumbing facilities >> $25,000 or more
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT68. Income in 1979
+                    Universe: Households
+                        Variable: [DID011] $25,000-$27,499
+                        Variable: [DID012] $27,500-$29,999
+                        Variable: [DID013] $30,000-$34,999
+                        Variable: [DID014] $35,000-$39,999
+                        Variable: [DID015] $40,000-$49,999
+                        Variable: [DID016] $50,000-$74,999
+                        Variable: [DID017] $75,000 or more
+        Year: 1990
+            Source dataset: 1990 Census: STF 3 - Sample-Based Data
+                Source table: NP80. Household Income in 1989
+                    Universe: Households
+                        Variable: [E4T009] $25,000 to $27,499
+                        Variable: [E4T010] $27,500 to $29,999
+                        Variable: [E4T011] $30,000 to $32,499
+                        Variable: [E4T012] $32,500 to $34,999
+                        Variable: [E4T013] $35,000 to $37,499
+                        Variable: [E4T014] $37,500 to $39,999
+                        Variable: [E4T015] $40,000 to $42,499
+                        Variable: [E4T016] $42,500 to $44,999
+                        Variable: [E4T017] $45,000 to $47,499
+                        Variable: [E4T018] $47,500 to $49,999
+                        Variable: [E4T019] $50,000 to $54,999
+                        Variable: [E4T020] $55,000 to $59,999
+                        Variable: [E4T021] $60,000 to $74,999
+                        Variable: [E4T022] $75,000 to $99,999
+                        Variable: [E4T023] $100,000 to $124,999
+                        Variable: [E4T024] $125,000 to $149,999
+                        Variable: [E4T025] $150,000 or more
+        Year: 2000
+            Source dataset: 2000 Census: SF 3a - Sample-Based Data [Areas Larger Than Block Groups]
+                Source table: NP052A. Household Income in 1999
+                    Universe: Households
+                        Variable: [GMX005] $25,000 to $29,999
+                        Variable: [GMX006] $30,000 to $34,999
+                        Variable: [GMX007] $35,000 to $39,999
+                        Variable: [GMX008] $40,000 to $44,999
+                        Variable: [GMX009] $45,000 to $49,999
+                        Variable: [GMX010] $50,000 to $59,999
+                        Variable: [GMX011] $60,000 to $74,999
+                        Variable: [GMX012] $75,000 to $99,999
+                        Variable: [GMX013] $100,000 to $124,999
+                        Variable: [GMX014] $125,000 to $149,999
+                        Variable: [GMX015] $150,000 to $199,999
+                        Variable: [GMX016] $200,000 or more
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B19001. Household Income in the Past 12 Months (in 2012 Inflation-Adjusted Dollars)
+                    Universe: Households
+                        Variable: [QU0006] $25,000 to $29,999
+                        Variable: [QU0007] $30,000 to $34,999
+                        Variable: [QU0008] $35,000 to $39,999
+                        Variable: [QU0009] $40,000 to $44,999
+                        Variable: [QU0010] $45,000 to $49,999
+                        Variable: [QU0011] $50,000 to $59,999
+                        Variable: [QU0012] $60,000 to $74,999
+                        Variable: [QU0013] $75,000 to $99,999
+                        Variable: [QU0014] $100,000 to $124,999
+                        Variable: [QU0015] $125,000 to $149,999
+                        Variable: [QU0016] $150,000 to $199,999
+                        Variable: [QU0017] $200,000 or more
+ 
+--------------------------------------------------------------------------------
+Citation and Use of NHGIS Data
+--------------------------------------------------------------------------------
+ 
+All persons are granted a limited license to use this documentation and the
+accompanying data, subject to the following conditions:
+
+* REDISTRIBUTION: You will not redistribute the data without permission.
+
+  You may publish a subset of the data to meet journal requirements for accessing 
+  data related to a particular publication. Contact us for permission for any other 
+  redistribution; we will consider requests for free and commercial redistribution.
+
+* CITATION: You will cite NHGIS appropriately.
+
+    * Publications and research reports employing NHGIS data (either tabular or GIS) 
+      should include the following citation:
+
+        Steven Manson, Jonathan Schroeder, David Van Riper, Tracy Kugler, and Steven Ruggles. 
+        IPUMS National Historical Geographic Information System: Version 15.0 
+        [dataset]. Minneapolis, MN: IPUMS. 2020. 
+        http://doi.org/10.18128/D050.V15.0
+
+    * For policy briefs, online resources, or articles in the popular press, we 
+      recommend that you cite the use of NHGIS data as follows:
+
+        IPUMS NHGIS, University of Minnesota, www.nhgis.org.
+
+These terms of use are a legally binding agreement. You can use the data only in 
+accordance with these terms, and any other use is a violation of the agreement. 
+Violations may result in revocation of the agreement and prohibition from using other 
+IPUMS data. If IPUMS or our partners are harmed from your violation, you are 
+responsible for all damages, including reasonable attorney's fees and expenses.
+        
+In addition, we request that users send us a copy of any publications, research
+reports, or educational material making use of the data or documentation.
+
+Send electronic material to: nhgis@umn.edu
+
+Printed matter should be sent to:
+
+    IPUMS NHGIS
+    Institute for Social Research and Data Innovation
+    University of Minnesota
+    50 Willey Hall
+    225 19th Ave S
+    Minneapolis, MN 55455

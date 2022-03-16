@@ -1,0 +1,366 @@
+--------------------------------------------------------------------------------
+Codebook for NHGIS data file 'nhgis0008_ts_nominal_county'
+--------------------------------------------------------------------------------
+ 
+Contents
+    - Data Summary
+    - Data Dictionary
+    - Geographic Integration Methods
+    - Source Data
+    - Citation and Use
+ 
+Detailed notes on time series design and comparability are available at: 
+    https://www.nhgis.org/sites/www.nhgis.org/files/nhgis_time_series_tables.pdf 
+ 
+--------------------------------------------------------------------------------
+Data Summary
+--------------------------------------------------------------------------------
+ 
+Time series layout:     Time varies by row
+Geographic level:       County (by State)
+Geographic integration: Nominal
+Measurement times:      1970, 1980, 1990, 2000, 2008-2012
+ 
+Tables:
+ 
+1. Persons 16 Years and Over by Labor Force and Employment Status [6]
+   Valid years in file: 1970, 1980, 1990, 2000, 2008-2012
+   Code: B84
+ 
+--------------------------------------------------------------------------------
+Data Dictionary
+--------------------------------------------------------------------------------
+ 
+Context Fields 
+        GISJOIN:     GIS Join Match Code
+        YEAR:        Row Source Year
+        STATE:       NHGIS Integrated State Name
+        STATEFP:     FIPS State Code
+        STATENH:     NHGIS Integrated State Code
+        COUNTY:      NHGIS Integrated County Name
+        COUNTYFP:    FIPS County Code
+        COUNTYNH:    NHGIS Integrated County Code
+        NAME:        Year-Specific Area Name
+ 
+Table 1: (B84) Persons 16 Years and Over by Labor Force and Employment Status [6]
+        B84AA:       Persons: 16 years and over ~ In labor force
+        B84AB:       Persons: 16 years and over ~ In labor force--In Armed Forces
+        B84AC:       Persons: 16 years and over ~ In labor force--Civilian
+        B84AD:       Persons: 16 years and over ~ In labor force--Civilian--Employed
+        B84AE:       Persons: 16 years and over ~ In labor force--Civilian--Unemployed
+        B84AF:       Persons: 16 years and over ~ Not in labor force
+ 
+Margins of Error 
+(Provided for American Community Survey data only) 
+        B84AAM:      Margin of error: Persons: 16 years and over ~ In labor force
+        B84ABM:      Margin of error: Persons: 16 years and over ~ In labor force--In Armed Forces
+        B84ACM:      Margin of error: Persons: 16 years and over ~ In labor force--Civilian
+        B84ADM:      Margin of error: Persons: 16 years and over ~ In labor force--Civilian--Employed
+        B84AEM:      Margin of error: Persons: 16 years and over ~ In labor force--Civilian--Unemployed
+        B84AFM:      Margin of error: Persons: 16 years and over ~ Not in labor force
+ 
+--------------------------------------------------------------------------------
+Geographic Integration Methods
+--------------------------------------------------------------------------------
+ 
+Nominal Integration:
+
+    Nominally integrated tables link geographic units across time according to
+    their names and codes, disregarding any changes in unit boundaries. The
+    identified geographic units match those from each census source, so the
+    spatial definitions and total number of units may vary from one time to
+    another (e.g., a city may annex land, a tract may be split in two, a new
+    county may be created, etc.). The tables include data for a particular
+    geographic unit only at times when the unit's name or code was in use,
+    resulting in truncated time series for some areas.
+    
+    Users should be cautious when interpreting changes in nominally integrated
+    time series because a single unit code may refer to distinctly different
+    areas at different times. If you are uncertain whether any boundaries
+    changed in your areas of interest, we recommend inspecting NHGIS GIS files
+    to confirm. (NHGIS supplies GIS boundary files for all units and years in
+    nominally integrated time series *except* 1970 places and county
+    subdivisions.)
+    
+    Alternatively, for some topics and time periods, NHGIS provides
+    "geographically standardized" time series, which provide data from multiple
+    times for a single census's geographic units (e.g., 2000 and 2010 data for
+    2010 census units). A disadvantage of standardized time series is that, in
+    areas where source units do not nest perfectly within a unit of the standard
+    year (e.g., where a source 2000 unit intersects multiple 2010 units), NHGIS
+    applies interpolation to standardize the data, a process which may
+    occasionally produce substantial errors.
+
+Complete documentation on time series integration methods is available at:
+    https://www.nhgis.org/documentation/time-series
+ 
+--------------------------------------------------------------------------------
+Source Data
+--------------------------------------------------------------------------------
+ 
+Additional documentation on NHGIS data sources is available at:
+    https://www.nhgis.org/documentation/tabular-data
+
+Table 1: (B84) Persons 16 Years and Over by Labor Force and Employment Status [6]
+ 
+    Time series AA: Persons: 16 years and over ~ In labor force
+        Year: 1970
+            Source dataset: 1970 Census: Count 4Pb - Sample-Based Population Data with Race/Ethnicity Breakdown
+                Source table: NT54. Sex by Labor Force Status and Selected Characteristics
+                    Universe: Persons 16 Years and Over
+                        Variable: [C23001] Male >> In armed forces
+                        Variable: [C23002] Male >> In labor force: Employed
+                        Variable: [C23003] Male >> In labor force: Unemployed
+                        Variable: [C23010] Female >> In armed forces
+                        Variable: [C23011] Female >> In labor force: Employed
+                        Variable: [C23012] Female >> In labor force: Unemployed
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT55A. Sex by Labor Force Status
+                    Universe: Persons 16 Years and Over
+                        Variable: [DHX001] Male >> Labor force: Armed forces
+                        Variable: [DHX002] Male >> Labor force: Civilian labor force: Employed
+                        Variable: [DHX003] Male >> Labor force: Civilian labor force: Unemployed
+                        Variable: [DHX005] Female >> Labor force: Armed forces
+                        Variable: [DHX006] Female >> Labor force: Civilian labor force: Employed
+                        Variable: [DHX007] Female >> Labor force: Civilian labor force: Unemployed
+        Year: 1990
+            Source dataset: 1990 Census: STF 3 - Sample-Based Data
+                Source table: NP70. Sex by Employment Status
+                    Universe: Persons 16 years and over
+                        Variable: [E4I001] Male >> In labor force: In Armed Forces
+                        Variable: [E4I002] Male >> In labor force: Civilian: Employed
+                        Variable: [E4I003] Male >> In labor force: Civilian: Unemployed
+                        Variable: [E4I005] Female >> In labor force: In Armed Forces
+                        Variable: [E4I006] Female >> In labor force: Civilian: Employed
+                        Variable: [E4I007] Female >> In labor force: Civilian: Unemployed
+        Year: 2000
+            Source dataset: 2000 Census: SF 3a - Sample-Based Data [Areas Larger Than Block Groups]
+                Source table: NP043C. Population 16 Years and Over by Sex by Labor Force Status
+                    Universe: Persons 16 Years and Over
+                        Variable: [GLP001] Male >> In labor force
+                        Variable: [GLP003] Female >> In labor force
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B23025. Employment Status for the Population 16 Years and Over
+                    Universe: Population 16 years and over
+                        Variable: [QXS002] In labor force
+ 
+    Time series AB: Persons: 16 years and over ~ In labor force--In Armed Forces
+        Year: 1970
+            Source dataset: 1970 Census: Count 4Pb - Sample-Based Population Data with Race/Ethnicity Breakdown
+                Source table: NT54. Sex by Labor Force Status and Selected Characteristics
+                    Universe: Persons 16 Years and Over
+                        Variable: [C23001] Male >> In armed forces
+                        Variable: [C23010] Female >> In armed forces
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT55A. Sex by Labor Force Status
+                    Universe: Persons 16 Years and Over
+                        Variable: [DHX001] Male >> Labor force: Armed forces
+                        Variable: [DHX005] Female >> Labor force: Armed forces
+        Year: 1990
+            Source dataset: 1990 Census: STF 3 - Sample-Based Data
+                Source table: NP70. Sex by Employment Status
+                    Universe: Persons 16 years and over
+                        Variable: [E4I001] Male >> In labor force: In Armed Forces
+                        Variable: [E4I005] Female >> In labor force: In Armed Forces
+        Year: 2000
+            Source dataset: 2000 Census: SF 3a - Sample-Based Data [Areas Larger Than Block Groups]
+                Source table: NP043D. Population 16 Years and Over by Sex by Armed Forces Status
+                    Universe: Persons 16 Years and Over in Labor Force
+                        Variable: [GLQ001] Male >> In Armed Forces
+                        Variable: [GLQ003] Female >> In Armed Forces
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B23025. Employment Status for the Population 16 Years and Over
+                    Universe: Population 16 years and over
+                        Variable: [QXS006] In labor force: Armed Forces
+ 
+    Time series AC: Persons: 16 years and over ~ In labor force--Civilian
+        Year: 1970
+            Source dataset: 1970 Census: Count 4Pb - Sample-Based Population Data with Race/Ethnicity Breakdown
+                Source table: NT54. Sex by Labor Force Status and Selected Characteristics
+                    Universe: Persons 16 Years and Over
+                        Variable: [C23002] Male >> In labor force: Employed
+                        Variable: [C23003] Male >> In labor force: Unemployed
+                        Variable: [C23011] Female >> In labor force: Employed
+                        Variable: [C23012] Female >> In labor force: Unemployed
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT55A. Sex by Labor Force Status
+                    Universe: Persons 16 Years and Over
+                        Variable: [DHX002] Male >> Labor force: Civilian labor force: Employed
+                        Variable: [DHX003] Male >> Labor force: Civilian labor force: Unemployed
+                        Variable: [DHX006] Female >> Labor force: Civilian labor force: Employed
+                        Variable: [DHX007] Female >> Labor force: Civilian labor force: Unemployed
+        Year: 1990
+            Source dataset: 1990 Census: STF 3 - Sample-Based Data
+                Source table: NP70. Sex by Employment Status
+                    Universe: Persons 16 years and over
+                        Variable: [E4I002] Male >> In labor force: Civilian: Employed
+                        Variable: [E4I003] Male >> In labor force: Civilian: Unemployed
+                        Variable: [E4I006] Female >> In labor force: Civilian: Employed
+                        Variable: [E4I007] Female >> In labor force: Civilian: Unemployed
+        Year: 2000
+            Source dataset: 2000 Census: SF 3a - Sample-Based Data [Areas Larger Than Block Groups]
+                Source table: NP043D. Population 16 Years and Over by Sex by Armed Forces Status
+                    Universe: Persons 16 Years and Over in Labor Force
+                        Variable: [GLQ002] Male >> Civilian
+                        Variable: [GLQ004] Female >> Civilian
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B23025. Employment Status for the Population 16 Years and Over
+                    Universe: Population 16 years and over
+                        Variable: [QXS003] In labor force: Civilian labor force
+ 
+    Time series AD: Persons: 16 years and over ~ In labor force--Civilian--Employed
+        Year: 1970
+            Source dataset: 1970 Census: Count 4Pb - Sample-Based Population Data with Race/Ethnicity Breakdown
+                Source table: NT54. Sex by Labor Force Status and Selected Characteristics
+                    Universe: Persons 16 Years and Over
+                        Variable: [C23002] Male >> In labor force: Employed
+                        Variable: [C23011] Female >> In labor force: Employed
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT55A. Sex by Labor Force Status
+                    Universe: Persons 16 Years and Over
+                        Variable: [DHX002] Male >> Labor force: Civilian labor force: Employed
+                        Variable: [DHX006] Female >> Labor force: Civilian labor force: Employed
+        Year: 1990
+            Source dataset: 1990 Census: STF 3 - Sample-Based Data
+                Source table: NP70. Sex by Employment Status
+                    Universe: Persons 16 years and over
+                        Variable: [E4I002] Male >> In labor force: Civilian: Employed
+                        Variable: [E4I006] Female >> In labor force: Civilian: Employed
+        Year: 2000
+            Source dataset: 2000 Census: SF 3a - Sample-Based Data [Areas Larger Than Block Groups]
+                Source table: NP043E. Population 16 Years and Over by Sex by Employment Status
+                    Universe: Civilian Persons 16 Years and Over in Labor Force
+                        Variable: [GLR001] Male >> Employed
+                        Variable: [GLR003] Female >> Employed
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B23025. Employment Status for the Population 16 Years and Over
+                    Universe: Population 16 years and over
+                        Variable: [QXS004] In labor force: Civilian labor force: Employed
+ 
+    Time series AE: Persons: 16 years and over ~ In labor force--Civilian--Unemployed
+        Year: 1970
+            Source dataset: 1970 Census: Count 4Pb - Sample-Based Population Data with Race/Ethnicity Breakdown
+                Source table: NT54. Sex by Labor Force Status and Selected Characteristics
+                    Universe: Persons 16 Years and Over
+                        Variable: [C23003] Male >> In labor force: Unemployed
+                        Variable: [C23012] Female >> In labor force: Unemployed
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT55A. Sex by Labor Force Status
+                    Universe: Persons 16 Years and Over
+                        Variable: [DHX003] Male >> Labor force: Civilian labor force: Unemployed
+                        Variable: [DHX007] Female >> Labor force: Civilian labor force: Unemployed
+        Year: 1990
+            Source dataset: 1990 Census: STF 3 - Sample-Based Data
+                Source table: NP70. Sex by Employment Status
+                    Universe: Persons 16 years and over
+                        Variable: [E4I003] Male >> In labor force: Civilian: Unemployed
+                        Variable: [E4I007] Female >> In labor force: Civilian: Unemployed
+        Year: 2000
+            Source dataset: 2000 Census: SF 3a - Sample-Based Data [Areas Larger Than Block Groups]
+                Source table: NP043E. Population 16 Years and Over by Sex by Employment Status
+                    Universe: Civilian Persons 16 Years and Over in Labor Force
+                        Variable: [GLR002] Male >> Unemployed
+                        Variable: [GLR004] Female >> Unemployed
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B23025. Employment Status for the Population 16 Years and Over
+                    Universe: Population 16 years and over
+                        Variable: [QXS005] In labor force: Civilian labor force: Unemployed
+ 
+    Time series AF: Persons: 16 years and over ~ Not in labor force
+        Year: 1970
+            Source dataset: 1970 Census: Count 4Pb - Sample-Based Population Data with Race/Ethnicity Breakdown
+                Source table: NT54. Sex by Labor Force Status and Selected Characteristics
+                    Universe: Persons 16 Years and Over
+                        Variable: [C23004] Male >> Not in labor force: Under 65: Inmate
+                        Variable: [C23005] Male >> Not in labor force: Under 65: Enrolled in school
+                        Variable: [C23006] Male >> Not in labor force: Under 65: Other
+                        Variable: [C23007] Male >> Not in labor force: 65 and over: Inmate
+                        Variable: [C23008] Male >> Not in labor force: 65 and over: Enrolled in school
+                        Variable: [C23009] Male >> Not in labor force: 65 and over: Other
+                        Variable: [C23013] Female >> Not in labor force: Under 65: Inmate
+                        Variable: [C23014] Female >> Not in labor force: Under 65: Enrolled in school
+                        Variable: [C23015] Female >> Not in labor force: Under 65: Other
+                        Variable: [C23016] Female >> Not in labor force: 65 and over: Inmate
+                        Variable: [C23017] Female >> Not in labor force: 65 and over: Enrolled in school
+                        Variable: [C23018] Female >> Not in labor force: 65 and over: Other
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT55A. Sex by Labor Force Status
+                    Universe: Persons 16 Years and Over
+                        Variable: [DHX004] Male >> Not in labor force
+                        Variable: [DHX008] Female >> Not in labor force
+        Year: 1990
+            Source dataset: 1990 Census: STF 3 - Sample-Based Data
+                Source table: NP70. Sex by Employment Status
+                    Universe: Persons 16 years and over
+                        Variable: [E4I004] Male >> In labor force: Civilian: Not in labor force
+                        Variable: [E4I008] Female >> In labor force: Civilian: Not in labor force
+        Year: 2000
+            Source dataset: 2000 Census: SF 3a - Sample-Based Data [Areas Larger Than Block Groups]
+                Source table: NP043C. Population 16 Years and Over by Sex by Labor Force Status
+                    Universe: Persons 16 Years and Over
+                        Variable: [GLP002] Male >> Not in labor force
+                        Variable: [GLP004] Female >> Not in labor force
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B23025. Employment Status for the Population 16 Years and Over
+                    Universe: Population 16 years and over
+                        Variable: [QXS007] Not in labor force
+ 
+--------------------------------------------------------------------------------
+Citation and Use of NHGIS Data
+--------------------------------------------------------------------------------
+ 
+All persons are granted a limited license to use this documentation and the
+accompanying data, subject to the following conditions:
+
+* REDISTRIBUTION: You will not redistribute the data without permission.
+
+  You may publish a subset of the data to meet journal requirements for accessing 
+  data related to a particular publication. Contact us for permission for any other 
+  redistribution; we will consider requests for free and commercial redistribution.
+
+* CITATION: You will cite NHGIS appropriately.
+
+    * Publications and research reports employing NHGIS data (either tabular or GIS) 
+      should include the following citation:
+
+        Steven Manson, Jonathan Schroeder, David Van Riper, Tracy Kugler, and Steven Ruggles. 
+        IPUMS National Historical Geographic Information System: Version 15.0 
+        [dataset]. Minneapolis, MN: IPUMS. 2020. 
+        http://doi.org/10.18128/D050.V15.0
+
+    * For policy briefs, online resources, or articles in the popular press, we 
+      recommend that you cite the use of NHGIS data as follows:
+
+        IPUMS NHGIS, University of Minnesota, www.nhgis.org.
+
+These terms of use are a legally binding agreement. You can use the data only in 
+accordance with these terms, and any other use is a violation of the agreement. 
+Violations may result in revocation of the agreement and prohibition from using other 
+IPUMS data. If IPUMS or our partners are harmed from your violation, you are 
+responsible for all damages, including reasonable attorney's fees and expenses.
+        
+In addition, we request that users send us a copy of any publications, research
+reports, or educational material making use of the data or documentation.
+
+Send electronic material to: nhgis@umn.edu
+
+Printed matter should be sent to:
+
+    IPUMS NHGIS
+    Institute for Social Research and Data Innovation
+    University of Minnesota
+    50 Willey Hall
+    225 19th Ave S
+    Minneapolis, MN 55455

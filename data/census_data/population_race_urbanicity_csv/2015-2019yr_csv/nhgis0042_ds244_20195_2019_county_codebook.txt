@@ -1,0 +1,238 @@
+--------------------------------------------------------------------------------
+Codebook for NHGIS data file 'nhgis0042_ds244_20195_2019_county'
+--------------------------------------------------------------------------------
+ 
+Contents
+    - Data Summary
+    - Data Dictionary
+    - Citation and Use
+ 
+Additional documentation on NHGIS data sources is available at: 
+    https://www.nhgis.org/documentation/tabular-data 
+ 
+--------------------------------------------------------------------------------
+Data Summary
+--------------------------------------------------------------------------------
+ 
+Year:             2015-2019
+Geographic level: County (by State)
+Dataset:          2019 American Community Survey: 5-Year Data [2015-2019, Block Groups & Larger Areas]
+   NHGIS code:    2015_2019_ACS5a
+   NHGIS ID:      ds244
+Breakdown(s):     Geographic Subarea:
+                     Total area (00)
+Data type(s):     (E) Estimates
+                  (M) Margins of error
+ 
+Tables:
+ 
+1. Race
+   Universe:    Total population
+   Source code: B02001
+   NHGIS code:  ALUC
+ 
+2. Hispanic or Latino Origin by Race
+   Universe:    Total population
+   Source code: B03002
+   NHGIS code:  ALUK
+ 
+--------------------------------------------------------------------------------
+Data Dictionary
+--------------------------------------------------------------------------------
+ 
+Context Fields 
+        GISJOIN:     GIS Join Match Code
+        YEAR:        Data File Year
+        STUSAB:      State Postal Abbreviation
+        REGIONA:     Region Code
+        DIVISIONA:   Division Code
+        STATE:       State Name
+        STATEA:      State Code
+        COUNTY:      County Name
+        COUNTYA:     County Code
+        COUSUBA:     County Subdivision Code
+        PLACEA:      Place Code
+        TRACTA:      Census Tract Code
+        BLKGRPA:     Block Group Code
+        CONCITA:     Consolidated City Code
+        AIANHHA:     American Indian Area/Alaska Native Area/Hawaiian Home Land Code
+        RES_ONLYA:   American Indian Area/Alaska Native Area (Reservation or Statistical Entity Only) Code
+        TRUSTA:      American Indian Area (Off-Reservation Trust Land Only)/Hawaiian Home Land Code
+        AIHHTLI:     American Indian Trust Land/ Hawaiian Home Land Indicator
+        AITS:        American Indian Tribal Subdivision (FIPS)
+        ANRCA:       Alaska Native Regional Corporation Code
+        CBSAA:       Metropolitan Statistical Area/Micropolitan Statistical Area Code
+        CSAA:        Combined Statistical Area Code
+        METDIVA:     Metropolitan Division Code
+        MEMI:        Metropolitan/Micropolitan Indicator Flag
+        NECTAA:      New England City and Town Area Code
+        CNECTAA:     Combined New England City and Town Area Code
+        NECTADIVA:   New England City and Town Area Division Code
+        UAA:         Urban Area Code
+        CDCURRA:     Congressional District (2019-2021, 116th Congress) Code
+        SLDUA:       State Legislative District (Upper Chamber) Code
+        SLDLA:       State Legislative District (Lower Chamber) Code
+        ZCTA5A:      5-Digit ZIP Code Tabulation Area Code
+        SUBMCDA:     Subminor Civil Division Code
+        SDELMA:      School District (Elementary)/Remainder Code
+        SDSECA:      School District (Secondary)/Remainder Code
+        SDUNIA:      School District (Unified)/Remainder Code
+        UR:          Urban/Rural
+        PCI:         Principal City Indicator
+        PUMA5A:      Public Use Microdata Sample Area (PUMA) Code
+        GEOID:       Census Geographic Identifier
+        BTTRA:       Tribal Census Tract Code
+        BTBGA:       Tribal Block Group Code
+ 
+Data Type (E):
+    Estimates
+ 
+        NAME_E:      Area Name
+ 
+    Table 1:     Race
+    Universe:    Total population
+    Source code: B02001
+    NHGIS code:  ALUC
+        ALUCE001:    Total
+        ALUCE002:    White alone
+        ALUCE003:    Black or African American alone
+        ALUCE004:    American Indian and Alaska Native alone
+        ALUCE005:    Asian alone
+        ALUCE006:    Native Hawaiian and Other Pacific Islander alone
+        ALUCE007:    Some other race alone
+        ALUCE008:    Two or more races
+        ALUCE009:    Two or more races: Two races including Some other race
+        ALUCE010:    Two or more races: Two races excluding Some other race, and three or more races
+ 
+    Table 2:     Hispanic or Latino Origin by Race
+    Universe:    Total population
+    Source code: B03002
+    NHGIS code:  ALUK
+        ALUKE001:    Total
+        ALUKE002:    Not Hispanic or Latino
+        ALUKE003:    Not Hispanic or Latino: White alone
+        ALUKE004:    Not Hispanic or Latino: Black or African American alone
+        ALUKE005:    Not Hispanic or Latino: American Indian and Alaska Native alone
+        ALUKE006:    Not Hispanic or Latino: Asian alone
+        ALUKE007:    Not Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone
+        ALUKE008:    Not Hispanic or Latino: Some other race alone
+        ALUKE009:    Not Hispanic or Latino: Two or more races
+        ALUKE010:    Not Hispanic or Latino: Two or more races: Two races including Some other race
+        ALUKE011:    Not Hispanic or Latino: Two or more races: Two races excluding Some other race, and three or more races
+        ALUKE012:    Hispanic or Latino
+        ALUKE013:    Hispanic or Latino: White alone
+        ALUKE014:    Hispanic or Latino: Black or African American alone
+        ALUKE015:    Hispanic or Latino: American Indian and Alaska Native alone
+        ALUKE016:    Hispanic or Latino: Asian alone
+        ALUKE017:    Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone
+        ALUKE018:    Hispanic or Latino: Some other race alone
+        ALUKE019:    Hispanic or Latino: Two or more races
+        ALUKE020:    Hispanic or Latino: Two or more races: Two races including Some other race
+        ALUKE021:    Hispanic or Latino: Two or more races: Two races excluding Some other race, and three or more races
+ 
+Data Type (M):
+    Margins of error
+ 
+        NAME_M:      Area Name
+ 
+    Table 1:     Race
+    Universe:    Total population
+    Source code: B02001
+    NHGIS code:  ALUC
+        ALUCM001:    Total
+        ALUCM002:    White alone
+        ALUCM003:    Black or African American alone
+        ALUCM004:    American Indian and Alaska Native alone
+        ALUCM005:    Asian alone
+        ALUCM006:    Native Hawaiian and Other Pacific Islander alone
+        ALUCM007:    Some other race alone
+        ALUCM008:    Two or more races
+        ALUCM009:    Two or more races: Two races including Some other race
+        ALUCM010:    Two or more races: Two races excluding Some other race, and three or more races
+ 
+    Table 2:     Hispanic or Latino Origin by Race
+    Universe:    Total population
+    Source code: B03002
+    NHGIS code:  ALUK
+        ALUKM001:    Total
+        ALUKM002:    Not Hispanic or Latino
+        ALUKM003:    Not Hispanic or Latino: White alone
+        ALUKM004:    Not Hispanic or Latino: Black or African American alone
+        ALUKM005:    Not Hispanic or Latino: American Indian and Alaska Native alone
+        ALUKM006:    Not Hispanic or Latino: Asian alone
+        ALUKM007:    Not Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone
+        ALUKM008:    Not Hispanic or Latino: Some other race alone
+        ALUKM009:    Not Hispanic or Latino: Two or more races
+        ALUKM010:    Not Hispanic or Latino: Two or more races: Two races including Some other race
+        ALUKM011:    Not Hispanic or Latino: Two or more races: Two races excluding Some other race, and three or more races
+        ALUKM012:    Hispanic or Latino
+        ALUKM013:    Hispanic or Latino: White alone
+        ALUKM014:    Hispanic or Latino: Black or African American alone
+        ALUKM015:    Hispanic or Latino: American Indian and Alaska Native alone
+        ALUKM016:    Hispanic or Latino: Asian alone
+        ALUKM017:    Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone
+        ALUKM018:    Hispanic or Latino: Some other race alone
+        ALUKM019:    Hispanic or Latino: Two or more races
+        ALUKM020:    Hispanic or Latino: Two or more races: Two races including Some other race
+        ALUKM021:    Hispanic or Latino: Two or more races: Two races excluding Some other race, and three or more races
+ 
+--------------------------------------------------------------------------------
+Citation and Use of NHGIS Data
+--------------------------------------------------------------------------------
+ 
+All persons are granted a limited license to use this documentation and the
+accompanying data, subject to the following conditions:
+
+* REDISTRIBUTION: You will not redistribute the data without permission.
+
+  You may publish a subset of the data to meet journal requirements for accessing 
+  data related to a particular publication. Contact us for permission for any other 
+  redistribution; we will consider requests for free and commercial redistribution.
+
+* CITATION: You will cite NHGIS appropriately.
+
+    * Publications and research reports employing NHGIS data (either tabular or GIS) 
+      should include the following citation:
+
+        Steven Manson, Jonathan Schroeder, David Van Riper, Tracy Kugler, and Steven Ruggles. 
+        IPUMS National Historical Geographic Information System: Version 15.0 
+        [dataset]. Minneapolis, MN: IPUMS. 2020. 
+        http://doi.org/10.18128/D050.V15.0
+
+    * Publications and research reports employing school attendance areas data 
+      (either tabular or GIS) must cite it appropriately. The citation should 
+      include the following:
+
+        The College of William and Mary and the Minnesota Population Center.
+        School Attendance Boundary Information System (SABINS): Version 1.0.
+        Minneapolis, MN: University of Minnesota 2011.
+
+    * For policy briefs, online resources, or articles in the popular press, we 
+      recommend that you cite the use of NHGIS data as follows:
+
+        IPUMS NHGIS, University of Minnesota, www.nhgis.org.
+
+    * If possible, citations involving school attendance areas should also include
+      the URL for the SABINS site:
+
+        http://www.sabinsdata.org/.
+
+These terms of use are a legally binding agreement. You can use the data only in 
+accordance with these terms, and any other use is a violation of the agreement. 
+Violations may result in revocation of the agreement and prohibition from using other 
+IPUMS data. If IPUMS or our partners are harmed from your violation, you are 
+responsible for all damages, including reasonable attorney's fees and expenses.
+        
+In addition, we request that users send us a copy of any publications, research
+reports, or educational material making use of the data or documentation.
+
+Send electronic material to: nhgis@umn.edu
+
+Printed matter should be sent to:
+
+    IPUMS NHGIS
+    Institute for Social Research and Data Innovation
+    University of Minnesota
+    50 Willey Hall
+    225 19th Ave S
+    Minneapolis, MN 55455

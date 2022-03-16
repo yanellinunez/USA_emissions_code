@@ -1,0 +1,435 @@
+---
+title: "y_01_census_data_prep"
+author: "Yanelli Nunez"
+date: "2/2/2021"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+#source(paste0(file.locations.folder,'file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+
+```
+
+## 1. Race\ethnicity data
+
+- Racial and ethnicity data were obtained from the decennial census 1970, 1980, 1990, 2000, and 2010 for all of the United States in the county-level
+
+- Racial groups are NOT breakdown to Hispanic and non-Hispanic because these information is not available for year 1970
+
+- Asian data is not available for 1970 DC
+
+```{r}
+
+# race and population non-standardized with basic hispanic info
+pop_race <- read_csv(paste0(data.folder, "census_data/population_race_urbanicity_csv/nhgis0004_ts_nominal_county.csv"), na = c(".", ""), col_types = cols(YEAR = "f", B18AA = "d", B18AE = "d", AV0AAM = "d")) %>%
+  dplyr::rename(urban = A57AA,
+                urban_in = A57AB,
+                urban_out = A57AC,
+                rural = A57AD,
+                white = B18AA,
+                black = B18AB,
+                native = B18AC,
+                asian = B18AD,
+                multi_race = B18AE,
+                tot_pop = AV0AA,
+                hisp_org = A35AA) %>%
+ dplyr::filter(YEAR != "2008-2012") %>% # 2010 census includes population counts so we do not need the estimates from the ACS for the race/ethnicity variables
+  dplyr::select( -AV0AAM, -urban_in, -urban_out, -rural, -urban, -multi_race) %>% #don't need urbanicity. We also removed multi-race because it is available starting at 2000
+  clean_names() %>%
+  mutate(statefp = as.character(statefp),
+         statenh = as.character(statenh),
+         countyfp = as.character(countyfp),
+         countynh = as.character(countynh)) %>%
+  mutate(countyfp = str_pad(countyfp, 3, pad = "0"),
+         countynh = str_pad(countynh, 4, pad = "0"),
+         statefp = str_pad(statefp, 2, pad = "0"),
+         statenh = str_pad(statenh, 3, pad = "0")) %>%
+  dplyr::select(-name) %>% #removed name because we already have another county name column that has more consistency in the format of the names
+mutate(white = replace_na(white, 209272), # for some reason the race breakdowns for DC weren't available in this file so I obtained them from another census file exclusively containining data for 1970. The file is in the folder path: data<census_data<population_race_1970
+       black = replace_na(black, 537712),
+       native = replace_na(native, 956))
+
+summary(pop_race) 
+
+```
+
+
+## 2. Education, employment & poverty variables 
+
+- Economic variables were not collected through the 2010 decennial census. So we obtained from the ACS 3-year average (2008-2012) as proxi to 2010 estimates. In the dataset, I labeled 2008-20012 as 2010 to match the year levels of the race/ethnicity data
+
+- Note that for the analysis we will not need 2010 demographic data only 1970-2000 so we do not have to worry about the fact that economic data is only available through the ACS and not the 2010 census. We including 2010 data here just because it is already in the data files but we will not need it in the analysis
+
+- We also included education but we did not use these variable in the analyses
+
+
+
+```{r}
+
+# education
+# population with a high school degree, no high school, or above high school 
+
+edu <- read_csv(paste0(data.folder, "census_data/education_csv/nhgis0007_ts_nominal_county.csv"), na = c(".", ""), col_types = cols(YEAR = "f", B69AAM = "d", B69ABM = "d", B69ACM = "d")) %>%
+  dplyr::rename(no_HS = B69AA,
+                HighSchl = B69AB,
+                above_HS = B69AC) %>%
+  dplyr::select(-B69AAM, -B69ABM, -B69ACM) %>%
+  clean_names() %>%
+  mutate(year = if_else(year == "2008-2012", "2010", as.character(year))) %>%
+  mutate(statefp = as.character(statefp),
+         statenh = as.character(statenh),
+         countyfp = as.character(countyfp),
+         countynh = as.character(countynh)) %>%
+  mutate(countyfp = str_pad(countyfp, 3, pad = "0"),
+         countynh = str_pad(countynh, 4, pad = "0"),
+         statefp = str_pad(statefp, 2, pad = "0"),
+         statenh = str_pad(statenh, 3, pad = "0")) %>%
+  dplyr::select(-name) #removed name because we already have another county name column that has more consistency in the format of the names
+
+
+
+#employment
+# population of civilians unemployed
+
+emply <- read_csv(paste0(data.folder, "census_data/employment_csv/nhgis0008_ts_nominal_county.csv"), na = c(".", ""), col_types = cols(YEAR = "f", B84AAM = "d", B84ABM = "d", B84ACM = "d", B84ADM = "d", B84AEM = "d", B84AFM = "d")) %>%
+  dplyr::rename(labor_force = B84AA,
+                arm_forces = B84AB,
+                civilian = B84AC,
+                civ_emply = B84AD,
+                civ_unemply = B84AE,
+                not_labor = B84AF) %>%
+  dplyr::select(-B84AAM, -B84ABM, -B84ACM, -B84ADM, -B84ADM, -B84AEM, -B84AFM) %>%
+  clean_names() %>%
+  mutate(year = if_else(year == "2008-2012", "2010", as.character(year))) %>%
+  mutate(statefp = as.character(statefp),
+         statenh = as.character(statenh),
+         countyfp = as.character(countyfp),
+         countynh = as.character(countynh)) %>%
+  mutate(countyfp = str_pad(countyfp, 3, pad = "0"),
+         countynh = str_pad(countynh, 4, pad = "0"),
+         statefp = str_pad(statefp, 2, pad = "0"),
+         statenh = str_pad(statenh, 3, pad = "0")) %>%
+  dplyr::select(-name) #removed name because we already have another county name column that has more consistency in the format of the names
+
+
+
+#poverty
+# population living under the federally define poverty level
+
+povrt <- read_csv(paste0(data.folder, "census_data/poverty_csv/nhgis0009_ts_nominal_county.csv"), na = c(".", ""), col_types = cols(YEAR = "f", CL6AAM = "d")) %>%
+  dplyr::rename(below_pvert = CL6AA) %>%
+  dplyr::select(-CL6AAM) %>%
+  clean_names() %>%
+  mutate(year = if_else(year == "2008-2012", "2010", as.character(year))) %>%
+  mutate(statefp = as.character(statefp),
+         statenh = as.character(statenh),
+         countyfp = as.character(countyfp),
+         countynh = as.character(countynh)) %>%
+  mutate(countyfp = str_pad(countyfp, 3, pad = "0"),
+         countynh = str_pad(countynh, 4, pad = "0"),
+         statefp = str_pad(statefp, 2, pad = "0"),
+         statenh = str_pad(statenh, 3, pad = "0")) %>%
+  dplyr::select(-name) #removed name because we already have another county name column that has more consistency in the format of the names
+
+```
+
+## 3. Explore county numbers
+
+In summary, there are a couple of states that do not have consisted number of counties across the study time. The nationwide number of counties is relatively stable until 2010 when Puerto Rico is added we see a drastic increase in counties
+
+* Detail notes on number of counties per year *: 
+
+-Different states may have counties with the same name
+-Years 1970, 1980, 1990, and 2000 (census years) do not have Puerto Rico
+-2008-2012 (ACS) and 2010 (census) have Puerto Rico
+
+Counties per year for education, employment, and poverty:
+1970 -->  3141
+1980 -->  3137
+1990 -->  3141
+2000 -->  3141
+2008-2012 --> 3221 (Puerto Rico has 78)
+
+
+Counties per year for population and race:
+1970 -->  3142: Alaska 1 extra county ( 30 vs 29)
+1980 -->  3137
+1990 -->  3141
+2000 -->  3141
+2010 --> 3221 (Puerto Rico has 78, without PR it would  be 3143)
+
+* Detail notes on counties changes across time *
+
+The information below was obtained from reading online about county stablishment years and comparing to the data we have. 
+
+https://www.census.gov/programs-surveys/geography/technical-documentation/county-changes.1970.html
+
+*Alaska* --> 
+-Kenai Peninsula Borough is missing from 1970
+-North Slope Borough is missing from 1970 because it was stablished in 1972
+-Prince Of Wales-Outer Ketchikan is missing from 2010/2008-2012 because in 2008 it became Prince of Wales-Hyder Census Area after most of the Outer Ketchikan was annexed to the Ketchikan Gateway Borough. This county is also missing from 1970.
+- Outer Ketchikan division discontinued from 1970 to 1980
+-Skagway-Yakutat-Angoon discontinued
+
+** Changes to County Equivalent Entities in Alaska
+The county equivalent entities in Alaska changed from Census Divisions in 1970 to Boroughs and Census Areas in 1980. The inventory and boundaries of the Alaska county-level entities changed substantially during the decade.
+
+New entities created in Alaska are: 
+Dillingham Census Area (02-070)
+North Slope Borough (02-185)
+Valdez-Cordova Census Area (02-261)
+
+Deleted county equivalent entities in Alaska
+Angoon Division (02-030)
+Barrow Division (02-040)
+Cordova-McCarthy Division (02-080)
+Kenai-Cook Inlet Division (02-120)
+Kuskokwim Division (02-160)
+Outer Ketchikan Division (02-190)
+Prince of Wales Division (02-200)
+Skagway-Yakutat Division (02-230)
+Upper Yukon Division (02-250)
+Valdez-Chitina-Whittier Division (02-260) 
+
+
+*Arizona* --> In 1983 La Paz county was created from Yuma County
+*Colorado* --> In 2001 Broomfield county split from Boulder, Adams, Jefferson, and Weld counties and reorganized as a consolidated city and county
+*Hawaii* --> Kalawao county missing from 1970. The county of Kalawao was historically exclusively used as a leper colony
+*Montana* --> Yellowstone National Park was annexed to Gallatin (30-031) and Park (30-067) counties effective November 7, 1997
+*New Mexico* --> Cibola counry stablished in 1981 from parts of Valencia County, Socorro County, McKinley County, and Catron County. Thus, missing in 1970 and 1980 datasets.
+*South Dakota* --> Washabaugh County merged with Jackson County in 1983
+*Texas* --> Loving County missing at 1970. Loving county is the second less populous county after Kalawao, Hawaii
+*Virginia* -->
+-Nansemond county: became part of Suffolk around 1974. Thus, only present in the 1970 dataset
+-South Boston city: was an independent city (county equivalent), but it became a town again and rejoined Halifax County in 1995.Thus, data specific for south boston city isn't available in 2000 census and forward.
+-Clifton Forge is a town in Alleghany County, Virginia. It reverted to a town from being an independ city in 2000. Thus, after 2000 Clifton Forge isn't in the data
+-Manassas city became an independent city in 1975 from Prince William County
+-Manassas park became an independent city in 1975 from Prince William County
+-Poquoson city became an independent city in 1975 from York County 
+
+
+```{r}
+
+# education, employment, poverty dataset have the same number of observations. Here I use the poverty dataset to explore the county numbers
+poverty_counties <- povrt %>%
+ group_by(year, state) %>%
+  count(name = "pov_state") %>% 
+  ungroup() %>%
+  group_by(year) %>%
+  mutate(pov_nation = sum(pov_state))
+
+
+pop_counties <- pop_race %>%
+ group_by(year, state) %>%
+  count(name = "pop_state") %>% 
+  ungroup() %>%
+  group_by(year) %>%
+  mutate(pop_nation = sum(pop_state))
+
+
+### Bind the datasets for visuals
+viz_county <- full_join(pop_counties, poverty_counties, by = c("state", "year")) %>% 
+  gather(3:6, key = variable, value = counts)
+
+### visualize number of counties per year in each state
+viz_county %>%
+  filter(variable %in% c("pop_state", "pov_state")) %>%
+  ggplot(aes(year, counts)) +
+  geom_point(aes(color = variable), alpha = 0.8) +
+  facet_wrap(~state, scales = "free_y") +
+theme(axis.text.x = element_text(angle = 90))
+
+### visualize number of counties per year nationwide
+viz_county %>%
+  filter(variable %in% c("pop_nation", "pov_nation")) %>%
+  ggplot(aes(year, counts)) +
+  geom_point(aes(color = variable), alpha = 0.8) 
+theme(axis.text.x = element_text(angle = 90))
+
+
+```
+
+
+## 4. Bind datasets
+Based on the information above we decided to: 
+
+- remove Alaska because of the large differences across time in its county boundaries
+- removed Puerto Rico because census data for Puerto Rico is only available after 2005
+- remove Hawaii because of low exposure contrast 
+ 
+
+```{r} 
+
+race_pov_edu_emp_merge <- full_join(pop_race, emply) %>%
+  full_join(., edu) %>%
+  full_join(., povrt) %>%
+  dplyr::filter(!state %in% c("Alaska", "Puerto Rico", "Hawaii")) %>%
+  dplyr::select(gisjoin, year, state, statefp, statenh, county, countyfp, countynh, tot_pop, white, native, asian, hisp_org, everything()) %>%
+  mutate(year = as.numeric(year))
+
+summary(race_pov_edu_emp_merge)
+
+
+```
+
+## 5. Property value
+
+- Median house value for 2010 comes from the ACS 2008-2012 which is adjusted to 2012 inflation
+- Median house value data for 1980-2000 are from the decennial census
+- Median house value data is only available as a categorical variable or aggregated for year 1970 so we are not including 1970 data here
+
+- District of Columbia does not have data on median house value in 2010
+
+```{r}
+
+### 2010
+
+house_value_2010 = read.csv(paste0(data.folder, "census_data/house_value_csv/nhgis0039_ds191_20125_2012_county.csv")) %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(gisjoin, year, state, statefp = statea, county, countyfp = countya, starts_with("qz6e")) %>% 
+  mutate(year = "2010") %>%
+  dplyr::rename(median_house_value = "qz6e001") %>%
+  dplyr::filter(!state %in% c("Hawaii", "Alaska", "Puerto Rico", "District of Columbia")) 
+
+### 2000
+
+house_value_2000 = read.csv(paste0(data.folder, "census_data/house_value_csv/nhgis0007_ds151_2000_county.csv")) %>% 
+  rename(median_house_value = GB7001) %>% 
+  janitor::clean_names() %>% 
+  select(gisjoin, year, state, statefp = statea, county, countyfp = countya, median_house_value) %>% 
+  mutate(year = "2000")
+
+### 1990 
+
+house_value_1990 = read.csv(paste0(data.folder, "census_data/house_value_csv/nhgis0007_ds120_1990_county.csv")) %>% 
+  rename(median_house_value = EST001) %>% 
+  janitor::clean_names() %>% 
+  select(gisjoin, year, state, statefp = statea, county, countyfp = countya, median_house_value) %>% 
+  mutate(year = "1990")
+
+### 1980 
+
+house_value_1980 = read.csv(paste0(data.folder, "census_data/house_value_csv/nhgis0007_ds104_1980_county.csv")) %>% 
+  rename(median_house_value = C8J001) %>% 
+  janitor::clean_names() %>% 
+  select(gisjoin, year, state, statefp = statea, county, countyfp = countya, median_house_value) %>% 
+  mutate(year = "1980")
+
+### combine datasets
+house_value_merged = bind_rows(house_value_1980, house_value_1990, house_value_2000, house_value_2010) %>%
+  dplyr::filter(!state %in% c("Alaska", "Puerto Rico", "Hawaii")) %>% # remove Puerto Rico, Alaska, and Hawaii
+mutate(countyfp = str_pad(countyfp, 3, pad = "0"),
+         statefp = str_pad(statefp, 2, pad = "0")) 
+```
+
+## 6. Household and family income
+
+Notes: 
+- For 2010 we using the ACS from 2008-2012 which is adjusted to 2012 inflation
+- To facilitate things I rename 2008-2012 as 2010
+- Removed Alaska, Puerto Rico and Hawaii
+- Income data for 1980-2000 are from the decennial census
+- Income data is only available as a categorical variable or aggregated for year 1970 so we aren't not including 1970 data here
+- We have two variables for income: median house income & median family income
+
+
+```{r}
+
+### Median house income
+
+median_house_incom <- read_csv(paste0(data.folder, "census_data/median_household_income_csv/nhgis0019_ts_nominal_county.csv"), col_types = cols(YEAR = "c", B79AAM = "d")) %>% 
+  clean_names() %>%
+  dplyr::select(-b79aam, -name) %>%
+  dplyr::rename(house_median_incom = b79aa) %>%
+  mutate(year = if_else(year == "2008-2012", "2010", as.character(year))) %>%
+  dplyr::filter(!state %in% c("Alaska", "Puerto Rico", "Hawaii")) %>%
+  mutate(statefp = as.character(statefp),
+         statenh = as.character(statenh),
+         countyfp = as.character(countyfp),
+         countynh = as.character(countynh)) %>%
+  mutate(countyfp = str_pad(countyfp, 3, pad = "0"),
+         countynh = str_pad(countynh, 4, pad = "0"),
+         statefp = str_pad(statefp, 2, pad = "0"),
+         statenh = str_pad(statenh, 3, pad = "0")) 
+
+
+###  Median family income
+
+median_family_incom <- read_csv(paste0(data.folder, "census_data/median_family_income_csv/nhgis0024_ts_nominal_county.csv"), guess_max = 10000 ) %>% 
+  clean_names() %>%
+  dplyr::select(-ab2aam, -name) %>%
+  dplyr::rename(fam_median_incom = ab2aa) %>%
+  mutate(year = if_else(year == "2008-2012", "2010", as.character(year))) %>%
+  dplyr::filter(!state %in% c("Alaska", "Puerto Rico", "Hawaii")) %>%
+  mutate(statefp = as.character(statefp),
+         statenh = as.character(statenh),
+         countyfp = as.character(countyfp),
+         countynh = as.character(countynh)) %>%
+  mutate(countyfp = str_pad(countyfp, 3, pad = "0"),
+         countynh = str_pad(countynh, 4, pad = "0"),
+         statefp = str_pad(statefp, 2, pad = "0"),
+         statenh = str_pad(statenh, 3, pad = "0")) 
+
+### Merge datasets  
+
+income_merged <- full_join(median_house_incom, median_family_incom)
+
+
+```
+
+## 7. Estimate percentages for race/ethnicity, poperty, and unemployment variables  
+
+```{r}
+
+data_perc <- race_pov_edu_emp_merge %>%
+  mutate(perc_unemp = civ_unemply/civilian*100, # % 16yrs and over unemployed out of the civic work force
+         perc_nohs = no_hs/tot_pop*100, # % 25yrs and over without high school degree out of the total pop
+         perc_pvert = below_pvert/tot_pop*100,
+         perc_white = white/tot_pop*100,
+         perc_black = black/tot_pop*100,
+         perc_nativ = native/tot_pop*100,
+         perc_asian = asian/tot_pop*100,
+         perc_hisp_org = hisp_org/tot_pop*100) %>%
+  mutate(year = as.factor(year))
+
+
+summary(data_perc)
+```
+
+## 8. Bind all variables
+
+Bind together race/ethnicity, poverty, employment, income, education and house value
+
+```{r}
+data_indp_varib_1 <- full_join(data_perc, income_merged) %>%
+  left_join(., house_value_merged, by = c("gisjoin", "year", "state", "statefp", "countyfp")) %>%
+  dplyr::select(-county.y) %>% # the naming format for counties in the house_value_merge file didn't match the format in the rest of the datasets so I used gisjoin and countyfp for matching and removed the county column from the house_value_merge file
+  rename(county = county.x) 
+
+summary(data_indp_varib_1)
+
+## save dataset
+write_csv(data_indp_varib_1, paste0(data.folder, "generated_data/data_indp_varib_1.csv"))
+```
+

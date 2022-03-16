@@ -1,0 +1,457 @@
+--------------------------------------------------------------------------------
+Codebook for NHGIS data file 'nhgis0016_ts_nominal_county'
+--------------------------------------------------------------------------------
+ 
+Contents
+    - Data Summary
+    - Data Dictionary
+    - Geographic Integration Methods
+    - Source Data
+    - Citation and Use
+ 
+Detailed notes on time series design and comparability are available at: 
+    https://www.nhgis.org/sites/www.nhgis.org/files/nhgis_time_series_tables.pdf 
+ 
+--------------------------------------------------------------------------------
+Data Summary
+--------------------------------------------------------------------------------
+ 
+Time series layout:     Time varies by row
+Geographic level:       County (by State)
+Geographic integration: Nominal
+Measurement times:      1970, 1980, 1990, 2000, 2010, 2008-2012
+ 
+Tables:
+ 
+1. Total Population
+   Valid years in file: 1970, 1980, 1990, 2000, 2010, 2008-2012
+   Code: AV0
+ 
+2. Persons by Single Race/Ethnicity [6]
+   Valid years in file: 1980, 1990, 2000, 2010
+   Code: CY7
+ 
+--------------------------------------------------------------------------------
+Data Dictionary
+--------------------------------------------------------------------------------
+ 
+Context Fields 
+        GISJOIN:     GIS Join Match Code
+        YEAR:        Row Source Year
+        STATE:       NHGIS Integrated State Name
+        STATEFP:     FIPS State Code
+        STATENH:     NHGIS Integrated State Code
+        COUNTY:      NHGIS Integrated County Name
+        COUNTYFP:    FIPS County Code
+        COUNTYNH:    NHGIS Integrated County Code
+        NAME:        Year-Specific Area Name
+ 
+Table 1: (AV0) Total Population
+        AV0AA:       Persons: Total
+ 
+Table 2: (CY7) Persons by Single Race/Ethnicity [6]
+        CY7AA:       Persons: Not Hispanic or Latino ~ White (single race reported or, since 2000, race combinations likely to report this single race)
+        CY7AB:       Persons: Not Hispanic or Latino ~ Black or African American (single race reported or, since 2000, race combinations likely to report this single race)
+        CY7AC:       Persons: Not Hispanic or Latino ~ American Indian and Alaska Native (single race reported or, since 2000, race combinations likely to report this single race)
+        CY7AD:       Persons: Not Hispanic or Latino ~ Asian and Pacific Islander (single race reported or, since 2000, race combinations likely to report this single race)
+        CY7AE:       Persons: Not Hispanic or Latino ~ Some Other Race (single race reported or, since 2000, race combinations likely to report this single race)
+        CY7AF:       Persons: Hispanic or Latino
+ 
+Margins of Error 
+(Provided for American Community Survey data only) 
+ 
+Table 1: (AV0) Total Population
+        AV0AAM:      Margin of error: Persons: Total
+ 
+--------------------------------------------------------------------------------
+Geographic Integration Methods
+--------------------------------------------------------------------------------
+ 
+Nominal Integration:
+
+    Nominally integrated tables link geographic units across time according to
+    their names and codes, disregarding any changes in unit boundaries. The
+    identified geographic units match those from each census source, so the
+    spatial definitions and total number of units may vary from one time to
+    another (e.g., a city may annex land, a tract may be split in two, a new
+    county may be created, etc.). The tables include data for a particular
+    geographic unit only at times when the unit's name or code was in use,
+    resulting in truncated time series for some areas.
+    
+    Users should be cautious when interpreting changes in nominally integrated
+    time series because a single unit code may refer to distinctly different
+    areas at different times. If you are uncertain whether any boundaries
+    changed in your areas of interest, we recommend inspecting NHGIS GIS files
+    to confirm. (NHGIS supplies GIS boundary files for all units and years in
+    nominally integrated time series *except* 1970 places and county
+    subdivisions.)
+    
+    Alternatively, for some topics and time periods, NHGIS provides
+    "geographically standardized" time series, which provide data from multiple
+    times for a single census's geographic units (e.g., 2000 and 2010 data for
+    2010 census units). A disadvantage of standardized time series is that, in
+    areas where source units do not nest perfectly within a unit of the standard
+    year (e.g., where a source 2000 unit intersects multiple 2010 units), NHGIS
+    applies interpolation to standardize the data, a process which may
+    occasionally produce substantial errors.
+
+Complete documentation on time series integration methods is available at:
+    https://www.nhgis.org/documentation/time-series
+ 
+--------------------------------------------------------------------------------
+Source Data
+--------------------------------------------------------------------------------
+ 
+Additional documentation on NHGIS data sources is available at:
+    https://www.nhgis.org/documentation/tabular-data
+
+Table 1: (AV0) Total Population
+ 
+    Time series AA: Persons: Total
+        Year: 1970
+            Source dataset: 1970 Census: Count 4Pa - Sample-Based Population Data
+                Source table: NT126. 100% Population
+                    Universe: Persons
+                        Variable: [C1I001] Total
+        Year: 1980
+            Source dataset: 1980 Census: STF 1 - 100% Data
+                Source table: NT1A. Persons
+                    Universe: Persons
+                        Variable: [C7L001] Total
+        Year: 1990
+            Source dataset: 1990 Census: STF 1 - 100% Data
+                Source table: NP1. Persons
+                    Universe: Persons
+                        Variable: [ET1001] Total
+        Year: 2000
+            Source dataset: 2000 Census: SF 1a - 100% Data [Areas Larger Than Block Groups]
+                Source table: NP001A. Total Population
+                    Universe: Persons
+                        Variable: [FL5001] Total
+        Year: 2010
+            Source dataset: 2010 Census: SF 1a - P & H Tables [Blocks & Larger Areas]
+                Source table: P1. Total Population
+                    Universe: Total population
+                        Variable: [H7V001] Total
+        Year: 2008-2012
+            Source dataset: 2012 American Community Survey: 5-Year Data [2008-2012, Block Groups & Larger Areas]
+                Source table: B01003. Total Population
+                    Universe: Total population
+                        Variable: [QSP001] Total
+ 
+ 
+Table 2: (CY7) Persons by Single Race/Ethnicity [6]
+ 
+    Time series AA: Persons: Not Hispanic or Latino ~ White (single race reported or, since 2000, race combinations likely to report this single race)
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT12. Race
+                    Universe: Persons
+                        + Variable: [DFB001] White
+                Source table: NT14A. Race
+                    Universe: Persons of Spanish Origin
+                        - Variable: [DGD001] White
+        Year: 1990
+            Source dataset: 1990 Census: STF 1 - 100% Data
+                Source table: NP10. Hispanic Origin by Race
+                    Universe: Persons
+                        Variable: [ET2001] Not of Hispanic origin >> White
+        Year: 2000
+            Source dataset: 2000 Census: SF 1a - 100% Data [Areas Larger Than Block Groups]
+                Source table: NP004C. Not Hispanic or Latino Population of One Race by Race
+                    Universe: Not Hispanic or Latino Persons of One Race
+                        Variable: [FME001] White alone
+                Source table: NP004E. Not Hispanic or Latino Population of Two or More Races by Race Combination
+                    Universe: Not Hispanic or Latino Persons of Two or More Races
+                        Variable: [FMG002] Population of Two Races: White; American Indian and Alaska Native
+                        Variable: [FMG003] Population of Two Races: White; Asian
+                        Variable: [FMG004] Population of Two Races: White; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG005] Population of Two Races: White; some other race
+                        Variable: [FMG017] Population of Three Races: White; Black or African American; Asian
+                        Variable: [FMG018] Population of Three Races: White; Black or African American; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG020] Population of Three Races: White; American Indian and Alaska Native; Asian
+                        Variable: [FMG021] Population of Three Races: White; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG022] Population of Three Races: White; American Indian and Alaska Native; some other race
+                        Variable: [FMG024] Population of Three Races: White; Asian; some other race
+                        Variable: [FMG036] Population of Four Races: White; Black or African American; American Indian and Alaska Native; Asian
+                        Variable: [FMG037] Population of Four Races: White; Black or African American; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG039] Population of Four Races: White; Black or African American; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG040] Population of Four Races: White; Black or African American; Asian; some other race
+                        Variable: [FMG041] Population of Four Races: White; Black or African American; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG042] Population of Four Races: White; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG043] Population of Four Races: White; American Indian and Alaska Native; Asian; some other race
+                        Variable: [FMG044] Population of Four Races: White; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG051] Population of Five Races: White; Black or African American; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG052] Population of Five Races: White; Black or African American; American Indian and Alaska Native; Asian; some other race
+                        Variable: [FMG053] Population of Five Races: White; Black or African American; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG054] Population of Five Races: White; Black or African American; Asian; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG055] Population of Five Races: White; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG057] Population of Six Races: White; Black or African American; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander; some other race
+        Year: 2010
+            Source dataset: 2010 Census: SF 1a - P & H Tables [Blocks & Larger Areas]
+                Source table: P9. Hispanic or Latino, and Not Hispanic or Latino by Race
+                    Universe: Total population
+                        Variable: [H73005] Not Hispanic or Latino: Population of one race: White alone
+                        Variable: [H73014] Not Hispanic or Latino: Two or More Races: Population of two races: White; American Indian and Alaska Native
+                        Variable: [H73015] Not Hispanic or Latino: Two or More Races: Population of two races: White; Asian
+                        Variable: [H73016] Not Hispanic or Latino: Two or More Races: Population of two races: White; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73017] Not Hispanic or Latino: Two or More Races: Population of two races: White; Some Other Race
+                        Variable: [H73030] Not Hispanic or Latino: Two or More Races: Population of three races: White; Black or African American; Asian
+                        Variable: [H73031] Not Hispanic or Latino: Two or More Races: Population of three races: White; Black or African American; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73033] Not Hispanic or Latino: Two or More Races: Population of three races: White; American Indian and Alaska Native; Asian
+                        Variable: [H73034] Not Hispanic or Latino: Two or More Races: Population of three races: White; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73035] Not Hispanic or Latino: Two or More Races: Population of three races: White; American Indian and Alaska Native; Some Other Race
+                        Variable: [H73037] Not Hispanic or Latino: Two or More Races: Population of three races: White; Asian; Some Other Race
+                        Variable: [H73050] Not Hispanic or Latino: Two or More Races: Population of four races: White; Black or African American; American Indian and Alaska Native; Asian
+                        Variable: [H73051] Not Hispanic or Latino: Two or More Races: Population of four races: White; Black or African American; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73053] Not Hispanic or Latino: Two or More Races: Population of four races: White; Black or African American; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73054] Not Hispanic or Latino: Two or More Races: Population of four races: White; Black or African American; Asian; Some Other Race
+                        Variable: [H73055] Not Hispanic or Latino: Two or More Races: Population of four races: White; Black or African American; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73056] Not Hispanic or Latino: Two or More Races: Population of four races: White; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73057] Not Hispanic or Latino: Two or More Races: Population of four races: White; American Indian and Alaska Native; Asian; Some Other Race
+                        Variable: [H73058] Not Hispanic or Latino: Two or More Races: Population of four races: White; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73066] Not Hispanic or Latino: Two or More Races: Population of five races: White; Black or African American; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73067] Not Hispanic or Latino: Two or More Races: Population of five races: White; Black or African American; American Indian and Alaska Native; Asian; Some Other Race
+                        Variable: [H73068] Not Hispanic or Latino: Two or More Races: Population of five races: White; Black or African American; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73069] Not Hispanic or Latino: Two or More Races: Population of five races: White; Black or African American; Asian; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73070] Not Hispanic or Latino: Two or More Races: Population of five races: White; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73073] Not Hispanic or Latino: Two or More Races: Population of six races: White; Black or African American; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander; Some Other Race
+ 
+    Time series AB: Persons: Not Hispanic or Latino ~ Black or African American (single race reported or, since 2000, race combinations likely to report this single race)
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT12. Race
+                    Universe: Persons
+                        + Variable: [DFB002] Black
+                Source table: NT14A. Race
+                    Universe: Persons of Spanish Origin
+                        - Variable: [DGD002] Black
+        Year: 1990
+            Source dataset: 1990 Census: STF 1 - 100% Data
+                Source table: NP10. Hispanic Origin by Race
+                    Universe: Persons
+                        Variable: [ET2002] Not of Hispanic origin >> Black
+        Year: 2000
+            Source dataset: 2000 Census: SF 1a - 100% Data [Areas Larger Than Block Groups]
+                Source table: NP004C. Not Hispanic or Latino Population of One Race by Race
+                    Universe: Not Hispanic or Latino Persons of One Race
+                        Variable: [FME002] Black or African American alone
+                Source table: NP004E. Not Hispanic or Latino Population of Two or More Races by Race Combination
+                    Universe: Not Hispanic or Latino Persons of Two or More Races
+                        Variable: [FMG001] Population of Two Races: White; Black or African American
+                        Variable: [FMG006] Population of Two Races: Black or African American; American Indian and Alaska Native
+                        Variable: [FMG007] Population of Two Races: Black or African American; Asian
+                        Variable: [FMG008] Population of Two Races: Black or African American; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG009] Population of Two Races: Black or African American; some other race
+                        Variable: [FMG016] Population of Three Races: White; Black or African American; American Indian and Alaska Native
+                        Variable: [FMG019] Population of Three Races: White; Black or African American; some other race
+                        Variable: [FMG026] Population of Three Races: Black or African American; American Indian and Alaska Native; Asian
+                        Variable: [FMG027] Population of Three Races: Black or African American; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG028] Population of Three Races: Black or African American; American Indian and Alaska Native; some other race
+                        Variable: [FMG029] Population of Three Races: Black or African American; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG030] Population of Three Races: Black or African American; Asian; some other race
+                        Variable: [FMG031] Population of Three Races: Black or African American; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG038] Population of Four Races: White; Black or African American; American Indian and Alaska Native; some other race
+                        Variable: [FMG046] Population of Four Races: Black or African American; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG047] Population of Four Races: Black or African American; American Indian and Alaska Native; Asian; some other race
+                        Variable: [FMG048] Population of Four Races: Black or African American; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG049] Population of Four Races: Black or African American; Asian; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG056] Population of Five Races: Black or African American; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander; some other race
+        Year: 2010
+            Source dataset: 2010 Census: SF 1a - P & H Tables [Blocks & Larger Areas]
+                Source table: P9. Hispanic or Latino, and Not Hispanic or Latino by Race
+                    Universe: Total population
+                        Variable: [H73006] Not Hispanic or Latino: Population of one race: Black or African American alone
+                        Variable: [H73013] Not Hispanic or Latino: Two or More Races: Population of two races: White; Black or African American
+                        Variable: [H73018] Not Hispanic or Latino: Two or More Races: Population of two races: Black or African American; American Indian and Alaska Native
+                        Variable: [H73019] Not Hispanic or Latino: Two or More Races: Population of two races: Black or African American; Asian
+                        Variable: [H73020] Not Hispanic or Latino: Two or More Races: Population of two races: Black or African American; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73021] Not Hispanic or Latino: Two or More Races: Population of two races: Black or African American; Some Other Race
+                        Variable: [H73029] Not Hispanic or Latino: Two or More Races: Population of three races: White; Black or African American; American Indian and Alaska Native
+                        Variable: [H73032] Not Hispanic or Latino: Two or More Races: Population of three races: White; Black or African American; Some Other Race
+                        Variable: [H73039] Not Hispanic or Latino: Two or More Races: Population of three races: Black or African American; American Indian and Alaska Native; Asian
+                        Variable: [H73040] Not Hispanic or Latino: Two or More Races: Population of three races: Black or African American; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73041] Not Hispanic or Latino: Two or More Races: Population of three races: Black or African American; American Indian and Alaska Native; Some Other Race
+                        Variable: [H73042] Not Hispanic or Latino: Two or More Races: Population of three races: Black or African American; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73043] Not Hispanic or Latino: Two or More Races: Population of three races: Black or African American; Asian; Some Other Race
+                        Variable: [H73044] Not Hispanic or Latino: Two or More Races: Population of three races: Black or African American; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73052] Not Hispanic or Latino: Two or More Races: Population of four races: White; Black or African American; American Indian and Alaska Native; Some Other Race
+                        Variable: [H73060] Not Hispanic or Latino: Two or More Races: Population of four races: Black or African American; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73061] Not Hispanic or Latino: Two or More Races: Population of four races: Black or African American; American Indian and Alaska Native; Asian; Some Other Race
+                        Variable: [H73062] Not Hispanic or Latino: Two or More Races: Population of four races: Black or African American; American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73063] Not Hispanic or Latino: Two or More Races: Population of four races: Black or African American; Asian; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73071] Not Hispanic or Latino: Two or More Races: Population of five races: Black or African American; American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander; Some Other Race
+ 
+    Time series AC: Persons: Not Hispanic or Latino ~ American Indian and Alaska Native (single race reported or, since 2000, race combinations likely to report this single race)
+        Year: 1980
+            Source dataset: 1980 Census: STF 4Pa - Sample-Based Detailed Population Data
+                Source table: NTPA13. Spanish Origin by Race
+                    Universe: Persons
+                        Variable: [DSS009] Not of Spanish origin >> American Indian, Eskimo and Aleut
+        Year: 1990
+            Source dataset: 1990 Census: STF 1 - 100% Data
+                Source table: NP10. Hispanic Origin by Race
+                    Universe: Persons
+                        Variable: [ET2003] Not of Hispanic origin >> American Indian, Eskimo, or Aleut
+        Year: 2000
+            Source dataset: 2000 Census: SF 1a - 100% Data [Areas Larger Than Block Groups]
+                Source table: NP004C. Not Hispanic or Latino Population of One Race by Race
+                    Universe: Not Hispanic or Latino Persons of One Race
+                        Variable: [FME003] American Indian and Alaska Native alone
+                Source table: NP004E. Not Hispanic or Latino Population of Two or More Races by Race Combination
+                    Universe: Not Hispanic or Latino Persons of Two or More Races
+                        Variable: [FMG012] Population of Two Races: American Indian and Alaska Native; some other race
+                        Variable: [FMG050] Population of Four Races: American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander; some other race
+        Year: 2010
+            Source dataset: 2010 Census: SF 1a - P & H Tables [Blocks & Larger Areas]
+                Source table: P9. Hispanic or Latino, and Not Hispanic or Latino by Race
+                    Universe: Total population
+                        Variable: [H73007] Not Hispanic or Latino: Population of one race: American Indian and Alaska Native alone
+                        Variable: [H73024] Not Hispanic or Latino: Two or More Races: Population of two races: American Indian and Alaska Native; Some Other Race
+                        Variable: [H73064] Not Hispanic or Latino: Two or More Races: Population of four races: American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander; Some Other Race
+ 
+    Time series AD: Persons: Not Hispanic or Latino ~ Asian and Pacific Islander (single race reported or, since 2000, race combinations likely to report this single race)
+        Year: 1980
+            Source dataset: 1980 Census: STF 4Pa - Sample-Based Detailed Population Data
+                Source table: NTPA13. Spanish Origin by Race
+                    Universe: Persons
+                        Variable: [DSS010] Not of Spanish origin >> Asian and Pacific Islander
+        Year: 1990
+            Source dataset: 1990 Census: STF 1 - 100% Data
+                Source table: NP10. Hispanic Origin by Race
+                    Universe: Persons
+                        Variable: [ET2004] Not of Hispanic origin >> Asian or Pacific Islander
+        Year: 2000
+            Source dataset: 2000 Census: SF 1a - 100% Data [Areas Larger Than Block Groups]
+                Source table: NP004C. Not Hispanic or Latino Population of One Race by Race
+                    Universe: Not Hispanic or Latino Persons of One Race
+                        Variable: [FME004] Asian alone
+                        Variable: [FME005] Native Hawaiian and Other Pacific Islander alone
+                Source table: NP004E. Not Hispanic or Latino Population of Two or More Races by Race Combination
+                    Universe: Not Hispanic or Latino Persons of Two or More Races
+                        Variable: [FMG010] Population of Two Races: American Indian and Alaska Native; Asian
+                        Variable: [FMG011] Population of Two Races: American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG013] Population of Two Races: Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG014] Population of Two Races: Asian; some other race
+                        Variable: [FMG015] Population of Two Races: Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG023] Population of Three Races: White; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG025] Population of Three Races: White; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG032] Population of Three Races: American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [FMG033] Population of Three Races: American Indian and Alaska Native; Asian; some other race
+                        Variable: [FMG034] Population of Three Races: American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG035] Population of Three Races: Asian; Native Hawaiian and Other Pacific Islander; some other race
+                        Variable: [FMG045] Population of Four Races: White; Asian; Native Hawaiian and Other Pacific Islander; some other race
+        Year: 2010
+            Source dataset: 2010 Census: SF 1a - P & H Tables [Blocks & Larger Areas]
+                Source table: P9. Hispanic or Latino, and Not Hispanic or Latino by Race
+                    Universe: Total population
+                        Variable: [H73008] Not Hispanic or Latino: Population of one race: Asian alone
+                        Variable: [H73009] Not Hispanic or Latino: Population of one race: Native Hawaiian and Other Pacific Islander alone
+                        Variable: [H73022] Not Hispanic or Latino: Two or More Races: Population of two races: American Indian and Alaska Native; Asian
+                        Variable: [H73023] Not Hispanic or Latino: Two or More Races: Population of two races: American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73025] Not Hispanic or Latino: Two or More Races: Population of two races: Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73026] Not Hispanic or Latino: Two or More Races: Population of two races: Asian; Some Other Race
+                        Variable: [H73027] Not Hispanic or Latino: Two or More Races: Population of two races: Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73036] Not Hispanic or Latino: Two or More Races: Population of three races: White; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73038] Not Hispanic or Latino: Two or More Races: Population of three races: White; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73045] Not Hispanic or Latino: Two or More Races: Population of three races: American Indian and Alaska Native; Asian; Native Hawaiian and Other Pacific Islander
+                        Variable: [H73046] Not Hispanic or Latino: Two or More Races: Population of three races: American Indian and Alaska Native; Asian; Some Other Race
+                        Variable: [H73047] Not Hispanic or Latino: Two or More Races: Population of three races: American Indian and Alaska Native; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73048] Not Hispanic or Latino: Two or More Races: Population of three races: Asian; Native Hawaiian and Other Pacific Islander; Some Other Race
+                        Variable: [H73059] Not Hispanic or Latino: Two or More Races: Population of four races: White; Asian; Native Hawaiian and Other Pacific Islander; Some Other Race
+ 
+    Time series AE: Persons: Not Hispanic or Latino ~ Some Other Race (single race reported or, since 2000, race combinations likely to report this single race)
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT12. Race
+                    Universe: Persons
+                        + Variable: [DFB016] Other (race N.E.C.): Spanish
+                        + Variable: [DFB017] Other (race N.E.C.): Not Spanish
+                Source table: NT14A. Race
+                    Universe: Persons of Spanish Origin
+                        - Variable: [DGD004] Other
+        Year: 1990
+            Source dataset: 1990 Census: STF 1 - 100% Data
+                Source table: NP10. Hispanic Origin by Race
+                    Universe: Persons
+                        Variable: [ET2005] Not of Hispanic origin >> Other race
+        Year: 2000
+            Source dataset: 2000 Census: SF 1a - 100% Data [Areas Larger Than Block Groups]
+                Source table: NP004C. Not Hispanic or Latino Population of One Race by Race
+                    Universe: Not Hispanic or Latino Persons of One Race
+                        Variable: [FME006] Some other race alone
+        Year: 2010
+            Source dataset: 2010 Census: SF 1a - P & H Tables [Blocks & Larger Areas]
+                Source table: P9. Hispanic or Latino, and Not Hispanic or Latino by Race
+                    Universe: Total population
+                        Variable: [H73010] Not Hispanic or Latino: Population of one race: Some Other Race alone
+ 
+    Time series AF: Persons: Hispanic or Latino
+        Year: 1980
+            Source dataset: 1980 Census: STF 3 - Sample-Based Data
+                Source table: NT14B. Persons of Spanish Origin
+                    Universe: Persons of Spanish Origin
+                        Variable: [DGE001] Total
+        Year: 1990
+            Source dataset: 1990 Census: STF 1 - 100% Data
+                Source table: NP8. Persons of Hispanic Origin
+                    Universe: Persons of Hispanic Origin
+                        Variable: [EU0001] Total
+        Year: 2000
+            Source dataset: 2000 Census: SF 1a - 100% Data [Areas Larger Than Block Groups]
+                Source table: NP004A. Population by Hispanic or Latino and Not Hispanic or Latino
+                    Universe: Persons
+                        Variable: [FMC001] Hispanic or Latino
+        Year: 2010
+            Source dataset: 2010 Census: SF 1a - P & H Tables [Blocks & Larger Areas]
+                Source table: P4. Hispanic or Latino Origin
+                    Universe: Total population
+                        Variable: [H7Y003] Hispanic or Latino
+ 
+--------------------------------------------------------------------------------
+Citation and Use of NHGIS Data
+--------------------------------------------------------------------------------
+ 
+All persons are granted a limited license to use this documentation and the
+accompanying data, subject to the following conditions:
+
+* REDISTRIBUTION: You will not redistribute the data without permission.
+
+  You may publish a subset of the data to meet journal requirements for accessing 
+  data related to a particular publication. Contact us for permission for any other 
+  redistribution; we will consider requests for free and commercial redistribution.
+
+* CITATION: You will cite NHGIS appropriately.
+
+    * Publications and research reports employing NHGIS data (either tabular or GIS) 
+      should include the following citation:
+
+        Steven Manson, Jonathan Schroeder, David Van Riper, Tracy Kugler, and Steven Ruggles. 
+        IPUMS National Historical Geographic Information System: Version 15.0 
+        [dataset]. Minneapolis, MN: IPUMS. 2020. 
+        http://doi.org/10.18128/D050.V15.0
+
+    * For policy briefs, online resources, or articles in the popular press, we 
+      recommend that you cite the use of NHGIS data as follows:
+
+        IPUMS NHGIS, University of Minnesota, www.nhgis.org.
+
+These terms of use are a legally binding agreement. You can use the data only in 
+accordance with these terms, and any other use is a violation of the agreement. 
+Violations may result in revocation of the agreement and prohibition from using other 
+IPUMS data. If IPUMS or our partners are harmed from your violation, you are 
+responsible for all damages, including reasonable attorney's fees and expenses.
+        
+In addition, we request that users send us a copy of any publications, research
+reports, or educational material making use of the data or documentation.
+
+Send electronic material to: nhgis@umn.edu
+
+Printed matter should be sent to:
+
+    IPUMS NHGIS
+    Institute for Social Research and Data Innovation
+    University of Minnesota
+    50 Willey Hall
+    225 19th Ave S
+    Minneapolis, MN 55455
