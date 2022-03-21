@@ -1,0 +1,109 @@
+---
+title: "Inflation adjustments"
+author: "Yanelli Nunez"
+date: "3/25/2021"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+Objective:
+
+To adjust all dollar variables to 2010 dollars
+
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+#source(paste0(file.locations.folder,'file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+
+```
+
+## 1. Load data
+
+```{r}
+
+# master dataset 
+data <- readRDS(paste0(data.folder, "generated_data/data_indp_varib_3.rds"))
+
+summary(data)
+
+# inflation adjustments factors 
+
+cpi <- readxl::read_excel(paste0(data.folder, "census_data/CPI_U_RS_edit.xlsx")) %>%
+  clean_names() %>%
+  dplyr::filter(year %in% c(1969, 1979, 1989, 1999, 2010, 2012)) # Remember census data are for the year prior (e.g. 2000 census has data from 1999)
+
+```
+
+## 2. Calculate adjusted estimates
+
+Note: All dollar variables will be inflation adjusted to 2010 using the cpi-u-rs index. Using this index the formulate to adjust is as follow:
+
+Example for a 1990 adjustment to 2010 dollars
+
+inflation-adjusted estimate = 1990 estimate*(2010 cpi-u-rs/1990 cpi-u-rs)
+
+Form more details please see the link below: 
+https://www.census.gov/topics/income-poverty/income/guidance/current-vs-constant-dollars.html
+
+### a. Estimate index fraction
+-All dollar variables will be adjusted to 2010 dollars
+-The index fraction is: 2010 cpi-u-rs/cpi-u-rs of the year to be adjusted
+-2010 cpi-u-rs is **320.40**
+```{r}
+
+cpi_index <- cpi %>%
+  mutate(index_fraction = 320.40/cpi_u_rs_index)
+
+knitr::kable(cpi_index)
+
+```
+
+## b. Adjust to 2017 dollars
+-Numbers use for the adjustment below are from the index_fraction in the cpi knitr table above
+-Remember census data is for the year prior (e.g. 2000 census has data from 1999)
+-Data for 2008-2012 ACS (label as 2010 in this data) is adjusted to 2012. So here I'm adjusting the 2012 dollars to 2010 dollars
+```{r}
+
+data_adjs <- data %>%
+  group_by(year) %>%
+  mutate(fam_incom_adjs = if_else(year == "1970", fam_income*5.2610837,
+                          if_else(year == "1980", fam_income*2.8031496,
+                          if_else(year == "1990", fam_income*1.6988335,
+                          if_else(year == "2000", fam_income*1.3098937,
+                          if_else(year == "2010", fam_income*0.9493333, 0))))),
+         propty_val_adjs = if_else(year == "1970", propty_val*5.2610837,
+                           if_else(year == "1980", propty_val*2.8031496,
+                           if_else(year == "1990", propty_val*1.6988335,
+                           if_else(year == "2000", propty_val*1.3098937,
+                           if_else(year == "2010", propty_val*0.9493333, 0))))))
+
+summary(data_adjs)
+
+```
+
+### c. Add variables to master data
+
+```{r}
+
+saveRDS(data_adjs, paste0(data.folder, "generated_data/data_indp_varib_3_inflat_adjst.csv"))
+
+```
+

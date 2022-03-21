@@ -1,0 +1,235 @@
+---
+title: "Urbanicity_data"
+author: "Yanelli Nunez"
+date: "6/7/2021"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+Objective:
+
+To create an urbanicity variable based on population
+To create a climate regions variable classifying states into the NOAA climate regions
+To create a EPA regions variable classifying states into the corresponding EPA region
+
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+source(paste0(file.locations.folder,'external_file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+
+```
+
+## 1. Load data
+
+```{r}
+
+
+# data
+data <- read_csv(paste0(data.folder, "generated_data/data_indp_varib_2.csv")) 
+
+# spatial files for mapping 
+geometries <- readRDS(paste0(yanelli_external, "spatial_data/us_counties_over_time_sf.rds")) %>%
+  clean_names() %>%
+  dplyr::select(-state, -name) 
+
+```
+
+
+## 2. Urbanicity classification
+
+- The classification from National Center for Health Statistics for Urbanicity is fixed for 2013 but since counties have been changing and evolving, here I am using a classification based on population instead. 
+
+county pop ≥ 50,000 people --> metropolitan
+10,000 ≤ county pop < 50,000 --> micropolitan
+county pop < 10,000 non-urban
+
+I obtain the classification from the link below, page 3
+
+https://www.cdc.gov/nchs/data/series/sr_02/sr02_166.pdf
+
+
+```{r}
+
+data_urbanicity <- data  %>%
+  mutate(urbanicity = as.factor(if_else(tot_pop >= 50000, "metropolitan",
+                                        if_else(tot_pop < 50000 & tot_pop >= 10000, "micropolitan",
+                                                if_else(tot_pop < 10000, "non-urban", "metropolitan")))))
+
+summary(data_urbanicity)
+
+```
+
+## 3. Climate regions
+
+climate regions https://www.ncdc.noaa.gov/monitoring-references/maps/us-climate-regions.php
+
+```{r}
+
+data_climate <- data_urbanicity %>%
+  mutate(climate_region = as.factor(case_when(state %in% c("Idaho","Oregon","Washington") ~ "Northwest",
+                                    state %in% c("Arkansas","Kansas","Louisiana","Mississippi","Oklahoma","Texas") ~ "South",
+                                    state %in% c("Alabama","Florida","Georgia", "North Carolina", "South Carolina", "Virginia") ~ "Southeast",
+                                    state %in% c("Connecticut", "District Of Columbia", "Delaware", "Maine", "Maryland", "Massachusetts", "New Hampshire", "New Jersey", "New York", "Pennsylvania", "Rhode Island", "Vermont") ~ "Northeast",
+                                    state %in% c("Iowa", "Michigan", "Minnesota", "Wisconsin") ~ "East_North_Central",
+                                    state %in% c("Illinois", "Indiana", "Kentucky", "Missouri", "Ohio", "Tennessee", "West Virginia") ~ "Central",
+                                    state %in% c("Arizona", "Colorado", "New Mexico", "Utah") ~ "Southwest",
+                                    state %in% c("California", "Nevada") ~ "West",
+                                    state %in% c("Montana", "Nebraska", "North Dakota", "South Dakota", "Wyoming") ~ "West_North_Central")))
+                                    
+summary(data_climate)
+unique(data_climate$climate_region)
+
+```
+
+## 4. EPA regions
+
+```{r}
+
+epa_region <- data_climate %>%
+  mutate(epa_reg = case_when(climate_region == "Northwest"        ~ "region_10",
+                             climate_region == "West" | state  ==  "Arizona" ~ "region_9",
+                             climate_region == "West_North_Central" & state != "Nebraska" | state %in% c("Utah", "Colorado") ~ "region_8",
+                             state %in% c("Nebraska", "Kansas", "Iowa", "Missouri") ~ "region_7",
+                             state %in% c("New Mexico", "Texas", "Oklahoma", "Arkansas", "Louisiana") ~ "region_6",
+                             climate_region == "East_North_Central" & state != "Iowa" | state %in% c("Illinois", "Ohio", "Indiana") ~ "region_5",
+                             climate_region == "Southeast" & state != "Virginia" | state %in% c("Mississippi", "Tennessee", "Kentucky")  ~ "region_4",
+                             climate_region == "Northeast" | state %in% c("Virginia", "West Virginia") ~ "region_1_3")) %>%
+  mutate(year = as.factor(year), 
+      epa_reg = factor(epa_reg, levels = c("region_1_3", "region_4", "region_5", "region_6", "region_7", "region_8", "region_9", "region_10")))
+
+
+summary(epa_region)
+
+unique(epa_region$epa_reg)
+levels(epa_region$epa_reg)
+```
+
+## 5. Save data file 
+
+```{r}
+
+saveRDS(epa_region, paste0(data.folder, "generated_data/data_indp_varib_3.rds")) 
+
+```
+
+## 6. Visualization
+
+```{r}
+
+data_sf <- geometries %>%
+  dplyr::right_join(., epa_region, by = c("year", "gisjoin", "climate_region"))
+
+summary(data_sf)
+class(data_sf)
+```
+
+### 6a. My color palette 
+
+```{r}
+
+my_purpls <- c("#efedf5", "#dadaeb", "#bcbddc", "#9e9ac8", "#807dba", "#6a51a3", "#54278f", "#3f007d", "#1D0633", "#000000")
+
+```
+
+### 6b. Urbanicity maps
+
+Urbanicity maps
+
+This takes a bit to run. It generates the two urbanicity maps that are part of the manuscript supplement materials
+
+```{r}
+
+library(viridisLite)
+
+# 2000
+start_time <- Sys.time()    
+
+pdf(file = "Urbanicity_2000.pdf", width = 11, height = 8.5)
+data_sf %>%
+  filter(year == 2000) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 1/2), size = 0.2) +
+  aes(fill = urbanicity) +
+  #scale_fill_viridis(name="Urbanicity", option = "magma")  +
+  scale_fill_manual(name = "Urbancity", values = c("chocolate4", "darkgoldenrod3", "chartreuse4")) +
+  theme_void() +
+  ggtitle("2000") +
+  theme(axis.line = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank(), 
+        axis.title = element_blank(),
+        plot.title = element_text(size=20)) 
+dev.off()
+
+end_time <- Sys.time()
+end_time - start_time  
+
+# 1970
+start_time <- Sys.time()    
+
+pdf(file = "Urbanicity_1970.pdf", width = 11, height = 8.5)
+data_sf %>%
+  filter(year == 1970) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 1/2), size = 0.2) +
+  aes(fill = urbanicity) +
+  #scale_fill_viridis(name="Urbanicity", option = "magma")  +
+  scale_fill_manual(name = "Urbancity", values = c("chocolate4", "darkgoldenrod3", "chartreuse4")) +
+  theme_void() +
+  ggtitle("1970") +
+  theme(axis.line = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank(), 
+        axis.title = element_blank(),
+        plot.title = element_text(size=20)) 
+dev.off()
+
+end_time <- Sys.time()
+end_time - start_time  
+```
+
+
+### 6c. EPA regions map
+
+EPA regions are consisted throughout years. So here I plot 2000 to visualize
+
+```{r}
+
+my_cols <- c("#7fc97f", "#beaed4", "#fdc086", "#999999", "#386cb0", "#f0027f", "#bf5b17", "#377eb8", "#a65628")
+
+pdf(file = "epa_regions.pdf", width = 11, height = 8.5)
+data_sf %>%
+  filter(year == 2010) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 1/2), size = 0.2) +
+  aes(fill = epa_reg) +
+  scale_fill_manual(name = "EPA regions", values = my_cols) +
+  theme_void() +
+  theme(axis.line = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank(), 
+        axis.title = element_blank(),
+        plot.title = element_text(size=20)) 
+dev.off()
+
+```
+
