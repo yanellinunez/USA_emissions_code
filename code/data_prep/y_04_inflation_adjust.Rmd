@@ -41,7 +41,7 @@ source(paste0(packages.folder,'packages_to_load.R'))
 
 # master dataset 
 data <- readRDS(paste0(data.folder, "generated_data/data_indp_varib_3.rds"))
-
+class(data)
 summary(data)
 
 # inflation adjustments factors 
@@ -93,9 +93,12 @@ data_adjs <- data %>%
                            if_else(year == "1980", propty_val*2.8031496,
                            if_else(year == "1990", propty_val*1.6988335,
                            if_else(year == "2000", propty_val*1.3098937,
-                           if_else(year == "2010", propty_val*0.9493333, 0))))))
+                           if_else(year == "2010", propty_val*0.9493333, 0)))))) %>%
+  ungroup() %>%
+  as.data.frame()
 
 summary(data_adjs)
+class(data_adjs)
 
 ```
 
@@ -103,7 +106,7 @@ summary(data_adjs)
 
 ```{r}
 
-saveRDS(data_adjs, paste0(data.folder, "generated_data/data_indp_varib_3_inflat_adjst.csv"))
+saveRDS(data_adjs, paste0(data.folder, "generated_data/data_indp_varib_3_inflat_adjst.rds"))
 
 ```
 

@@ -1,0 +1,160 @@
+---
+title: "y_01_county_data_prep"
+author: "Jaime Benavides"
+date: "2/23/2021"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+source(paste0(file.locations.folder,'external_file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+```
+
+
+```{r crs, include=FALSE}
+
+crs_wgs84 <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+```
+
+
+
+```{r pressure, echo=FALSE}
+# create bounding box for continental US
+us_cont_bbox <- sf::st_as_sfc(sf::st_bbox(c(xmin = -130, xmax = -60, ymax = 51, ymin = 21), crs = sf::st_crs(crs_wgs84))) %>%
+  sf::st_transform(crs_wgs84)
+  
+
+us_cont_bds <- sf::st_read(paste0(yanelli_external, "spatial_data/cb_2018_us_nation_20m/cb_2018_us_nation_20m.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_intersection(us_cont_bbox) %>%
+  dplyr::select(geometry)
+
+us_states <- sf::st_read(paste0(yanelli_external, "spatial_data/cb_2018_us_state_20m/cb_2018_us_state_20m.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  dplyr::rename(State = NAME)
+  sf::st_intersection(us_cont_bds) %>%
+  dplyr::select(State)
+
+data <- readRDS(paste0(data.folder, "generated_data/data_indp_varib_3_inflat_adjst.rds")) 
+
+states <- data %>%
+  dplyr::select(statefp, state) %>%
+  unique
+  
+
+```
+
+
+## 2. Estimate county area
+- Gather spatial attributes for counties for each year
+- Estimate county area
+
+
+
+```{r counties_over_time, echo=FALSE}
+
+sf_use_s2(FALSE)  # the sf package was updated since Jaime created this code. This function specify to use the older form of sf. Otherwise the code doesn't work
+
+us_counties_1970 <- sf::st_read(paste0(yanelli_external, "spatial_data/nhgis0018_shape/nhgis0018_shapefile_tl2000_us_county_1970/US_county_1970.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>% #us continental boundaries
+  dplyr::rename(State = STATENAM) %>%
+  dplyr::rename(Name = NHGISNAM) %>%
+  dplyr::rename(Year = DECADE) %>%
+  dplyr::select(Name, GISJOIN, State, Year) 
+
+us_counties_1980 <- sf::st_read(paste0(yanelli_external, "spatial_data/nhgis0018_shape/nhgis0018_shapefile_tl2000_us_county_1980/US_county_1980.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>%
+  dplyr::rename(State = STATENAM) %>%
+  dplyr::rename(Name = NHGISNAM) %>%
+  dplyr::rename(Year = DECADE) %>%
+  dplyr::select(Name, GISJOIN, State, Year)  
+
+us_counties_1990 <- sf::st_read(paste0(yanelli_external, "spatial_data/nhgis0018_shape/nhgis0018_shapefile_tl2000_us_county_1990/US_county_1990.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>%
+  dplyr::rename(State = STATENAM) %>%
+  dplyr::rename(Name = NHGISNAM) %>%
+  dplyr::rename(Year = DECADE) %>%
+  dplyr::select(Name, GISJOIN, State, Year)  
+
+us_counties_2000 <- sf::st_read(paste0(yanelli_external, "spatial_data/nhgis0018_shape/nhgis0018_shapefile_tl2000_us_county_2000/US_county_2000.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>%
+  dplyr::rename(State = STATENAM) %>%
+  dplyr::rename(Name = NHGISNAM) %>%
+  dplyr::rename(Year = DECADE) %>%
+  dplyr::select(Name, GISJOIN, State, Year) 
+
+us_counties_2010 <- sf::st_read(paste0(yanelli_external, "spatial_data/nhgis0018_shape/nhgis0018_shapefile_tl2010_us_county_2010/US_county_2010.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>%
+  #dplyr::rename(State = STATENAM) %>% # these data has different naming structure
+  dplyr::rename(Name = NAME10,
+                statefp = STATEFP10) %>%
+  dplyr::mutate(Year = 2010) %>%
+  dplyr::full_join(states, by = "statefp") %>%
+  dplyr::rename(State = state) %>% # to match the other years naming structure
+  #sf::st_join(us_states[,c("State")], largest = TRUE)  %>% # this didn't work 
+  dplyr::select(Name, GISJOIN, State, Year)  
+
+# create us_counties dataframe with county(name-chr)| state | year | climate region | geometry 
+
+us_counties <- rbind(us_counties_1970, us_counties_1980, us_counties_1990, us_counties_2000, us_counties_2010) %>%
+  sf::st_transform(4326) %>%
+  clean_names()
+us_counties$area_km2 <- sf::st_area(us_counties)
+us_counties$area_km2 <- units::set_units(us_counties$area_km2, km^2)
+us_counties$area_km2 <- as.numeric(us_counties$area_km2)
+
+us_counties <- us_counties %>%
+  dplyr::select(gisjoin, year, state, name, area_km2, everything() ) %>%
+  mutate(state = if_else(state == "District of Columbia", "District Of Columbia", state),
+         name = if_else(name == "District Of Columbia", "District of Columbia", name))
+
+class(us_counties)
+
+saveRDS(us_counties, paste0(yanelli_external, "spatial_data/updated_generated_files/geometries_counties.rds"))
+```
+
+## 3. Estimate population density
+
+
+```{r}
+us_counties_df <- us_counties
+sf::st_geometry(us_counties_df) <- NULL # remove geometry 
+
+pop_density <- left_join(data, us_counties_df, by = c("year", "gisjoin", "state")) %>%
+  mutate(pop_density = tot_pop/area_km2) %>%
+  dplyr::select(gisjoin, year, state, statefp, statenh, county, countyfp, countynh, name, area_km2, tot_pop, pop_density, everything())
+
+class(pop_density)
+summary(pop_density)
+
+
+saveRDS(pop_density, paste0(data.folder, "generated_data/data_indp_varib_4.rds"))
+```
+

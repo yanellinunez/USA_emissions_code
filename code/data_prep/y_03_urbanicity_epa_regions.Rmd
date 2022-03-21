@@ -42,14 +42,12 @@ source(paste0(packages.folder,'packages_to_load.R'))
 
 ```{r}
 
-
 # data
 data <- read_csv(paste0(data.folder, "generated_data/data_indp_varib_2.csv")) 
 
 # spatial files for mapping 
-geometries <- readRDS(paste0(yanelli_external, "spatial_data/us_counties_over_time_sf.rds")) %>%
-  clean_names() %>%
-  dplyr::select(-state, -name) 
+geometries <- readRDS(paste0(yanelli_external, "spatial_data/updated_generated_files/geometries_counties.rds")) %>%
+  clean_names() 
 
 ```
 
@@ -136,7 +134,7 @@ saveRDS(epa_region, paste0(data.folder, "generated_data/data_indp_varib_3.rds"))
 ```{r}
 
 data_sf <- geometries %>%
-  dplyr::right_join(., epa_region, by = c("year", "gisjoin", "climate_region"))
+  dplyr::right_join(., epa_region, by = c("year", "state", "gisjoin"))
 
 summary(data_sf)
 class(data_sf)
