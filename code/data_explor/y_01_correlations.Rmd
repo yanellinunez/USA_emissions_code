@@ -1,0 +1,83 @@
+---
+title: "Correlation in exposures"
+author: "Yanelli Nunez"
+date: "7/10/2021"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+Objective:  
+
+Evaluate correlation between independent variables 
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+source(paste0(file.locations.folder,'external_file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+```
+
+## 1. Load data
+
+```{r}
+
+# Data
+data <- readRDS(paste0(data.folder, "generated_data/master_data.rds")) 
+
+class(data)
+
+```
+
+## 2. Scale data
+
+```{r}
+
+# scale
+data_scaled <- data %>%
+  filter(year != 2010) %>%
+  mutate_at(c("perc_unemp", "perc_nohs", "perc_pvert", "perc_white", "perc_black", "perc_nativ", "perc_asian", "perc_hisp_org", "propty_val_adjs", "fam_incom_adjs", "pop_density"), ~(./sd(., na.rm = TRUE))) %>%
+  arrange(year) %>%
+  as.data.frame()
+
+#class(data_scaled)
+
+summary(data_scaled)
+```
+
+## 3. Viz
+
+- Estimate correlations and plot 
+- Percent Black is VERY correlated with percent White
+- Percent Asian is positively correlated with percent Hispanic
+- I double checked the data generation process and everything seems correct so the correlation results accurately represent our data 
+
+```{r}
+
+exp_var <- data_scaled %>%
+  dplyr::select(perc_unemp, perc_nohs, perc_pvert, perc_white, perc_black, perc_nativ, perc_asian, perc_hisp_org, propty_val_adjs, fam_incom_adjs, pop_density) %>%
+  drop_na()
+
+corr_mat <- cor(exp_var)
+corr_mat
+
+corrplot::corrplot(corr_mat, method = "color")
+
+
+```

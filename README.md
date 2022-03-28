@@ -12,6 +12,9 @@ Temporal analysis of air pollution emission across the United States
 - emissions_all_data: contains emission fluxes for all 7 chemical pollutants for years, 1970, 1980, 1990, 2000, 2010, and 2017. Note that I changed the name of Miami-Dade to Miami so that it would be consistent across the study period
 - emissions_diff_reltv_chg: contains emission fluxes, absolute difference and relative change from decennial to decennial. Dade appears as Miami-Dade throughout
 - master_data: contains all independent and dependent variables. Dade appears as Miami-Dade throughout 
+- master_nox_energy: contains all variables; select the 95th percentile of nox_energy data to remove extreme values
+- master_so2_energy: contains all variables; select the 95th percentile of so2_energy data to remove extreme values
+- master_so2_industry: contains all variables; removed infinity values resulting from changes from zero to nonzero emissions values and substitute NaN (resulting from nonchanges in emissions from zero to zero [e.g. 0-0/0 -> NaN]) for zero
 
 
 *Other datasets generated*:
