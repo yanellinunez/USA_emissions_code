@@ -13,17 +13,29 @@ editor_options:
 
 Objective:  
 
-Automate the process of running national-level models.
+These are the models for the main analysis. 
 
-I am running the models with a natural spline but setting the reference number at zero. Also, note that the models are adjusted for epa geographic region. 
+Economic models:
+Include one economic variable per model
 
-- NOx from transport 
-- NH3 from agriculture 
-- SO2 from energy --> Selected 95th percentile of data which excluded extreme values
-- NOx from energy --> Selected 95th percentile of data which excluded extreme values
-- SO2 from industry  --> I removed the observations with "infinity" emissions with was a total of 5 per year and replace the NaN with zero
-- OC from residential
-- NOx from commercial
+Hispanic models:
+Include % Hispanic as the exposure
+
+Asian and American Native:
+One mode per races variable adjusted for % White using s(perc_white)
+
+Black and White:
+These models include Black and White variables in the model. If nonlinear, the variable was included with a natural spline
+
+
+Notes: 
+-Relationships that deviate from linearity  are included with a natural spline and 4 degrees of freedom with reference to the mean
+-Four variables were included in all models to adjust for potential counfounding:
+1) Urbanicity - as a categorical variable
+2) Year - as a categorical variable
+3) EPA region - as categorical  
+4) Population density - with a penalized spline
+
 
 ```{r include=FALSE}
 
@@ -70,11 +82,12 @@ Nonlinear_models:
 Linear_models:
 
 1) racial variables --> only racial variables have linear associations
-    2a. Asian, Hispanic, Native adjusted for s(perc_white)
-    2b. Black adjusted for ns(perc_white, df = 4)
+    1a. Asian, Hispanic, Native adjusted for s(perc_white)
+    1b. Black adjusted for ns(perc_white, df = 4)
+    1c. Single Hispanic model
 
 Notes: 
-- I had to split the nonlinear models intor economic and racial because the racial models are adjusted for percent white but the economic models are not, so I couldn't run them in the same batch with the workflow i have.
+- I had to split the nonlinear models into economic and racial because the racial models are adjusted for percent white but the economic models are not, so I couldn't run them in the same batch with the workflow i have.
 - I also run the models for percent black and percent white separately because in this case we include both variables with a natural spline (for the other racial models we adjust using s(perc_white))
 
 ```{r}
@@ -142,7 +155,7 @@ mutate(outcome = case_when(id == 1 ~ 'so2_energy_relat_chg',  ## add outcome col
     filter(exposure %in% c("perc_asian", "perc_nativ"))
   
 ## 2) includes Black 
-  models_to_make_nonlinear_blk_wht <- models_to_make %>%
+  models_to_make_nonlinear_blk_wht <- models_to_make_nonlinear %>%
     filter(exposure == "perc_black")
   
   
@@ -173,18 +186,20 @@ mutate(outcome = case_when(id == 1 ~ 'so2_energy_relat_chg',  ## add outcome col
   
 ## 2) includes Black 
   models_to_make_linear_blk_wht <- models_to_make_linear %>%
-    filter(exposure == "perc_black")
-  
+    filter(exposure == "perc_black",
+           outcome != "nox_energy_relat_chg") # because in this case white is also linear 
+
+
+## 3) run nox_energy_relat_chg as a single model for white and black with linear terms    
 
 
 ```
 
 
-
 ## 2. Progress bar 
 
 Parallelize: runs the iterations in parallel across multiple cores to increase speed
-You computer has multiple processing cores but it only uses one to ran your R code. Paralizing the procesing means that you are telling your computer to run different portions of your code simultaneously in multiple cores. This results in an overall faster processing
+You computer has multiple processing cores but it only uses one to ran your R code. Parallelizing the procesing means that you are telling your computer to run different portions of your code simultaneously in multiple cores. This results in an overall faster processing
 
 ```{r}
 
@@ -250,7 +265,7 @@ close(pb)
 
 # save list dataset 
 
-saveRDS(models_nonlin_eco, paste0(yanelli_external, "results_updated/models_nonlin_eco_hisp.rds"))
+#saveRDS(models_nonlin_eco, paste0(yanelli_external, "results_updated/models_nonlin_eco_hisp.rds"))
 
 ```
 
@@ -260,7 +275,7 @@ saveRDS(models_nonlin_eco, paste0(yanelli_external, "results_updated/models_nonl
 
 #### Asian & American Native 
 
-These models are adjusted for % White
+These models are adjusted for s(perc_white)
 
 ```{r}
 
@@ -303,11 +318,13 @@ close(pb)
 
 # save list dataset 
 
-saveRDS(models_nonlin_race, paste0(yanelli_external, "results_updated/models_nonlin_asian_an.rds"))
+#saveRDS(models_nonlin_race, paste0(yanelli_external, "results_updated/models_nonlin_asian_an.rds"))
 
 ```
 
 #### Black & White 
+
+These models include black and white race percentage as nonlinear terms (natural splines)
 
 ```{r}
 
@@ -391,6 +408,8 @@ saveRDS(models_nonlin_blk_wht, paste0(yanelli_external, "results_updated/models_
 
 ### 4a. Onebasis
 
+This to create the one basis for all linear models
+
 ```{r}
 ### run the foreach() loop to generate the onebasis 
          
@@ -419,7 +438,7 @@ remove(b) ## this is basically the last i which is also save with a specific nam
 
 #### Asian, American Native
 
-This models are adjusted for % white
+These models are adjusted for s(perc_white)
 
 ```{r}
 
@@ -437,8 +456,9 @@ linear_models_race <- foreach(i = iterators::icount(nrow(models_to_make_linear_r
                        outcome = models_to_make_linear_race$outcome[[i]],
                       exposure = models_to_make_linear_race$basis_name[[i]]) ## in this case use the onebasis as the exposure 
   
-   df <- models_to_make_linear[i,] %>% mutate(models = list(m))
+   df <- models_to_make_linear_race[i,] %>% mutate(models = list(m))
    
+df
 
 }
 
@@ -452,13 +472,27 @@ remove(m)
 
 #### Hispanic 
 
-SO2 from Energy 
+Only the model for SO2 from Energy is linear for hispanics. This model is NOT adjusted for % White
 
 ```{r}
+hisp_linear_model <- run_model(data = models_to_make_linear$data_spf[[9]],
+                            outcome = models_to_make_linear$outcome[[9]], 
+                           exposure = models_to_make_linear$basis_name[[9]])
+
+summary(hisp_linear_model)
+
+hisp_linear_model_df <- models_to_make_linear[9,] %>% mutate(models = list(hisp_linear_model))
+
+linear_models_race <- rbind(hisp_linear_model_df, linear_models_race) %>%
+  arrange(outcome)
+
 
 ```
 
 #### Black & White 
+
+These two models include both black and white. Black is included it as linear term and White included as nonlinear term with a natural spline with 4df 
+
 
 ```{r}
 
@@ -472,12 +506,13 @@ linear_models_blk_wht <- foreach(i = iterators::icount(nrow(models_to_make_linea
                              .combine = rbind) %do% { # if you doing parallel programing use %dopar% otherwise use %do%
   
   # make models
-      m <- run_model(data = models_to_make_linear_blk_wht$data_spf[[i]],
-                  outcome = models_to_make_linear_blk_wht$outcome[[i]],
-                 exposure = models_to_make_linear_blk_wht$basis_name[[i]]) ## in this case use the onebasis as the exposure
+      m <- run_model_blk(data = models_to_make_linear_blk_wht$data_spf[[i]],
+                      outcome = models_to_make_linear_blk_wht$outcome[[i]],
+                     exposure = models_to_make_linear_blk_wht$basis_name[[i]]) ## in this case use the onebasis as the exposure
   
-   df <- models_to_make_linear[i,] %>% mutate(models = list(m))
+   df <- models_to_make_linear_blk_wht[i,] %>% mutate(models = list(m))
    
+  
 
 }
 
@@ -487,8 +522,39 @@ remove(m)
 #snow::stopCluster(cluster)
 #close(pb)
 
+# Bind with the other racial models
+
 ```
 
+#### Black and white linear
+
+For NOx from the Energy sector, both Black and White are linear so I'm including the terms here linearly 
+
+```{r}
+
+nox_energy_lin_race = gamm4::gamm4(nox_energy_relat_chg ~ cb_nox_energy_black +
+                                            cb_nox_energy_white +
+                                            epa_reg +
+                                            s(pop_density) +
+                                            urbanicity +
+                                            year, 
+                         random = ~(1|state/gisjoin), data = nox_energy) 
+
+# Bind all linear models
+
+
+black_nox <- models_to_make_linear[3,] %>% mutate(models = list(nox_energy_lin_race[["gam"]]))
+white_nox <- models_to_make_linear[2,] %>% mutate(models = list(nox_energy_lin_race[["gam"]]))
+
+nox_blk_white <- rbind(black_nox, white_nox) %>%
+  arrange(outcome)
+
+linear_models <- rbind(linear_models_blk_wht, linear_models_race) %>%
+  rbind(., nox_blk_white) %>%
+  arrange(outcome) 
+
+
+```
 
 ### 4b. Crosspred
 
@@ -499,63 +565,63 @@ I couldn't make crosspred work by referencing the basis so I couldn't run the cr
 pred_nox_energy_white <- crosspred(
   #basis = get(models_to_make_linear$basis_name[1]), #### the basis argument isn't working using indexing :(
   basis = cb_nox_energy_white, #### the basis argument isn't working using indexing :(
-  model = linear_models$models[[1]], 
-  at = get(linear_models$data_spf[[1]])[, models_to_make_linear$exposure[[1]]], 
-  cen = (mean(get(linear_models$data_spf[[1]])[, linear_models$exposure[[1]]])))
+  model = linear_models$models[[5]], 
+  at = get(linear_models$data_spf[[5]])[, linear_models$exposure[[5]]], 
+  cen = (mean(get(linear_models$data_spf[[5]])[, linear_models$exposure[[5]]])))
 
 pred_nox_energy_black <- crosspred(
   basis = cb_nox_energy_black, #### the basis argument isn't working using indexing :(
-  model = linear_models$models[[2]], 
-  at = get(linear_models$data_spf[[2]])[, models_to_make_linear$exposure[[2]]], 
-  cen = (mean(get(linear_models$data_spf[[2]])[, linear_models$exposure[[2]]])))
+  model = linear_models$models[[4]], 
+  at = get(linear_models$data_spf[[4]])[, linear_models$exposure[[4]]], 
+  cen = (mean(get(linear_models$data_spf[[4]])[, linear_models$exposure[[4]]])))
 
 pred_so2_inds_black <- crosspred(
   basis = cb_so2_inds_black, #### the basis argument isn't working using indexing :(
-  model = linear_models$models[[3]], 
-  at = get(linear_models$data_spf[[3]])[, models_to_make_linear$exposure[[3]]], 
-  cen = (mean(get(linear_models$data_spf[[3]])[, linear_models$exposure[[3]]])))
+  model = linear_models$models[[10]], 
+  at = get(linear_models$data_spf[[10]])[, linear_models$exposure[[10]]], 
+  cen = (mean(get(linear_models$data_spf[[10]])[, linear_models$exposure[[10]]])))
 
 pred_data_master_black <- crosspred(
   basis = cb_data_master_black, #### the basis argument isn't working using indexing :(
-  model = linear_models$models[[4]], 
-  at = get(linear_models$data_spf[[4]])[, models_to_make_linear$exposure[[4]]], 
-  cen = (mean(get(linear_models$data_spf[[4]])[, linear_models$exposure[[4]]])))
+  model = linear_models$models[[7]], 
+  at = get(linear_models$data_spf[[7]])[, linear_models$exposure[[7]]], 
+  cen = (mean(get(linear_models$data_spf[[7]])[, linear_models$exposure[[7]]])))
 
 pred_so2_energy_asian <- crosspred(
   basis = cb_so2_energy_asian, #### the basis argument isn't working using indexing :(
-  model = linear_models$models[[5]], 
-  at = get(linear_models$data_spf[[5]])[, models_to_make_linear$exposure[[5]]], 
-  cen = (mean(get(linear_models$data_spf[[5]])[, linear_models$exposure[[5]]])))
+  model = linear_models$models[[9]], 
+  at = get(linear_models$data_spf[[9]])[, linear_models$exposure[[9]]], 
+  cen = (mean(get(linear_models$data_spf[[9]])[, linear_models$exposure[[9]]])))
 
 pred_nox_energy_asian <- crosspred(
   basis = cb_nox_energy_asian, #### the basis argument isn't working using indexing :(
-  model = linear_models$models[[6]], 
-  at = get(linear_models$data_spf[[6]])[, models_to_make_linear$exposure[[6]]], 
-  cen = (mean(get(linear_models$data_spf[[6]])[, linear_models$exposure[[6]]])))
+  model = linear_models$models[[2]], 
+  at = get(linear_models$data_spf[[2]])[, linear_models$exposure[[2]]], 
+  cen = (mean(get(linear_models$data_spf[[2]])[, linear_models$exposure[[2]]])))
 
 pred_nox_energy_nativ <- crosspred(
   basis = cb_nox_energy_nativ, #### the basis argument isn't working using indexing :(
-  model = linear_models$models[[7]], 
-  at = get(linear_models$data_spf[[7]])[, models_to_make_linear$exposure[[7]]], 
-  cen = (mean(get(linear_models$data_spf[[7]])[, linear_models$exposure[[7]]])))
+  model = linear_models$models[[3]], 
+  at = get(linear_models$data_spf[[3]])[, linear_models$exposure[[3]]], 
+  cen = (mean(get(linear_models$data_spf[[3]])[, linear_models$exposure[[3]]])))
 
 pred_data_master_nativ <- crosspred(
   basis = cb_data_master_nativ, #### the basis argument isn't working using indexing :(
-  model = linear_models$models[[8]], 
-  at = get(linear_models$data_spf[[8]])[, models_to_make_linear$exposure[[8]]], 
-  cen = (mean(get(linear_models$data_spf[[8]])[, linear_models$exposure[[8]]])))
+  model = linear_models$models[[6]], 
+  at = get(linear_models$data_spf[[6]])[, linear_models$exposure[[6]]], 
+  cen = (mean(get(linear_models$data_spf[[6]])[, linear_models$exposure[[6]]])))
 
 pred_data_master_nativ <- crosspred(
   basis = cb_data_master_nativ, #### the basis argument isn't working using indexing :(
-  model = linear_models$models[[9]], 
-  at = get(linear_models$data_spf[[9]])[, models_to_make_linear$exposure[[9]]], 
-  cen = (mean(get(linear_models$data_spf[[9]])[, linear_models$exposure[[9]]])))
+  model = linear_models$models[[1]], 
+  at = get(linear_models$data_spf[[1]])[, linear_models$exposure[[1]]], 
+  cen = (mean(get(linear_models$data_spf[[1]])[, linear_models$exposure[[1]]])))
 
 pred_so2_energy_hisp <- crosspred(
   basis = cb_so2_energy_hisp, #### the basis argument isn't working using indexing :(
-  model = linear_models$models[[10]], 
-  at = get(linear_models$data_spf[[10]])[, models_to_make_linear$exposure[[10]]], 
-  cen = (mean(get(linear_models$data_spf[[10]])[, linear_models$exposure[[10]]])))
+  model = linear_models$models[[8]], 
+  at = get(linear_models$data_spf[[8]])[, linear_models$exposure[[8]]], 
+  cen = (mean(get(linear_models$data_spf[[8]])[, linear_models$exposure[[8]]])))
 
 ```
 
@@ -603,14 +669,57 @@ close(pb)
 ## 5. Save file
 ```{r}
 
-saveRDS(linear_plots, paste0(yanelli_external, "results/models_linear.rds"))
-
+saveRDS(linear_plots, paste0(yanelli_external, "results_updated/models_linear.rds"))
 
 ```
 
-```{r}
-linear_plots$plots[[1]]
 
-summary(linear_plots$models[[1]])
+
+## 6. Plot nonlinear white
+
+In the case of organic carbon from residential and so2 from industry, the association with Black is linear and with White nonlinear. In the code chunck above, I plot the linear association for Black and in this code chunck, using the same models, I plot the nonlinear associations for white
+
+```{r}
+
+linear_plots <- readRDS(paste0(yanelli_external, "results_updated/models_linear.rds"))
+
+nonl_white <- linear_plots %>%
+  filter(outcome %in% c("oc_resid_relat_chg", "so2_indus_relat_chg")) %>%
+  dplyr::select(-plots) %>%
+  mutate(exposure = "perc_white") %>%
+  left_join(., models_to_make_nonlinear)
+  
+
+
+# plot models for white
+
+nonl_white_plots <- foreach(i = iterators::icount(nrow(nonl_white)), # iterate across rows
+                             #.options.snow=opts, # the progress bar being sent to each core
+                            # .packages=c("Epi", "magrittr", "dplyr", "janitor", "ggplot2"), # packages being sent to each core
+                             #.export = ls(globalenv()),
+                             .inorder = FALSE, # speeds up parallel programming
+                             .combine = rbind) %do% { # if you doing parallel programing use %dopar% otherwise use %do%
+
+# plot_white
+                               
+   plot_white <- plot_nonlin_white(model = nonl_white$models[[i]], 
+                                    data = nonl_white$data_spf[[i]], 
+                                   color = nonl_white$color[[i]])
+ 
+# add plot to data
+ 
+    df  <- nonl_white[i,] %>% mutate(plots_white = list(plot_white)) %>%
+  dplyr::select(-ns_arg, -color, -x_label)
+  
+  # save our work
+  df
+  
+ 
+}
+
+# save plots
+
+saveRDS(nonl_white_plots, paste0(yanelli_external, "results_updated/models_nonlin_wht.rds"))
+
 ```
 
