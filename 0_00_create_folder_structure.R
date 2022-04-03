@@ -35,12 +35,13 @@ code.folder <- paste0(project.folder, "code/")
 data.prep.code.folder <- paste0(code.folder, "data_prep/")
 data.explor.code.folder <- paste0(code.folder, "data_explor/")
 models.code.folder <- paste0(code.folder, "models/")
+figures.code.folder <- paste0(code.folder, "figures/")
 packages.folder <- paste0(code.folder, "packages/")
 data.folder <- paste0(project.folder, "data/")
 file.locations.folder <- paste0(data.folder, "file_locations/")
 output.folder <- paste0(project.folder, "output/")
 figures.folder <- paste0(project.folder, "figures/")
-  #reports.folder <- paste0(project.folder, "reports/")
+
 
 # 1b Identify list of folder locations which have just been created above
 folders.names <- grep(".folder",names(.GlobalEnv),value=TRUE)

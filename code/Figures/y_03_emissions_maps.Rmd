@@ -1,0 +1,362 @@
+---
+title: "Website_gif"
+author: "Yanelli Nunez"
+date: "3/1/2022"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+source(paste0(file.locations.folder,'external_file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+# load functions
+ source(paste0(code.folder, 'models/functions.R'))
+
+# load data
+source(paste0(code.folder, 'data_loading.R'))
+
+```
+
+
+## 1. Load data
+
+```{r}
+
+class(data_full)
+summary(data_full)
+
+# geometries 
+geometries <- readRDS(paste0(yanelli_external, "spatial_data/updated_generated_files/geometries_counties.rds")) %>%
+  mutate(name = if_else(gisjoin == "G1200250", "Miami-Dade county", name), # rename Dade to Miami-Dade so it is consistent naming across the 4 years
+         gisjoin = if_else(gisjoin == "G1200250", "G1200860", gisjoin),
+         name = if_else(gisjoin == "G1200860", "Miami-Dade", name)) # rename Dade to Miami-Dade so it is consistent naming across the 4 years
+
+class(geometries) 
+
+data_sf <- geometries %>%
+  dplyr::right_join(., data_full)
+
+summary(data_sf)
+class(data_sf)
+```
+
+## My color palette 
+
+```{r}
+
+my_cols_het <- c("#7fc97f", "#beaed4", "#fdc086", "#999999", "#386cb0", "#f0027f", "#bf5b17", "#377eb8", "#a65628")
+
+my_purpls <- c("#efedf5", "#dadaeb", "#bcbddc", "#9e9ac8", "#807dba", "#6a51a3", "#54278f", "#3f007d", "#1D0633", "#000000")
+
+my_greens <- c("#f7fcfd",
+"#e5f5f9",
+"#ccece6",
+"#99d8c9",
+"#66c2a4",
+"#41ae76",
+"#238b45",
+"#006d2c",
+"#00441b", "#000000")
+
+my_blues <- c("#f7fbff",
+"#deebf7",
+"#c6dbef",
+"#9ecae1",
+"#6baed6",
+"#4292c6",
+"#2171b5",
+"#08519c",
+"#08306b", "#000000")
+
+my_orang <- c(
+"#fff5eb",
+"#fee6ce",
+"#fdd0a2",
+"#fdae6b",
+"#fd8d3c",
+"#f16913",
+"#d94801",
+"#a63603",
+"#7f2704",
+"#000000") 
+
+my_pinks <- c(
+"#fff7f3",
+"#fde0dd",
+"#fcc5c0",
+"#fa9fb5",
+"#f768a1",
+"#dd3497",
+"#ae017e",
+"#7a0177",
+"#49006a",
+"#000000"
+)
+
+my_grays <- c(
+"#ffffff",
+"#f7fbff",
+"#f0f0f0",
+"#d9d9d9",
+#"ivory3",
+"#bdbdbd",
+"#969696",
+"#737373",
+"#525252",
+"#252525",
+"#000000"
+)
+
+my_browns <- c(
+"cornsilk",
+"wheat",
+"burlywood",
+"tan3",
+#"peru",
+"tan4",
+"sienna",
+"saddlebrown",
+#"salmon4",
+"#993404",
+"#662506",
+"#000000"  
+)
+
+
+```
+
+
+## 3. Map
+
+### 3a. Industry, SO2 emissions
+
+```{r}
+
+# function for mapping 
+# mapping <- function(data, year){
+
+start_time <- Sys.time()    
+pdf(file = "so2_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  filter(year %in% c(1970, 2010)) %>%
+  mutate(decile = cut_number(so2_industry, 10)) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
+  aes(fill = decile) +
+  #scale_fill_viridis(name=SO[2]~"Industry", option = "viridis", discrete = TRUE)    
+  scale_fill_manual(name=SO[2]~"Industry"~(kg/km^2/day), values = my_purpls, na.translate = FALSE) +
+  facet_wrap( ~ year) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+  #       strip.text = element_text(size = 30)
+  #      axis.line = element_blank(), 
+  #      axis.text = element_blank(),
+  #      axis.ticks = element_blank(), 
+  #      axis.title = element_blank(),
+  #      plot.title = element_text(size=20)) 
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+#}
+
+
+```
+
+### 3a. Energy, SO2 emissions
+
+```{r}
+
+
+start_time <- Sys.time()    
+pdf(file = "energy_so2_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  filter(year %in% c(1970, 2010)) %>%
+  mutate(decile = cut_number(so2_ener, 10)) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
+  aes(fill = decile) +
+  scale_fill_manual(name=SO[2]~"Energy"~(kg/km^2/day), values = my_orang, na.translate = FALSE) +
+  facet_wrap( ~ year) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+### 3a. Energy, NOx emissions
+
+```{r}
+
+
+start_time <- Sys.time()    
+pdf(file = "energy_nox_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  filter(year %in% c(1970, 2010)) %>%
+  mutate(decile = cut_number(nox_ener, 10)) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
+  aes(fill = decile) +
+  scale_fill_manual(name=NO[x]~"Energy"~(kg/km^2/day), values = my_blues, na.translate = FALSE) +
+  facet_wrap( ~ year) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+
+### 3a. Agriculture, NH3 emissions
+
+```{r}
+
+
+start_time <- Sys.time()    
+pdf(file = "agricul_nh3_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  filter(year %in% c(1970, 2010)) %>%
+  mutate(decile = cut_number(nh3_agric, 10)) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
+  aes(fill = decile) +
+  scale_fill_manual(name=NH[3]~"Agriculture"~(kg/km^2/day), values = my_greens, na.translate = FALSE) +
+  facet_wrap( ~ year) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+### 3a. Transportation, NOx emissions
+
+```{r}
+
+start_time <- Sys.time()    
+pdf(file = "transport_nox_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  filter(year %in% c(1970, 2010)) %>%
+  mutate(decile = cut_number(nox_trans, 10)) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
+  aes(fill = decile) +
+  scale_fill_manual(name=NO[x]~"Transport"~(kg/km^2/day), values = my_grays, na.translate = FALSE) +
+  facet_wrap( ~ year) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+### 3a. Transportation, NOx emissions
+
+```{r}
+
+start_time <- Sys.time()    
+pdf(file = "transport_nox_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  filter(year %in% c(1970, 2010)) %>%
+  mutate(decile = cut_number(nox_trans, 10)) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
+  aes(fill = decile) +
+  scale_fill_manual(name=NO[x]~"Transport"~(kg/km^2/day), values = my_grays, na.translate = FALSE) +
+  facet_wrap( ~ year) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+### 3a. Residencial, OC emissions
+
+```{r}
+
+start_time <- Sys.time()    
+pdf(file = "residen_oc_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  filter(year %in% c(1970, 2010)) %>%
+  mutate(decile = cut_number(oc_residential, 10)) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
+  aes(fill = decile) +
+  scale_fill_manual(name="OC Residential"~(kg/km^2/day), values = my_pinks, na.translate = FALSE) +
+  facet_wrap( ~ year) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+### 3a. Commercial, NOx emissions
+
+```{r}
+
+start_time <- Sys.time()    
+pdf(file = "commercial_nox_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  filter(year %in% c(1970, 2010)) %>%
+  mutate(decile = cut_number(nox_commercial, 10)) %>%
+  ggplot() +
+  geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
+  aes(fill = decile) +
+  scale_fill_manual(name=NO[x]~"Commercial"~(kg/km^2/day), values = my_browns, na.translate = FALSE) +
+  facet_wrap( ~ year) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```

@@ -4,6 +4,14 @@
 # There are a number of counties (small islands) for which we do not have emissions data, 
 # I removed those counties too
 
+data_full <- readRDS(paste0(data.folder, "generated_data/master_data.rds")) %>% 
+  mutate(gisjoin = as.factor(gisjoin)) %>%
+  filter(county != "Yellowstone National Park") %>%
+  drop_na(propty_val_adjs, fam_incom_adjs, perc_asian) %>%
+  arrange(year) %>%
+  mutate(epa_reg = as.factor(epa_reg),
+         year = as.factor(year))
+
 data_master <- readRDS(paste0(data.folder, "generated_data/master_data.rds")) %>% 
   mutate(gisjoin = as.factor(gisjoin)) %>%
   filter(year != 2010,
@@ -12,7 +20,6 @@ data_master <- readRDS(paste0(data.folder, "generated_data/master_data.rds")) %>
   arrange(year) %>%
   mutate(epa_reg = as.factor(epa_reg),
          year = as.factor(year))
-
 
 
 so2_inds <- readRDS(paste0(data.folder, "generated_data/master_so2_industry.rds")) %>% 
