@@ -176,7 +176,8 @@ mutate(outcome = case_when(id == 1 ~ 'so2_energy_relat_chg',  ## add outcome col
                              exposure == "perc_nativ" & data_spf == "nox_energy" ~ 'cb_nox_energy_nativ',
                              exposure == "perc_nativ" & data_spf == "data_master" ~ 'cb_data_master_nativ',
                              exposure == "perc_hisp_org" & data_spf == "so2_energy" ~ 'cb_so2_energy_hisp')) %>%
-    mutate(pred_name = gsub("cb", "pred", basis_name)) 
+    mutate(pred_name = gsub("cb", "pred", basis_name)) %>%
+    mutate(pred_name = if_else(outcome == "nox_trans_relat_chg", "pred_nox_trans_nativ", pred_name))
   
   
   ### dataset with arguments for the LINEAR racial models
@@ -522,7 +523,6 @@ remove(m)
 #snow::stopCluster(cluster)
 #close(pb)
 
-# Bind with the other racial models
 
 ```
 
@@ -605,7 +605,7 @@ pred_nox_energy_nativ <- crosspred(
   at = get(linear_models$data_spf[[3]])[, linear_models$exposure[[3]]], 
   cen = (mean(get(linear_models$data_spf[[3]])[, linear_models$exposure[[3]]])))
 
-pred_data_master_nativ <- crosspred(
+pred_nox_trans_nativ <- crosspred(
   basis = cb_data_master_nativ, #### the basis argument isn't working using indexing :(
   model = linear_models$models[[6]], 
   at = get(linear_models$data_spf[[6]])[, linear_models$exposure[[6]]], 
@@ -657,7 +657,7 @@ linear_plots <- foreach(i = iterators::icount(nrow(linear_models)), # iterate ac
    df
 }
 
-remove(p)
+
 
 # stop the parellel processing
 snow::stopCluster(cluster)

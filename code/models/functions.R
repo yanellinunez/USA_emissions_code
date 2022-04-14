@@ -300,3 +300,36 @@ plot <- pred_df %>%
 plot
   
 }
+
+############ Sensitivity analysis: all eco variables in racial models ###########
+
+run_model_eco_adjus <- function(data, outcome, exposure) {
+  
+  
+  model_t = gamm4::gamm4(as.formula(paste(outcome, "~", exposure, " +
+                                            s(perc_white) +
+                                            s(perc_pvert) +
+                                            s(perc_unemp) +
+                                            s(fam_incom_adjs) +
+                                            s(propty_val_adjs) +
+                                            epa_reg +
+                                            s(pop_density) +
+                                            urbanicity +
+                                            year")), 
+                         random = ~(1|state/gisjoin), data = get(data)) # use get to call the data with the name
+  model_t[["gam"]]
+  
+}
+
+
+############ Sensitivity analysis: plot models (basic ploting) ###############
+
+
+plot_basic <- function(model){
+  
+p <- plot.gam(model, select = 1, ylab = "")
+
+p
+
+}
+

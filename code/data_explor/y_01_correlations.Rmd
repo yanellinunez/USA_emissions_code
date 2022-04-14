@@ -32,26 +32,18 @@ source(paste0(file.locations.folder,'external_file_locations.R'))
 # load packages
 source(paste0(packages.folder,'packages_to_load.R'))
 
-```
-
-## 1. Load data
-
-```{r}
-
-# Data
-data <- readRDS(paste0(data.folder, "generated_data/master_data.rds")) 
-
-class(data)
+# load data
+source(paste0(code.folder, 'data_loading.R'))
 
 ```
+
 
 ## 2. Scale data
 
 ```{r}
 
 # scale
-data_scaled <- data %>%
-  filter(year != 2010) %>%
+data_scaled <- data_master %>%
   mutate_at(c("perc_unemp", "perc_nohs", "perc_pvert", "perc_white", "perc_black", "perc_nativ", "perc_asian", "perc_hisp_org", "propty_val_adjs", "fam_incom_adjs", "pop_density"), ~(./sd(., na.rm = TRUE))) %>%
   arrange(year) %>%
   as.data.frame()
@@ -71,13 +63,86 @@ summary(data_scaled)
 ```{r}
 
 exp_var <- data_scaled %>%
-  dplyr::select(perc_unemp, perc_nohs, perc_pvert, perc_white, perc_black, perc_nativ, perc_asian, perc_hisp_org, propty_val_adjs, fam_incom_adjs, pop_density) %>%
-  drop_na()
-
-corr_mat <- cor(exp_var)
+  dplyr::select( pop_density, propty_val_adjs, fam_incom_adjs, perc_unemp, perc_pvert, perc_hisp_org, perc_nativ, perc_asian, perc_black, perc_white) %>%
+  drop_na() 
+  
+corr_mat <- round(cor(exp_var, method = "pearson"), 2)
 corr_mat
 
-corrplot::corrplot(corr_mat, method = "color")
+# corrplot::corrplot(corr_mat, method = "color") quick way of making a correlation plot 
 
+corr_mat[upper.tri(corr_mat)] <- NA  # replace the upper righ corner with NA's
+
+# melt correlation matrix
+melted_cormat <- melt(corr_mat, na.rm = TRUE) %>%
+  dplyr::rename(Correlation = value) %>%
+  drop_na() 
+
+#melted_cormat$X1 <- factor(melted_cormat$X1, levels = c("pop_density", "perc_white", "perc_black", "perc_asian", "perc_nativ", "perc_hisp_org", "perc_pvert", "perc_unemp", "fam_incom_adjs", "propty_val_adjs"))
+
+#melted_cormat$X2 <- factor(melted_cormat$X2, levels = c("propty_val_adjs", "fam_incom_adjs", "perc_unemp", "perc_pvert", "perc_hisp_org", "perc_nativ", "perc_asian", "perc_white", "perc_black", "pop_density"))
+
+
+melted_cormat$x_label <- factor(melted_cormat$X2, labels = c("Population~density", "Property~Value", "Family~Income", "'%'*Unemployment", "'%'*Poverty", "'%'*Hispanic", "'%'*American~Native",  "'%'*Asian", "'%'*Black","'%'*White"))
+
+melted_cormat %>%
+    ggplot(aes(X1, X2, fill = Correlation)) +
+geom_tile(color = "white") +
+scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                      midpoint = 0.5,  space = "Lab",
+                      name = "Pearson\nCorrelation") +
+  geom_text(aes(X1, X2, label = Correlation), color = "black", size = 6) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, size = 18, hjust = 1),
+    axis.text.y = element_text(vjust = 1, size = 18, hjust = 1),
+  axis.title.x = element_blank(),
+ axis.title.y = element_blank(),
+ # panel.grid.major = element_blank(),
+#  panel.border = element_blank(),
+ # panel.background = element_blank(),
+#  axis.ticks = element_blank(),
+  legend.direction = "vertical",
+  legend.text = element_text(size = 21),
+  legend.title = element_text(size = 21)) +
+# scale_y_discrete("X1", labels = c(expression(Pop~density), expression('%'*White), expression('%'*Black), expression('%'*Asian), expression('%'*American~Native), expression('%'*Hispanic), expression('%'*Poverty), expression('%'*Unemployment), expression(Family~Income), expression(Property~Value))) +
+ scale_x_discrete("X2", labels = parse(text = levels(melted_cormat$x_label))) +
+ scale_y_discrete("X1", labels = parse(text = levels(melted_cormat$x_label)))
+```
+
+## data viz
+```{r}
+
+ library(ggmosaic)
+
+results <- read_xlsx(paste0(data.folder, "generated_data/summary_results.xlsx")) %>%
+  gather(emissions, association, 3:9) %>%
+  mutate(asso_num = case_when(association == "positive" ~ 1,
+                              association == "negative" ~ -1,
+                              association == "null" ~ 0))
+
+
+results$ind_var <- factor(results$ind_var, levels = c("prop_val", "fam_income", "unempl", "poverty", "hispanic", "a_native", "asian", "black", "white"))
+                          
+results$label_x <- factor(results$ind_var, labels = c( "Property~Value", "Family~Income", "'%'*Unemployment", "'%'*Poverty", "'%'*Hispanic", "'%'*American~Native",  "'%'*Asian", "'%'*Black","'%'*White"))
+
+ results %>%
+  # filter(category == "race") %>%
+            ggplot() +
+ geom_col(aes(x = asso_num, y = ind_var, fill = association)) +
+   facet_wrap(~emissions) +
+   #facet_wrap(~exposure, ncol = 1, strip.position = "left") + 
+   theme_minimal() +
+   geom_vline(xintercept = 0) +
+   theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1))
+                 
+                #conds = product(rude_to_recline))) 
+
+ results %>%
+   ggplot() +
+   geom_tile(aes(y = emissions, x = ind_var, fill = association)) +
+   scale_fill_manual(values = c("#7fc97f", "#beaed4", "#fdc086"))
 
 ```
+

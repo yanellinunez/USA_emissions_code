@@ -64,8 +64,9 @@ models_nonlin_wht <- readRDS(paste0(yanelli_external, "results_updated/models_no
 ```
 
 ### 1a. Combine datasets
-Merging some of the datasets together to make the next steps esier
+Merging some of the datasets together to make the next steps easier
 ```{r}
+
 
 models_nonlin_wht <- models_nonlin_wht %>%
   rename(plots = plots_white)
