@@ -19,6 +19,9 @@ Temporal analysis of air pollution emission across the United States
 
 *Other datasets generated*:
 - income_propt_estim1970: property and income estimates for 1970 using aggregated data from the census
+- us_counties_over_time: includes code for preparing the county over time dataset, including the county geometries
+- emis_pollutant_sector_centroids.rds: contains emission fluxes for each centroid of the CEDS grid and each year of the study period (pollutant and sector in the file name refer to specific pollutant and sector names)
+- emis_pollutant_sector_county_df.rds: contains emission fluxes for each county and each year of the study period (pollutant and sector in the file name refer to specific pollutant and sector names)
 
 *Large datasets generated*:
 - geometries_counties: geometries for all counties specific for each decennial year

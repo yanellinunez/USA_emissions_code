@@ -1,0 +1,180 @@
+---
+title: "j_01_county_data_prep"
+author: "Jaime Benavides"
+date: "2/23/2021"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+#source(paste0(file.locations.folder,'file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+
+```
+
+## 1. Set coordinate reference system
+
+```{crs include=FALSE}
+#crs
+crs_wgs84 <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+```
+
+## 2. Load geographical context data (US boundaries, states, climate regions)  
+# Note: The shapefiles required to prepare the counties over time dataset occupy 256MB. The links to the datasets can be found below. 
+
+```{r pressure, echo=FALSE}
+# create bounding box for continental US
+us_cont_bbox <- sf::st_as_sfc(sf::st_bbox(c(xmin = -130, xmax = -60, ymax = 51, ymin = 21), crs = sf::st_crs(crs_wgs84))) %>%
+  sf::st_transform(crs_wgs84)
+  
+# cb_2018_us_nation_20m.shp download from https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.2017.html and store it at USA_emissions_code/data/geometries/
+us_cont_bds <- sf::st_read(paste0(data.folder, "geometries/cb_2018_us_nation_20m.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_intersection(us_cont_bbox) %>%
+  dplyr::select(geometry)
+
+## cb_2018_us_state_20m.shp download from https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.2017.html and store it at USA_emissions_code/data/geometries/
+
+us_states <- sf::st_read(paste0(data.folder, "geometries/cb_2018_us_state_20m.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  dplyr::rename(State = NAME) %>%
+  sf::st_intersection(us_cont_bds) %>%
+  dplyr::select(State)
+
+# Create dataset for climate regions
+# climate regions https://www.ncdc.noaa.gov/monitoring-references/maps/us-climate-regions.php
+Northwest <- c("Idaho","Oregon","Washington")
+South <- c("Arkansas","Kansas","Louisiana","Mississippi","Oklahoma","Texas")
+Southeast <- c("Alabama","Florida","Georgia", "North Carolina", "South Carolina", "Virginia")
+Northeast <- c("Connecticut", "District of Columbia", "Delaware", "Maine", "Maryland", "Massachusetts", "New Hampshire",
+               "New Jersey", "New York", "Pennsylvania", "Rhode Island", "Vermont") # included district of columbia as state but it is a federal district
+East_North_Central <- c("Iowa", "Michigan", "Minnesota", "Wisconsin")
+Central <- c("Illinois", "Indiana", "Kentucky", "Missouri", "Ohio", "Tennessee", "West Virginia")
+Southwest <- c("Arizona", "Colorado", "New Mexico", "Utah")
+West <- c("California", "Nevada")
+West_North_Central <- c("Montana", "Nebraska", "North Dakota", "South Dakota", "Wyoming")
+
+
+us_states$climate_region <- NA
+us_states[us_states$State %in% Northwest, "climate_region"] <- "Northwest"
+us_states[us_states$State %in% South, "climate_region"] <- "South"
+us_states[us_states$State %in% Southeast, "climate_region"] <- "Southeast"
+us_states[us_states$State %in% Northeast, "climate_region"] <- "Northeast"
+us_states[us_states$State %in% East_North_Central, "climate_region"] <- "East_North_Central"
+us_states[us_states$State %in% Central, "climate_region"] <- "Central"
+us_states[us_states$State %in% Southwest, "climate_region"] <- "Southwest"
+us_states[us_states$State %in% West, "climate_region"] <- "West"
+us_states[us_states$State %in% West_North_Central, "climate_region"] <- "West_North_Central"
+
+# create object with us states as dataframe for joining with states
+us_states_df <- as.data.frame(us_states)
+
+```
+
+
+# 3. Create dataset of US counties variation over time for 1970,1980,1990,2000,2010. Aim is to create us_counties dataframe with county(name-chr)| state | year | climate region | geometry 
+
+
+```{r counties_over_time, echo=FALSE}
+## US_county_1970.shp download from https://data2.nhgis.org/main and store it at USA_emissions_code/data/geometries/
+
+us_counties_1970 <- sf::st_read(paste0(data.folder, "geometries/US_county_1970.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>%
+  dplyr::rename(State = STATENAM) %>%
+  dplyr::rename(Name = NHGISNAM) %>%
+  dplyr::rename(Year = DECADE) %>%
+  dplyr::select(Name, GISJOIN, State, Year)  %>%
+  dplyr::left_join(us_states_df[,c("State", "climate_region")], by = "State")
+
+## US_county_1980.shp download from https://data2.nhgis.org/main and store it at USA_emissions_code/data/geometries/
+us_counties_1980 <- sf::st_read(paste0(data.folder, "geometries/US_county_1980.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>%
+  dplyr::rename(State = STATENAM) %>%
+  dplyr::rename(Name = NHGISNAM) %>%
+  dplyr::rename(Year = DECADE) %>%
+  dplyr::select(Name, GISJOIN, State, Year)  %>%
+  dplyr::left_join(us_states_df[,c("State", "climate_region")], by = "State")
+
+## US_county_1990.shp download from https://data2.nhgis.org/main and store it at USA_emissions_code/data/geometries/
+us_counties_1990 <- sf::st_read(paste0(data.folder, "geometries/US_county_1990.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>%
+  dplyr::rename(State = STATENAM) %>%
+  dplyr::rename(Name = NHGISNAM) %>%
+  dplyr::rename(Year = DECADE) %>%
+  dplyr::select(Name, GISJOIN, State, Year)  %>%
+  dplyr::left_join(us_states_df[,c("State", "climate_region")], by = "State")
+
+## US_county_2000.shp download from https://data2.nhgis.org/main and store it at USA_emissions_code/data/geometries/
+us_counties_2000 <- sf::st_read(paste0(data.folder, "geometries/US_county_2000.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>%
+  dplyr::rename(State = STATENAM) %>%
+  dplyr::rename(Name = NHGISNAM) %>%
+  dplyr::rename(Year = DECADE) %>%
+  dplyr::select(Name, GISJOIN, State, Year)  %>%
+  dplyr::left_join(us_states_df[,c("State", "climate_region")], by = "State")
+
+## US_county_2000.shp download from https://data2.nhgis.org/main and store it at USA_emissions_code/data/geometries/
+
+us_counties_2010 <- sf::st_read(paste0(data.folder, "geometries/US_county_2010.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>%
+  #dplyr::rename(State = STATENAM) %>%
+  dplyr::rename(Name = NAME10) %>%
+  dplyr::mutate(Year = 2010) %>%
+  sf::st_join(us_states[,c("State")], largest = TRUE)  %>%
+  dplyr::select(Name, GISJOIN, State, Year)  %>%
+  dplyr::left_join(us_states_df[,c("State", "climate_region")], by = "State")
+
+us_counties_2017 <- sf::st_read(paste0(data.folder, "geometries/US_county_2017.shp")) %>%
+  sf::st_transform(crs_wgs84) %>%
+  sf::st_make_valid() %>%
+  sf::st_intersection(us_cont_bds) %>%
+  #dplyr::rename(State = STATENAM) %>%
+  dplyr::rename(Name = NAME) %>%
+  dplyr::mutate(Year = 2017) %>%
+  sf::st_join(us_states[,c("State")], largest = TRUE)  %>%
+  dplyr::select(Name, GISJOIN, State, Year)  %>%
+  dplyr::left_join(us_states_df[,c("State", "climate_region")], by = "State")
+
+# create us_counties dataframe with county(name-chr)| state | year | climate region | geometry 
+
+us_counties <- rbind(us_counties_1970, us_counties_1980, us_counties_1990, us_counties_2000, us_counties_2010, us_counties_2017) %>%
+  sf::st_transform(4326)
+us_counties$area_km2 <- sf::st_area(us_counties)
+us_counties$area_km2 <- units::set_units(us_counties$area_km2, km^2)
+us_counties$area_km2 <- as.numeric(us_counties$area_km2)
+us_counties_df <- us_counties
+sf::st_geometry(us_counties_df) <- NULL
+# save dataset with geometrical information (large dataset)
+saveRDS(us_counties, paste0(data.folder, "generated_data/us_counties_over_time_sf.rds"))
+# save dataset without geometrical information (small dataset)
+saveRDS(us_counties_df, paste0(data.folder, "generated_data/us_counties_over_time.rds"))
+```
