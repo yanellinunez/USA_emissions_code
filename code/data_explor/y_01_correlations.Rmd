@@ -83,7 +83,7 @@ melted_cormat <- melt(corr_mat, na.rm = TRUE) %>%
 #melted_cormat$X2 <- factor(melted_cormat$X2, levels = c("propty_val_adjs", "fam_incom_adjs", "perc_unemp", "perc_pvert", "perc_hisp_org", "perc_nativ", "perc_asian", "perc_white", "perc_black", "pop_density"))
 
 
-melted_cormat$x_label <- factor(melted_cormat$X2, labels = c("Population~density", "Property~Value", "Family~Income", "'%'*Unemployment", "'%'*Poverty", "'%'*Hispanic", "'%'*American~Native",  "'%'*Asian", "'%'*Black","'%'*White"))
+melted_cormat$x_label <- factor(melted_cormat$X2, labels = c("Population~density", "Property~Value", "Family~Income", "'%'*Unemployment", "'%'*Poverty", "'%'*Hispanic", "'%'*American~Indian",  "'%'*Asian", "'%'*Black","'%'*White"))
 
 melted_cormat %>%
     ggplot(aes(X1, X2, fill = Correlation)) +

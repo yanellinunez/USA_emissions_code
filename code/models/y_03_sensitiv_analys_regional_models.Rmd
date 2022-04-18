@@ -13,17 +13,21 @@ editor_options:
 
 Objective:  
 
-Run regional models.
+Run regional models for the following sectors:
+
+Industry SO2
+Transport NOx
+
+We only evaluate 3 independent variables: 
+
+Median family income
+Black
+White
 
 We have a total of:
 
 -8 EPA regions
 
-
-
-
-
-The exposures I run are: 
 
 
 ```{r include=FALSE}
@@ -43,7 +47,7 @@ source(paste0(file.locations.folder,'external_file_locations.R'))
 source(paste0(packages.folder,'packages_to_load.R'))
 
 # load functions
-source(paste0(code.folder, 'models/functions_yanelli.R'))
+source(paste0(code.folder, 'models/functions.R'))
 
 # load data
 source(paste0(code.folder, 'data_loading.R'))
@@ -58,19 +62,12 @@ This dataset includes information to run all models with nonlinear relationships
 
 # dataset containing the arguments for all models we need to run
 
-models_to_make <-  c("perc_unemp", 
-                  "perc_pvert",
-                  "fam_incom_adjs",
-                  "propty_val_adjs",
-                  "perc_white",
-                  "perc_black",
-                  "perc_asian",
-                  "perc_nativ",
-                  "perc_hisp_org") %>%
+models_to_make <-  c("fam_incom_adjs",
+                     "perc_black") %>%
   as.data.frame() %>%
   rename(., exposure = .) %>%
-  mutate(x_label = c("% Unemployment", "% Poverty", "Median Family Income ($1000)", "Median Propty Value ($1000)", "% White", "% Black", "% Asian", "% American Native", "% Hispanic")) %>% # x label for ggplot
-  mutate(color = dplyr::if_else(exposure %in% c("perc_unempl", "perc_pvert", "fam_incom_adjs", "propty_val_adjs"), "#69b3a2", "#386cb0")) %>% # specify ggplot color based on exposure variable
+  mutate(x_label = c("Median Family Income ($1000)", "% Black")) %>% # x label for ggplot
+  mutate(color = dplyr::if_else(exposure == "fam_incom_adjs", "#69b3a2", "#386cb0")) %>% # specify ggplot color based on exposure variable
  mutate(freq=7) %>%
   map_df(., rep, .$freq) %>%
 mutate(id = rep(1:7, length.out = n())) %>%
@@ -96,10 +93,25 @@ mutate(epa_reg = case_when(id == 1 ~ 'region_1_3',  ## add outcome column
                            id == 7 ~ 'region_9',
                            id == 8 ~ 'region_10')) %>%
    dplyr::select(-freq, -id) %>%
-  filter(exposure %in% c("fam_incom_adjs", "perc_black", "perc_white"),
-         outcome %in% c("nox_energy_relat_chg", "so2_indus_relat_chg", "so2_energy_relat_chg")) ## I am  running  only  a couple of the regionals
-  
+  mutate(epa_reg_name = case_when(epa_reg == 'region_1_3' ~ "Region 1-3",  ## add outcome column
+                                  epa_reg == 'region_4' ~  "Region 4", 
+                                  epa_reg == 'region_5' ~  "Region 5", 
+                                  epa_reg == 'region_6' ~  "Region 6", 
+                                  epa_reg == 'region_7' ~  "Region 7", 
+                                  epa_reg == 'region_8' ~  "Region 8", 
+                                  epa_reg == 'region_9' ~  "Region 9",
+                                  epa_reg == 'region_10' ~ "Region 10")) %>%
+  filter(outcome %in% c("so2_indus_relat_chg", "nox_trans_relat_chg")) ## I am  running  only  two sectors
+
+# splitting the data into two sets, one for race and one for family income because the race model needs to include both Black and White together
+
+models_to_make_race <- models_to_make %>%
+  filter(exposure == "perc_black")
+
+models_to_make_eco <- models_to_make %>%
+  filter(exposure == "fam_incom_adjs")
 ```
+
 
 ## 2. Progress bar 
 
@@ -121,27 +133,27 @@ doSNOW::registerDoSNOW(cluster)
 ```
 
 
-## 3. autoprocessing of REGIONAL models
+## 3. REGIONAL models median family income
 
 ```{r}
 
-### run the foreach() loop ( I am parallelizing this process to make it faster)
+### run the foreach() loop ( I am paralleling this process to make it faster)
          
-models_regional <- foreach(i = iterators::icount(nrow(models_to_make)), # iterate across rows
+models_regional_eco <- foreach(i = iterators::icount(nrow(models_to_make_eco)), # iterate across rows
                              .options.snow=opts, # the progress bar being sent to each core
                              .packages=c("Epi", "magrittr", "dplyr", "janitor", "ggplot2"), # the packages being sent to each core
                              .export = ls(globalenv()),
                              .inorder = FALSE, # speeds up parallel programming
-                             .combine = rbind) %dopar% { # if you doing parallel programing use %dopar% otherwise use %do%
+                             .combine = rbind) %dopar% { # if you doing parallel programming use %dopar% otherwise use %do%
 # make model i
 
- m <- reg_model_func(data = models_to_make$data_spf[[i]],
-                     epa_region = models_to_make$epa_reg[[i]],
-                        outcome = models_to_make$outcome[[i]], 
-                       exposure = models_to_make$exposure[[i]])
+ m <- reg_model_func(data = models_to_make_eco$data_spf[[i]],
+                     epa_region = models_to_make_eco$epa_reg[[i]],
+                        outcome = models_to_make_eco$outcome[[i]], 
+                       exposure = models_to_make_eco$exposure[[i]])
 
 # add models to df
-df <- models_to_make[i,] %>% mutate(models = list(m))
+df <- models_to_make_eco[i,] %>% mutate(models = list(m))
 
 # make plots  
  p <- plot_nonlin_regional(model = df$models[[1]],
@@ -149,7 +161,8 @@ df <- models_to_make[i,] %>% mutate(models = list(m))
         exposure = df$exposure[[1]],
           region = df$epa_reg[[1]],
            color = df$color[[1]],
-         x_label = df$x_label[[1]])
+         x_label = df$x_label[[1]],
+          title  = df$epa_reg_name[[1]])
    
 # add plots to df
 df <- df %>% mutate(plots = list(p)) %>%
@@ -159,139 +172,83 @@ df
 
 }
 
-# stop the parellel processing
+# stop the parallel processing
 snow::stopCluster(cluster)
 close(pb)
-```
 
-## 4. Arrange dataset
+### Arrange dataset
 
-```{r}
-models_regional <- models_regional %>%
+models_regional_eco <- models_regional_eco %>%
   mutate(epa_reg = fct_relevel(epa_reg, "region_1_3", "region_4", "region_5", "region_6", "region_7", "region_8", "region_9", "region_10")) %>%
   arrange(outcome, exposure, epa_reg)
+
+### Save dataset
+saveRDS(models_regional_eco, paste0(yanelli_external, "results_updated/sensit_analys_models_regional_eco.rds"))
+
 ```
 
-## 5. Explore results
 
-### 5a. NOx from energy
+## 4. REGIONAL models Black/White
 
 ```{r}
 
-pdf(file = "energy_nox_reg.pdf", width = 11, height = 13)            
- grid.arrange(models_regional$plots[[1]],
-              models_regional$plots[[2]],
-              models_regional$plots[[3]],
-              models_regional$plots[[4]],
-              models_regional$plots[[5]],
-              models_regional$plots[[6]],
-              models_regional$plots[[7]],
-              models_regional$plots[[8]],
-              
-              # Perc  Black
-              models_regional$plots[[9]],
-              models_regional$plots[[10]],
-              models_regional$plots[[11]],
-              models_regional$plots[[12]],
-              models_regional$plots[[13]],
-              models_regional$plots[[14]],
-              models_regional$plots[[15]],
-              models_regional$plots[[16]],
-              
-              # Perc White
-              models_regional$plots[[17]],
-              models_regional$plots[[18]],
-              models_regional$plots[[19]],
-              models_regional$plots[[20]],
-              models_regional$plots[[21]],
-              models_regional$plots[[22]],
-              models_regional$plots[[23]],
-              models_regional$plots[[24]],
-             
-             nrow = 6, ncol = 4,
-             left = gridtext::richtext_grob("Energy: NO<sub>x</sub> (% chg)", rot=90,
-             gp=gpar(fontsize=15,font=8)))
-dev.off() 
+### run the foreach() loop ( I am paralleling this process to make it faster)
+         
+models_regional_race <- foreach(i = iterators::icount(nrow(models_to_make_race)), # iterate across rows
+                             .options.snow=opts, # the progress bar being sent to each core
+                             .packages=c("Epi", "magrittr", "dplyr", "janitor", "ggplot2"), # the packages being sent to each core
+                             .export = ls(globalenv()),
+                             .inorder = FALSE, # speeds up parallel programming
+                             .combine = rbind) %dopar% { # if you doing parallel programming use %dopar% otherwise use %do%
+# make model i
 
+ m <- reg_model_func_race( data = models_to_make_race$data_spf[[i]],
+                     epa_region = models_to_make_race$epa_reg[[i]],
+                        outcome = models_to_make_race$outcome[[i]], 
+                       exposure = models_to_make_race$exposure[[i]])
+
+# add models to df
+df <- models_to_make_race[i,] %>% mutate(models = list(m))
+
+# make plots  
+ p <- plot_nonlin_regional(model = df$models[[1]],
+                            data = df$data_spf[[1]],
+                        exposure = df$exposure[[1]],
+                          region = df$epa_reg[[1]],
+                           color = df$color[[1]],
+                         x_label = df$x_label[[1]],
+                          title  = df$epa_reg_name[[1]])
+   
+# add plots to df
+df <- df %>% mutate(plots_black = list(p)) 
+  
+p_white <- plot_nonlin_regional_wt(model = df$models[[1]],
+                                    data = df$data_spf[[1]],
+                                  region = df$epa_reg[[1]],
+                                   color = df$color[[1]],
+                                  title  = df$epa_reg_name[[1]])
+
+df <- df %>% mutate(plots_white = list(p_white)) %>%
+  dplyr::select(-color, -x_label, -epa_reg_name) 
+
+df
+
+}
+
+# stop the parallel processing
+snow::stopCluster(cluster)
+close(pb)
+
+### Arrange dataset
+
+models_regional_race <- models_regional_race %>%
+  mutate(epa_reg = fct_relevel(epa_reg, "region_1_3", "region_4", "region_5", "region_6", "region_7", "region_8", "region_9", "region_10")) %>%
+  arrange(outcome, exposure, epa_reg)
+
+### Save dataset
+saveRDS(models_regional_race, paste0(yanelli_external, "results_updated/sensit_analys_models_regional_race.rds"))
 
 ```
 
-### 5b. SO2 from energy
 
-```{r}
 
-pdf(file = "energy_so2_reg.pdf", width = 11, height = 13)            
- grid.arrange(models_regional$plots[[25]],
-              models_regional$plots[[26]],
-              models_regional$plots[[27]],
-              models_regional$plots[[28]],
-              models_regional$plots[[29]],
-              models_regional$plots[[30]],
-              models_regional$plots[[31]],
-              models_regional$plots[[32]],
-              
-              # Perc  Black
-              models_regional$plots[[33]],
-              models_regional$plots[[34]],
-              models_regional$plots[[35]],
-              models_regional$plots[[36]],
-              models_regional$plots[[37]],
-              models_regional$plots[[38]],
-              models_regional$plots[[39]],
-              models_regional$plots[[40]],
-              
-              # Perc White
-              models_regional$plots[[41]],
-              models_regional$plots[[42]],
-              models_regional$plots[[43]],
-              models_regional$plots[[44]],
-              models_regional$plots[[45]],
-              models_regional$plots[[46]],
-              models_regional$plots[[47]],
-              models_regional$plots[[48]],
-             
-             nrow = 6, ncol = 4,
-             left = gridtext::richtext_grob("Energy: SO<sub>2</sub> (% chg)", rot=90,
-             gp=gpar(fontsize=15,font=8)))
-dev.off() 
-```
-
-### 5b. SO2 from industry
-
-```{r}
-
-pdf(file = "indus_so2_reg.pdf", width = 11, height = 13)            
- grid.arrange(models_regional$plots[[49]],
-              models_regional$plots[[50]],
-              models_regional$plots[[51]],
-              models_regional$plots[[52]],
-              models_regional$plots[[53]],
-              models_regional$plots[[54]],
-              models_regional$plots[[55]],
-              models_regional$plots[[56]],
-              
-              # Perc  Black
-              models_regional$plots[[57]],
-              models_regional$plots[[58]],
-              models_regional$plots[[59]],
-              models_regional$plots[[60]],
-              models_regional$plots[[61]],
-              models_regional$plots[[62]],
-              models_regional$plots[[63]],
-              models_regional$plots[[64]],
-              
-              # Perc White
-              models_regional$plots[[65]],
-              models_regional$plots[[66]],
-              models_regional$plots[[67]],
-              models_regional$plots[[68]],
-              models_regional$plots[[69]],
-              models_regional$plots[[70]],
-              models_regional$plots[[71]],
-              models_regional$plots[[72]],
-             
-             nrow = 6, ncol = 4,
-             left = gridtext::richtext_grob("Industry: SO<sub>2</sub> (% chg)", rot=90,
-             gp=gpar(fontsize=15,font=8)))
-dev.off() 
-```

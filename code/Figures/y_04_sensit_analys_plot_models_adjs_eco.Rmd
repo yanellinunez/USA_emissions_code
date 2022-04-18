@@ -1,0 +1,139 @@
+---
+title: "Plots for Sensitivity Analysis"
+author: "Yanelli Nunez"
+date: "4/14/2022"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+source(paste0(file.locations.folder,'external_file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+# load functions
+source(paste0(code.folder, 'models/functions.R'))
+
+# load data
+source(paste0(code.folder, 'data_loading.R'))
+
+```
+
+
+## 1. Load models
+
+```{r}
+models_adjs_eco <- readRDS(paste0(yanelli_external, "results_updated/sensit_analy_models_adjs_eco.rds"))
+
+models_adjs_eco <- models_adjs_eco %>%
+  arrange(outcome, exposure)
+```
+
+## 2. Plots 
+```{r}
+
+par(mfrow=c(7,5), mar = c(4, 2.5, 0.2, 2)) # "mar" adjust the margins (space in between rows etc)
+
+# SO2 industry
+plot(models_adjs_eco$models[[26]], select = 2, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[26]], select = 1, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[25]], select = 1, ylab = "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[28]], select = 1, ylab = "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[27]], select = 1, ylab = "", xlim = c(0,100), ylim = c(-5, 50)) 
+abline(h=0, col = "blue")
+
+# SO2 energy
+plot(models_adjs_eco$models[[22]], select = 2, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[22]], select = 1, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[21]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[24]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[23]], select = 1, ylab= "", xlim = c(0,100)) 
+abline(h=0, col = "blue")
+
+# NOx energy
+plot(models_adjs_eco$models[[10]], select = 2, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[10]], select = 1, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[9]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[12]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[11]], select = 1, ylab= "", xlim = c(0,100)) 
+abline(h=0, col = "blue")
+
+# NH3 agriculture
+plot(models_adjs_eco$models[[2]], select = 2, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[2]], select = 1, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[1]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[4]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[3]], select = 1, ylab= "", xlim = c(0,100), ylim = c(-5, 50)) 
+abline(h=0, col = "blue")
+
+# NOx transportation
+plot(models_adjs_eco$models[[14]], select = 2, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[14]], select = 1, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[13]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[16]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[15]], select = 1, ylab= "", xlim = c(0,100)) 
+abline(h=0, col = "blue")
+
+# OC residential
+plot(models_adjs_eco$models[[18]], select = 2, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[18]], select = 1, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[17]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[20]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[19]], select = 1, ylab= "", xlim = c(0,100)) 
+abline(h=0, col = "blue")
+
+# NOx commercial
+plot(models_adjs_eco$models[[6]], select = 2, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[6]], select = 1, ylab = "")
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[5]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[8]], select = 1, ylab= "") 
+abline(h=0, col = "blue")
+plot(models_adjs_eco$models[[7]], select = 1, ylab= "", xlim = c(0,100)) 
+abline(h=0, col = "blue")
+
+```
+

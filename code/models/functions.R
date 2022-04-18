@@ -99,6 +99,64 @@ reg_model_func <- function(data, epa_region, outcome, exposure) {
   model <- get(data) %>%
     filter(epa_reg == epa_region) %>%
     gamm4::gamm4(as.formula(paste(outcome, "~ s(", exposure, ") +
+                                s(pop_density) +
+                                urbanicity +
+                                year")), 
+                 random = ~(1|state/gisjoin), data = .)
+  
+  model[["gam"]]
+  
+}
+########### Predict and Plot Regional Nonlinear Dose-Response ################
+
+# predict estimates for plotting
+
+plot_nonlin_regional <- function(model, data, region, exposure, color, x_label, title) {
+  
+  # predict 
+  
+  pred <- predict(model, se.fit = TRUE, type = "terms") 
+  
+  
+  # polish predictions
+  
+  pred_df <- get(data) %>% 
+    dplyr::filter(epa_reg == region) %>%
+    dplyr::select(exposure) %>%
+    tibble(., pred$fit[,3], pred$se.fit[,3]) %>%
+    as.data.frame() %>%
+    clean_names()  %>%
+    dplyr::rename(indp_var = 1,
+                  beta = pred_fit_3,
+                  se = pred_se_fit_3) %>%
+    arrange(indp_var) %>%
+    mutate(lci = beta - 1.96 * se,
+           uci = beta + 1.96 * se)
+  
+  
+  # plot
+  
+  plot <- pred_df %>%
+    ggplot(aes(x = indp_var)) +
+    theme_minimal() +
+    geom_ribbon(aes(ymin = lci, ymax = uci), fill = color, alpha = 0.3) +
+    geom_path(aes(y = beta), size = 0.7) +
+    geom_hline(yintercept = 0, linetype = 2, size =0.5) +
+    xlab(x_label) +
+    ylab("") +
+    ggtitle(title)
+  # geom_rug(sides = "b")
+  plot
+  
+}
+
+############################ function to run regional penalized models for RACE ####################
+
+reg_model_func_race <- function(data, epa_region, outcome, exposure) {
+  
+  model <- get(data) %>%
+    filter(epa_reg == epa_region) %>%
+    gamm4::gamm4(as.formula(paste(outcome, "~ s(", exposure, ") +
                                 s(perc_white) +
                                 s(pop_density) +
                                 urbanicity +
@@ -106,6 +164,49 @@ reg_model_func <- function(data, epa_region, outcome, exposure) {
                  random = ~(1|state/gisjoin), data = .)
   
   model[["gam"]]
+  
+}
+
+########### Predict and Plot Regional Nonlinear Dose-Response WHITE ################
+
+# predict estimates for plotting
+
+plot_nonlin_regional_wt <- function(model, data, region, color, title) {
+  
+  # predict 
+  
+  pred <- predict(model, se.fit = TRUE, type = "terms") 
+  
+  
+  # polish predictions
+  
+  pred_df <- get(data) %>% 
+    dplyr::filter(epa_reg == region) %>%
+    dplyr::select(perc_white) %>%
+    tibble(., pred$fit[,4], pred$se.fit[,4]) %>%
+    as.data.frame() %>%
+    clean_names()  %>%
+    dplyr::rename(indp_var = 1,
+                  beta = pred_fit_4,
+                  se = pred_se_fit_4) %>%
+    arrange(indp_var) %>%
+    mutate(lci = beta - 1.96 * se,
+           uci = beta + 1.96 * se)
+  
+  
+  # plot
+  
+  plot <- pred_df %>%
+    ggplot(aes(x = indp_var)) +
+    theme_minimal() +
+    geom_ribbon(aes(ymin = lci, ymax = uci), fill = color, alpha = 0.3) +
+    geom_path(aes(y = beta), size = 0.7) +
+    geom_hline(yintercept = 0, linetype = 2, size =0.5) +
+    xlab("% White") +
+    ylab("") +
+    ggtitle(title)
+  # geom_rug(sides = "b")
+  plot
   
 }
 
@@ -258,48 +359,7 @@ plot_linear <- function(pred_est, x_label, color) {
 
 
 
-########### Predict and Plot Regional Nonlinear Dose-Response ################
 
-# predict estimates for plotting
-
-plot_nonlin_regional <- function(model, data, region, exposure, color, x_label) {
-  
-  # predict 
-  
-  pred <- predict(model, se.fit = TRUE, type = "terms") 
-  
-  
-  # polish predictions
-  
-  pred_df <- get(data) %>% 
-                      dplyr::filter(epa_reg == region) %>%
-                      dplyr::select(exposure) %>%
-    tibble(., pred$fit[,3], pred$se.fit[,3]) %>%
-    as.data.frame() %>%
-    clean_names()  %>%
-    dplyr::rename(indp_var = 1,
-                  beta = pred_fit_3,
-                 se = pred_se_fit_3) %>%
-    arrange(indp_var) %>%
-    mutate(lci = beta - 1.96 * se,
-           uci = beta + 1.96 * se)
- 
-
-  # plot
-  
-plot <- pred_df %>%
-  ggplot(aes(x = indp_var)) +
-  theme_minimal() +
-  geom_ribbon(aes(ymin = lci, ymax = uci), fill = color, alpha = 0.3) +
- geom_path(aes(y = beta), size = 0.7) +
- geom_hline(yintercept = 0, linetype = 2, size =0.5) +
- xlab(x_label) +
- ylab("") +
-  ggtitle(region)
-# geom_rug(sides = "b")
-plot
-  
-}
 
 ############ Sensitivity analysis: all eco variables in racial models ###########
 
@@ -322,14 +382,5 @@ run_model_eco_adjus <- function(data, outcome, exposure) {
 }
 
 
-############ Sensitivity analysis: plot models (basic ploting) ###############
 
-
-plot_basic <- function(model){
-  
-p <- plot.gam(model, select = 1, ylab = "")
-
-p
-
-}
 
