@@ -190,10 +190,6 @@ mutate(outcome = case_when(id == 1 ~ 'so2_energy_relat_chg',  ## add outcome col
     filter(exposure == "perc_black",
            outcome != "nox_energy_relat_chg") # because in this case white is also linear 
 
-
-## 3) run nox_energy_relat_chg as a single model for white and black with linear terms    
-
-
 ```
 
 
@@ -374,7 +370,7 @@ close(pb)
 
 # save list dataset 
 
-saveRDS(models_nonlin_blk_wht, paste0(yanelli_external, "results_updated/models_nonlin_blk_wht.rds"))
+# saveRDS(models_nonlin_blk_wht, paste0(yanelli_external, "results_updated/models_nonlin_blk_wht.rds"))
 
 ```
 

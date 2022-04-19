@@ -2,27 +2,21 @@
 #### Extracting coefficients from nested/random effects model with a gausian distribution. 
 
 
-beta_extrc <- function(model, sector, variable) {
+beta_extrc <- function(index, indep_var) {
   
   #extract beta and standard errors
   
-  beta <- itsadug::get_coefs(model[[2]])[2,1]
-  beta.se <- itsadug::get_coefs(model[[2]])[2,2]
-  
-  #estimate 95% CI
-  
-  lci <- beta - 1.96 * beta.se
-  uci <- beta + 1.96 * beta.se
-  
-  #rate ratio
-  
-  table <- as_tibble(cbind(beta, beta.se, lci, uci)) %>%
-    mutate(sector = sector,
-           variable = variable) 
+  table <- get_coefs(linear_models$models[[index]]) %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column(., "variable") %>%
+    filter(variable == indep_var) %>%
+    clean_names() 
   
   table
   
 }
+
+
 
 
 ############################ function to run linear/nonlinear models race ####################

@@ -1,0 +1,112 @@
+---
+title: "Extract effect estimates for the linear associations"
+author: "Yanelli Nunez"
+date: "4/18/2022"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+Objective:  
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+source(paste0(file.locations.folder,'external_file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+# load functions
+source(paste0(code.folder, 'models/functions.R'))
+
+# load data
+source(paste0(code.folder, 'data_loading.R'))
+
+```
+
+## 1. Load models 
+
+```{r}
+
+linear_models <- readRDS(paste0(yanelli_external, "results_updated/models_linear.rds"))
+
+```
+
+## 1. Extract estimates
+
+```{r}
+
+variable = c('cb_nox_energy_black',
+              'cb_data_master_nativ',
+              'cb_nox_energy_asian',
+              'cb_data_master_nativ',
+              'cb_data_master_black',
+              'cb_so2_energy_hisp',
+              'cb_so2_energy_asian',
+              'cb_so2_inds_black',
+              'cb_nox_energy_nativ',
+              'cb_nox_energy_white')
+
+index = 1:10
+
+arg_func <- cbind(index, variable) %>%
+  as.data.frame()
+
+# I tried looping this function but keep getting errors...
+
+r.1 <- beta_extrc(index = 1,
+                 indep_var  = arg_func$variable[[1]])
+r.2 <- beta_extrc(index = 2,
+                 indep_var  = arg_func$variable[[2]])
+r.3 <- beta_extrc(index = 3,
+                 indep_var  = arg_func$variable[[3]])
+r.4 <- beta_extrc(index = 4,
+                 indep_var  = arg_func$variable[[4]])
+r.5 <- beta_extrc(index = 5,
+                 indep_var  = arg_func$variable[[5]])
+r.6 <- beta_extrc(index = 6,
+                 indep_var  = arg_func$variable[[6]])
+r.7 <- beta_extrc(index = 7,
+                 indep_var  = arg_func$variable[[7]])
+r.8 <- beta_extrc(index = 8,
+                 indep_var  = arg_func$variable[[8]])
+r.9 <- beta_extrc(index = 9,
+                 indep_var  = arg_func$variable[[9]])
+r.10 <- beta_extrc(index = 10,
+                 indep_var  = arg_func$variable[[10]])
+
+
+coeff <- rbind(r.1, r.2, r.3, r.4, r.5, r.6, r.7, r.8, r.9, r.10)
+
+coeff_summary <- linear_models %>%
+  dplyr::select(-models, -plots, -data_spf) %>%
+  cbind(., coeff) %>%
+  mutate(lci = estimate - 1.96 * std_error,
+         uci = estimate + 1.96 * std_error,
+         estimate_10 = estimate*10, # estimate the change per 10 percent points increase in the independent vaariable
+         lci_10 = lci*10,
+         uci_10 = uci*10)
+
+```
+
+## 2. Save outputt
+
+```{r}
+
+linear_models_coeff <- write_csv(coeff_summary, paste0(output.folder, "linear_models_coeff.csv"))
+
+```
+
