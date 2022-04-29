@@ -40,6 +40,8 @@ source(paste0(packages.folder,'packages_to_load.R'))
 
 ## 1. Load data
 
+Note: the geometries are save on my local drive because the file is too large for GitHub. So you won't be able to make the maps but I think that is okay.
+
 ```{r}
 
 # data
@@ -60,7 +62,7 @@ county pop ≥ 50,000 people --> metropolitan
 10,000 ≤ county pop < 50,000 --> micropolitan
 county pop < 10,000 non-urban
 
-I obtain the classification from the link below, page 3
+I obtained the classification from the link below, page 3
 
 https://www.cdc.gov/nchs/data/series/sr_02/sr02_166.pdf
 
@@ -125,11 +127,15 @@ levels(epa_region$epa_reg)
 
 ```{r}
 
-saveRDS(epa_region, paste0(data.folder, "generated_data/data_indp_varib_3.rds")) 
+# No need to resave 
+
+##saveRDS(epa_region, paste0(data.folder, "generated_data/data_indp_varib_3.rds")) 
 
 ```
 
 ## 6. Visualization
+
+Join data with spatial geometries
 
 ```{r}
 
@@ -152,7 +158,7 @@ my_purpls <- c("#efedf5", "#dadaeb", "#bcbddc", "#9e9ac8", "#807dba", "#6a51a3",
 
 Urbanicity maps
 
-This takes a bit to run. It generates the two urbanicity maps that are part of the manuscript supplement materials
+This takes a bit to run. It generates the two urbanicity maps for supplementary figure FS.2
 
 ```{r}
 
@@ -208,7 +214,7 @@ end_time - start_time
 
 ### 6c. EPA regions map
 
-EPA regions are consisted throughout years. So here I plot 2000 to visualize
+EPA regions are consisted throughout years. So here I plot 2000 to visualize. This is supplemental figure 1 (FS.1)
 
 ```{r}
 

@@ -16,6 +16,8 @@ Objective:
 - Remove the extreme values from the energy sector (SO2 and NOx) 
 - Convert NaN to zeros and remove the few infinity values in SO2 industry
 
+Note: I commented out the line code for saving the generated dataset because if ran it will overwrite the already saved dataset
+
 
 ```{r include=FALSE}
 
@@ -80,7 +82,8 @@ quantile(data$nox_energy_relat_chg, seq(0,1,0.05), na.rm=TRUE)
 
 ## 2. Energy sector
 
-We select the 95th percentile of the data to avoid extremely large values that are generated when a county's reference year has a extremely low emission flux
+- We selected the 95th percentile of the data to avoid extremely large values that are generated when a county's reference year has a extremely low emission flux.
+- These are the dataset that I used for the models for the energy sector
 
 ### 2a. SO2 energy 
 
@@ -98,7 +101,7 @@ sd(data_so2_energy$so2_energy_relat_chg)
 plot(density(data_so2_energy$so2_energy_relat_chg, na.rm = TRUE))
 
 # save data
-saveRDS(data_so2_energy, paste0(data.folder, "generated_data/master_so2_energy.rds"))
+#saveRDS(data_so2_energy, paste0(data.folder, "generated_data/master_so2_energy.rds"))
 
 ```
 
@@ -117,20 +120,11 @@ summary(data_nox_energy$nox_energy_relat_chg)
 sd(data_nox_energy$nox_energy_relat_chg)
 
 # save data
-saveRDS(data_nox_energy, paste0(data.folder, "generated_data/master_nox_energy.rds"))
+#saveRDS(data_nox_energy, paste0(data.folder, "generated_data/master_nox_energy.rds"))
 
 ```
 
 ## 3. SO2 from Industry
-
-higher --> low
-
-- 640 observations have zeros for SO2 industry 
-- Only 11 counties have zero at 1970
-- There is 152 counties that have zero in 1980-2000. 
-- The 11 counties with zero in 1970 are within the 152 counties with zero in the later years. This means that 141 counties went from non-zero to zero from 1970 to 1980 but after that they stay as zeros
-- There are 147 counties with zero in 2010 which means that 5 counties went from zero in 2000 to non-zero in 2010. 
-
 
 - Counties that have zero in two consecutive years have a NaN value for the relative change (because 0-0/0 --> NaN). So I will replace this NaN with zero because basically the change in emissions, for the counties that have consecutive zeros, is zero!
 
@@ -139,8 +133,17 @@ higher --> low
 - The good thing is that there is only have 5 counties that have infinity values because they went from 0 in 2000 to nonzero in 2010 (nonzero - 0 / 0 --> infinity)
 
 
-```{r}
 
+Below are notes I was making for myself. Feel free to ignore 
+- 640 observations have zeros for SO2 industry 
+- Only 11 counties have zero at 1970
+- There is 152 counties that have zero in 1980-2000. 
+- The 11 counties with zero in 1970 are within the 152 counties with zero in the later years. This means that 141 counties went from non-zero to zero from 1970 to 1980 but after that they stay as zeros
+- There are 147 counties with zero in 2010 which means that 5 counties went from zero in 2000 to non-zero in 2010. 
+
+
+```{r}
+### I definitely went the long way here... 
 # view distribution
 histogram(data$so2_industry)
 
@@ -207,7 +210,8 @@ summary(so2_indus_new)
 summary(data)
 
 # save file
-saveRDS(so2_indus_new, paste0(data.folder, "generated_data/master_so2_industry.rds"))
+### No need to save again this file
+##saveRDS(so2_indus_new, paste0(data.folder, "generated_data/master_so2_industry.rds"))
 
 ```
 

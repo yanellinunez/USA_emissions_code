@@ -11,7 +11,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-
 Objective:  
 
 Plot the updated dose-responses 
@@ -62,6 +61,7 @@ models_nonlin_wht <- readRDS(paste0(yanelli_external, "results_updated/models_no
   arrange(outcome)
 
 ```
+
 
 ### 1a. Combine datasets
 Merging some of the datasets together to make the next steps easier

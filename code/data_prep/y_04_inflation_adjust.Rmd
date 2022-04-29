@@ -76,7 +76,7 @@ knitr::kable(cpi_index)
 
 ```
 
-## b. Adjust to 2017 dollars
+## b. Adjust to 2010 dollars
 -Numbers use for the adjustment below are from the index_fraction in the cpi knitr table above
 -Remember census data is for the year prior (e.g. 2000 census has data from 1999)
 -Data for 2008-2012 ACS (label as 2010 in this data) is adjusted to 2012. So here I'm adjusting the 2012 dollars to 2010 dollars
@@ -102,11 +102,11 @@ class(data_adjs)
 
 ```
 
-### c. Add variables to master data
+### c. Save data
 
 ```{r}
 
-saveRDS(data_adjs, paste0(data.folder, "generated_data/data_indp_varib_3_inflat_adjst.rds"))
+###saveRDS(data_adjs, paste0(data.folder, "generated_data/data_indp_varib_3_inflat_adjst.rds"))
 
 ```
 

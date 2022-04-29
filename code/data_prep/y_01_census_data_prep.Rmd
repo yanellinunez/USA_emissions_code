@@ -11,6 +11,10 @@ editor_options:
   chunk_output_type: console
 ---
 
+Here I wrangled all of the census variables.
+
+Census data is located inside the data folder. There is a folder for each variable that contains the data and the variable dictionary 
+
 ```{r include=FALSE}
 
 rm(list=ls())
@@ -55,7 +59,7 @@ pop_race <- read_csv(paste0(data.folder, "census_data/population_race_urbanicity
                 tot_pop = AV0AA,
                 hisp_org = A35AA) %>%
  dplyr::filter(YEAR != "2008-2012") %>% # 2010 census includes population counts so we do not need the estimates from the ACS for the race/ethnicity variables
-  dplyr::select( -AV0AAM, -urban_in, -urban_out, -rural, -urban, -multi_race) %>% #don't need urbanicity. We also removed multi-race because it is available starting at 2000
+  dplyr::select( -AV0AAM, -urban_in, -urban_out, -rural, -urban, -multi_race) %>% #don't need urbanicity. We also removed multi-race because we do not use it in the analyses 
   clean_names() %>%
   mutate(statefp = as.character(statefp),
          statenh = as.character(statenh),
@@ -77,11 +81,11 @@ summary(pop_race)
 
 ## 2. Education, employment & poverty variables 
 
-- Economic variables were not collected through the 2010 decennial census. So we obtained from the ACS 3-year average (2008-2012) as proxi to 2010 estimates. In the dataset, I labeled 2008-20012 as 2010 to match the year levels of the race/ethnicity data
+- Economic variables were not collected through the 2010 decennial census. So we obtained from the ACS 3-year average (2008-2012) as proxy to 2010 estimates. In the dataset, I labeled 2008-20012 as 2010 to match the year levels of the race/ethnicity data
 
-- Note that for the analysis we will not need 2010 demographic data only 1970-2000 so we do not have to worry about the fact that economic data is only available through the ACS and not the 2010 census. We including 2010 data here just because it is already in the data files but we will not need it in the analysis
+- Note that for the analysis we will not need 2010 demographic data only 1970-2000 so we do not have to worry about the fact that economic data is only available through the 2008-2012 ACS and not the 2010 census. We including 2010 data here just because it is already in the data files but we will not need it in the analysis
 
-- We also included education but we did not use these variable in the analyses
+- We also included education but we did not use this variable in the analyses
 
 
 
@@ -181,7 +185,7 @@ Counties per year for population and race:
 
 * Detail notes on counties changes across time *
 
-The information below was obtained from reading online about county stablishment years and comparing to the data we have. 
+The information below was obtained from reading online about county establishment years and comparing to the data we have. 
 
 https://www.census.gov/programs-surveys/geography/technical-documentation/county-changes.1970.html
 
@@ -295,9 +299,9 @@ summary(race_pov_edu_emp_merge)
 
 ## 5. Property value
 
-- Median house value for 2010 comes from the ACS 2008-2012 which is adjusted to 2012 inflation
+- Median house value for 2010 comes from the ACS 2008-2012 which is adjusted to 2012 inflation. Again, we do not used this in the analysis because we only need demographic data up to 2000.
 - Median house value data for 1980-2000 are from the decennial census
-- Median house value data is only available as a categorical variable or aggregated for year 1970 so we are not including 1970 data here
+- Median house value data are only available as a categorical variable or aggregated for year 1970 so we are not including 1970 data here
 
 - District of Columbia does not have data on median house value in 2010
 
@@ -346,11 +350,11 @@ mutate(countyfp = str_pad(countyfp, 3, pad = "0"),
 ## 6. Household and family income
 
 Notes: 
-- For 2010 we using the ACS from 2008-2012 which is adjusted to 2012 inflation
+- For 2010 we using the ACS from 2008-2012 which is adjusted to 2012 inflation. Again, we do not used this in the analysis because we only need demographic data up to 2000.
 - To facilitate things I rename 2008-2012 as 2010
 - Removed Alaska, Puerto Rico and Hawaii
 - Income data for 1980-2000 are from the decennial census
-- Income data is only available as a categorical variable or aggregated for year 1970 so we aren't not including 1970 data here
+- Income data are only available as a categorical variable or aggregated for year 1970 so we aren't not including 1970 data here
 - We have two variables for income: median house income & median family income
 
 
@@ -393,6 +397,7 @@ median_family_incom <- read_csv(paste0(data.folder, "census_data/median_family_i
 
 ### Merge datasets  
 
+
 income_merged <- full_join(median_house_incom, median_family_incom)
 
 
@@ -430,6 +435,7 @@ data_indp_varib_1 <- full_join(data_perc, income_merged) %>%
 summary(data_indp_varib_1)
 
 ## save dataset
-write_csv(data_indp_varib_1, paste0(data.folder, "generated_data/data_indp_varib_1.csv"))
+## no need to run the write_csv. The dataset is already save in the "generated_data" folder 
+## write_csv(data_indp_varib_1, paste0(data.folder, "generated_data/data_indp_varib_1.csv"))
 ```
 

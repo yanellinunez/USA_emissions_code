@@ -11,6 +11,15 @@ editor_options:
   chunk_output_type: console
 ---
 
+Objective:
+
+- Combine emissions data 
+- Estimate emissions change
+- Merge emissions with covariates
+
+Note: I commented out the line code for saving the generated dataset because if ran it will overwrite the already saved dataset
+
+
 
 ```{r include=FALSE}
 
@@ -34,6 +43,7 @@ source(paste0(packages.folder,'packages_to_load.R'))
 
 
 ## 1. Load data
+
 The rds file named data_indp_varib_4 contains all of the independent variables 
 
 ```{r}
@@ -62,7 +72,7 @@ class(inde_vari)
 - OC from residential 
 - NOx from commercial
 
-- These datasets included a climate regions variable created by Jaime
+- These datasets included a climate regions variable created by Jaime but I also created the same variable using his code in y_03_urbanicity_epa_regions.Rmd. So basically the variable is duplicated. 
 - The data also includes year 2017, which we do not use in these analysis
 
 ```{r}
@@ -73,7 +83,7 @@ class(inde_vari)
 nox_transp <- readRDS(paste0(data.folder, "emissions_data/emis_nox_tr_county_df.rds")) %>%
   clean_names() %>%
   mutate(year = as.numeric(year)) %>%
-  mutate(state = if_else(state == "District of Columbia", "District Of Columbia", state))
+  mutate(state = if_else(state == "District of Columbia", "District Of Columbia", state)) # in the covariates dataframe the name is District 'Of' Columbia so I editing it here to match that format
 
 summary(nox_transp)
 
@@ -140,7 +150,7 @@ class(poll)
 summary(poll)
 
 # save files with all emission year 1970 to 2017
-saveRDS(poll, paste0(data.folder, "generated_data/emissions_all_data.rds"))
+# saveRDS(poll, paste0(data.folder, "generated_data/emissions_all_data.rds"))
 
 ```
 
@@ -149,9 +159,9 @@ saveRDS(poll, paste0(data.folder, "generated_data/emissions_all_data.rds"))
 Notes: 
 
 - Relative change was estimated as a percentage of the initial concentration
-- Relative change was estimated as a percentage of the initial concentration, thus, variables that have a starting concentration of zero results in undefined values(number/zero --> undefined).
+- Relative change was estimated as a percentage of the initial concentration, thus, for variables that have a starting concentration of zero we get undefined values(number/zero --> undefined).
 
-- ***Beware, the variable 'name' seems to have discrepancies in writing and the relative matching to gisjoin
+- ***Beware, the variable 'name' seems to have discrepancies in writing and the relative matching to gisjoin. This is a not to myself to not use this variable.
 
 ```{r}
   
@@ -191,12 +201,12 @@ summary(poll_reltv_chg)
 class(poll_reltv_chg)
 
 # save file
- saveRDS(poll_reltv_chg, paste0(data.folder, "generated_data/emissions_diff_reltv_chg.rds"))
+ #saveRDS(poll_reltv_chg, paste0(data.folder, "generated_data/emissions_diff_reltv_chg.rds"))
 
 ```
 
-### 3c. Bind independent variables w/emissions data
 
+### 3c. Bind independent variables w/emissions data
 
 ```{r}
 full_data <- inde_vari %>%
@@ -207,10 +217,13 @@ full_data <- inde_vari %>%
 summary(full_data)
 class(full_data)
 
-saveRDS(full_data, paste0(data.folder, "generated_data/master_data.rds"))
+# saveRDS(full_data, paste0(data.folder, "generated_data/master_data.rds"))
 ```
 
+
 ## 4. Visualizations
+
+A couple of counties are missing emissions data. They are small areas and peninsulas 
 
 ```{r}
 missing_emissions <- full_data %>%

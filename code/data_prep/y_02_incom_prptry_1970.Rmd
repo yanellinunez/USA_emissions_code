@@ -13,11 +13,11 @@ editor_options:
 
 Objective: 
 
-Estimate property and income for 1970 using aggregate values and household counts. We are doing this because for 1970 we have a categorical variable for median household income and property value but we want to use a continuous variable. Here we try multiple ways of estimating the values for 1970. 
+Estimate property and income for 1970 using aggregated values and household counts. We are doing this because for 1970 we have a categorical variable for median household income and property value but we want to use a continuous variable. Here we try multiple ways of estimating the values for 1970. 
 
 Conclusions:
 
-We selected family mean income as the proxi to family median income for 1970. The correlation between the estimated mean family for 1970 and median family income for 1980 is 0.84. Overall all the estimated mean income is much lower than the median family income. 
+We selected family mean income as the proxy to family median income for 1970. The correlation between the estimated mean family for 1970 and median family income for 1980 is 0.84. Overall all the estimated mean income is much lower than the median family income. 
 
 ```{r include=FALSE}
 
@@ -134,7 +134,7 @@ We have one option for estimating the mean property value for 1970 but multiple 
 - Mean household income_2 -> aggregate family and unrelated individuals (≥14yrs) income sum divide by household counts
 - Mean household income_3 -> aggregated unrelated individuals income divided by total household counts
 
-NOTE: For property value we have a negative number for Yellowstone National Park
+NOTE: For property value we have a negative number for Yellowstone National Park--I ended up removing this county in future .rmds. 
 
 ```{r}
 
@@ -271,7 +271,7 @@ data_1980_70 %>%
 
 # Save the estimated variables for family income & Property for 1970
 
-write_csv(new_var, paste0(data.folder, "generated_data/income_propt_estim1970.csv"))
+#write_csv(new_var, paste0(data.folder, "generated_data/income_propt_estim1970.csv"))
 ```
 
 
@@ -293,7 +293,7 @@ estimated_variables <- new_var %>%
 ```
 
 
-### b. Merge 1970 estimates with  covariates
+### b. Merge 1970 estimates with rest of covariates
 
 Notes:
 
@@ -321,7 +321,9 @@ summary(all_covariates)
 
 # new version of the data_indp_varib_1 including the estimated mean family income and property value for 1970
 
-write_csv(all_covariates, paste0(data.folder, "generated_data/data_indp_varib_2.csv"))
+# no need to resave
+
+# write_csv(all_covariates, paste0(data.folder, "generated_data/data_indp_varib_2.csv"))
 
 ```
 

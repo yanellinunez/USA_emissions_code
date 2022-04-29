@@ -60,6 +60,7 @@ summary(data_scaled)
 - Percent Asian is positively correlated with percent Hispanic
 - I double checked the data generation process and everything seems correct so the correlation results accurately represent our data 
 
+This is supplemental figure FS.4
 ```{r}
 
 exp_var <- data_scaled %>%
@@ -108,41 +109,5 @@ scale_fill_gradient2(low = "blue", high = "red", mid = "white",
 # scale_y_discrete("X1", labels = c(expression(Pop~density), expression('%'*White), expression('%'*Black), expression('%'*Asian), expression('%'*American~Native), expression('%'*Hispanic), expression('%'*Poverty), expression('%'*Unemployment), expression(Family~Income), expression(Property~Value))) +
  scale_x_discrete("X2", labels = parse(text = levels(melted_cormat$x_label))) +
  scale_y_discrete("X1", labels = parse(text = levels(melted_cormat$x_label)))
-```
-
-## data viz
-```{r}
-
- library(ggmosaic)
-
-results <- read_xlsx(paste0(data.folder, "generated_data/summary_results.xlsx")) %>%
-  gather(emissions, association, 3:9) %>%
-  mutate(asso_num = case_when(association == "positive" ~ 1,
-                              association == "negative" ~ -1,
-                              association == "null" ~ 0))
-
-
-results$ind_var <- factor(results$ind_var, levels = c("prop_val", "fam_income", "unempl", "poverty", "hispanic", "a_native", "asian", "black", "white"))
-                          
-results$label_x <- factor(results$ind_var, labels = c( "Property~Value", "Family~Income", "'%'*Unemployment", "'%'*Poverty", "'%'*Hispanic", "'%'*American~Native",  "'%'*Asian", "'%'*Black","'%'*White"))
-
- results %>%
-  # filter(category == "race") %>%
-            ggplot() +
- geom_col(aes(x = asso_num, y = ind_var, fill = association)) +
-   facet_wrap(~emissions) +
-   #facet_wrap(~exposure, ncol = 1, strip.position = "left") + 
-   theme_minimal() +
-   geom_vline(xintercept = 0) +
-   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1))
-                 
-                #conds = product(rude_to_recline))) 
-
- results %>%
-   ggplot() +
-   geom_tile(aes(y = emissions, x = ind_var, fill = association)) +
-   scale_fill_manual(values = c("#7fc97f", "#beaed4", "#fdc086"))
-
 ```
 
