@@ -1,11 +1,15 @@
 ---
 title: "y_01_county_data_prep"
-author: "Jaime Benavides"
+author: "Yanelli Nunez"
 date: "2/23/2021"
 output: html_document
 editor_options: 
   chunk_output_type: console
 ---
+
+Objective: 
+
+- To estimate population density for each county. I first estimate the county area then used that and population to estimate county population density
 
 
 ```{r include=FALSE}
@@ -26,6 +30,7 @@ source(paste0(file.locations.folder,'external_file_locations.R'))
 source(paste0(packages.folder,'packages_to_load.R'))
 ```
 
+## 1. Define the projection for the spatial data
 
 ```{r crs, include=FALSE}
 
@@ -33,6 +38,11 @@ crs_wgs84 <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 ```
 
+## 2. Spatial data files 
+
+Spatial data files for the US and counties. I obtained this files from: 
+
+https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
 
 
 ```{r pressure, echo=FALSE}
@@ -40,12 +50,13 @@ crs_wgs84 <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 us_cont_bbox <- sf::st_as_sfc(sf::st_bbox(c(xmin = -130, xmax = -60, ymax = 51, ymin = 21), crs = sf::st_crs(crs_wgs84))) %>%
   sf::st_transform(crs_wgs84)
   
-
+# US continuous boundaries which I used in the following code chunck
 us_cont_bds <- sf::st_read(paste0(yanelli_external, "spatial_data/cb_2018_us_nation_20m/cb_2018_us_nation_20m.shp")) %>%
   sf::st_transform(crs_wgs84) %>%
   sf::st_intersection(us_cont_bbox) %>%
   dplyr::select(geometry)
 
+# US states which I used in the following code chunck to add a "States" column to the 2010 spatial dataset 
 us_states <- sf::st_read(paste0(yanelli_external, "spatial_data/cb_2018_us_state_20m/cb_2018_us_state_20m.shp")) %>%
   sf::st_transform(crs_wgs84) %>%
   dplyr::rename(State = NAME)
@@ -54,18 +65,15 @@ us_states <- sf::st_read(paste0(yanelli_external, "spatial_data/cb_2018_us_state
 
 data <- readRDS(paste0(data.folder, "generated_data/data_indp_varib_3_inflat_adjst.rds")) 
 
-states <- data %>%
-  dplyr::select(statefp, state) %>%
-  unique
-  
 
 ```
 
 
-## 2. Estimate county area
+## 3. Estimate county area
 - Gather spatial attributes for counties for each year
 - Estimate county area
 
+Note: this data is saved in my local drive. I download this data from the nhgis website
 
 
 ```{r counties_over_time, echo=FALSE}
@@ -74,8 +82,8 @@ sf_use_s2(FALSE)  # the sf package was updated since Jaime created this code. Th
 
 us_counties_1970 <- sf::st_read(paste0(yanelli_external, "spatial_data/nhgis0018_shape/nhgis0018_shapefile_tl2000_us_county_1970/US_county_1970.shp")) %>%
   sf::st_transform(crs_wgs84) %>%
-  sf::st_make_valid() %>%
-  sf::st_intersection(us_cont_bds) %>% #us continental boundaries
+  sf::st_make_valid() %>% # to 'clean' polygons. See https://r-spatial.org/r/2017/03/19/invalid.html
+  sf::st_intersection(us_cont_bds) %>% # US continental boundaries
   dplyr::rename(State = STATENAM) %>%
   dplyr::rename(Name = NHGISNAM) %>%
   dplyr::rename(Year = DECADE) %>%
@@ -101,7 +109,7 @@ us_counties_1990 <- sf::st_read(paste0(yanelli_external, "spatial_data/nhgis0018
 
 us_counties_2000 <- sf::st_read(paste0(yanelli_external, "spatial_data/nhgis0018_shape/nhgis0018_shapefile_tl2000_us_county_2000/US_county_2000.shp")) %>%
   sf::st_transform(crs_wgs84) %>%
-  sf::st_make_valid() %>%
+  sf::st_make_valid() %>% 
   sf::st_intersection(us_cont_bds) %>%
   dplyr::rename(State = STATENAM) %>%
   dplyr::rename(Name = NHGISNAM) %>%
@@ -112,16 +120,13 @@ us_counties_2010 <- sf::st_read(paste0(yanelli_external, "spatial_data/nhgis0018
   sf::st_transform(crs_wgs84) %>%
   sf::st_make_valid() %>%
   sf::st_intersection(us_cont_bds) %>%
-  #dplyr::rename(State = STATENAM) %>% # these data has different naming structure
-  dplyr::rename(Name = NAME10,
-                statefp = STATEFP10) %>%
-  dplyr::mutate(Year = 2010) %>%
-  dplyr::full_join(states, by = "statefp") %>%
-  dplyr::rename(State = state) %>% # to match the other years naming structure
-  #sf::st_join(us_states[,c("State")], largest = TRUE)  %>% # this didn't work 
+  dplyr::rename(Name = NAME10) %>%
+  dplyr::mutate(Year = 2010) %>% ## adding year column
+  sf::st_join(us_states[,c("State")], largest = TRUE) %>% # add state column 
   dplyr::select(Name, GISJOIN, State, Year)  
 
-# create us_counties dataframe with county(name-chr)| state | year | climate region | geometry 
+
+### Bind all spatial files and estimate county area
 
 us_counties <- rbind(us_counties_1970, us_counties_1980, us_counties_1990, us_counties_2000, us_counties_2010) %>%
   sf::st_transform(4326) %>%
@@ -137,13 +142,15 @@ us_counties <- us_counties %>%
 
 class(us_counties)
 
-saveRDS(us_counties, paste0(yanelli_external, "spatial_data/updated_generated_files/geometries_counties.rds"))
+#saveRDS(us_counties, paste0(yanelli_external, "spatial_data/updated_generated_files/geometries_counties.rds"))
 ```
 
 ## 3. Estimate population density
 
+Estimate population density and merge the variable with all of the other covariates 
 
 ```{r}
+
 us_counties_df <- us_counties
 sf::st_geometry(us_counties_df) <- NULL # remove geometry 
 
@@ -155,6 +162,6 @@ class(pop_density)
 summary(pop_density)
 
 
-saveRDS(pop_density, paste0(data.folder, "generated_data/data_indp_varib_4.rds"))
+#saveRDS(pop_density, paste0(data.folder, "generated_data/data_indp_varib_4.rds"))
 ```
 
