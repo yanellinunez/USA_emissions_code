@@ -85,6 +85,10 @@ quantile(data$nox_energy_relat_chg, seq(0,1,0.05), na.rm=TRUE)
 - We selected the 95th percentile of the data to avoid extremely large values that are generated when a county's reference year has a extremely low emission flux.
 - These are the dataset that I used for the models for the energy sector
 
+Notes:
+
+Excluding the top 5 percentile values removes 3754 observations, which is 24.24% of the data (no bueno)
+
 ### 2a. SO2 energy 
 
 

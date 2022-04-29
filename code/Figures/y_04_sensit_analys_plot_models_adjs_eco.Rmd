@@ -10,7 +10,11 @@ output:
 editor_options: 
   chunk_output_type: console
 ---
+Objective: 
 
+Make Supplemental figure FS.5 
+
+Note: you won't be able to run this code because the results are saved on my local drive. 
 
 ```{r include=FALSE}
 

@@ -1,6 +1,9 @@
 ## USA_emissions
 Temporal analysis of air pollution emission across the United States
 
+## 0_00_create_folder_structure.R
+Creates folder structure and directories of the repository. No need to run or review
+
 ## Data folder
 - emissions_data : folder containing the county-level emissions estimates for the 7 pollutants analyzed
 - census_data: folder containing all census data variables that we use as independent variables. The CPI_U_RS.xlsx/CPI_URS_edit.xlsx contain indexes that I used to adjust the dollar variables to 2010 dollars. 
@@ -42,3 +45,11 @@ data_loading.R --> this R script is called from within the models .rmds so that 
 - models: contains all models for the analysis
 - figures: code for making the paper figures
 - packages: a script that loads all packages needed. You do not need to run this independently. 
+
+
+## figures:
+I saved some of the paper figures/tables here but not all of them because some of them were a bit too large. 
+
+## output:
+.csv that contains the coefficients from the linear models
+.xlsx file if for Figure 4 of paper

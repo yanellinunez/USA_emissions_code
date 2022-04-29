@@ -10,6 +10,13 @@ output:
 editor_options: 
   chunk_output_type: console
 ---
+
+Objective: 
+
+Make manuscript Figure 1
+
+Note: you won't be able to run this code because the geometries are saved in my local drive
+
 ```{r include=FALSE}
 
 rm(list=ls())

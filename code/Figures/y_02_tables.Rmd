@@ -14,9 +14,7 @@ editor_options:
 
 Objective:  
 
-Make two tables: 
-
-1) Includes the raw emissions fluxes. Table should have three columns
+Create Table 1 and Table 2 for manuscript
 
 ```{r include=FALSE}
 
@@ -85,9 +83,10 @@ table_1 <- data_full %>%
  # bold_labels()
 
 # save table
-table_1 %>%
-  gtsummary::as_flex_table() %>%
-  flextable::save_as_docx(path = paste0(figures.folder,'table_1.docx'))
+# no need to run because code will overwrite the already saved one
+#table_1 %>%
+ # gtsummary::as_flex_table() %>%
+  #flextable::save_as_docx(path = paste0(figures.folder,'table_1.docx'))
 
 ```
 
@@ -158,8 +157,9 @@ table_2 <- tbl_merge(list(table_2a, table_2b)) %>%
   modify_spanning_header(everything() ~ NA_character_)
 
 # save table
-table_2 %>%
-  gtsummary::as_flex_table() %>%
-  flextable::save_as_docx(path = paste0(figures.folder,'table_2.docx'))
+# no need to run
+#table_2 %>%
+ # gtsummary::as_flex_table() %>%
+  #flextable::save_as_docx(path = paste0(figures.folder,'table_2.docx'))
 
 ```
