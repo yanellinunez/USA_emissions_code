@@ -67,5 +67,15 @@
 ## y_01_census_data_prep.Rmd ##
 ###############################
 
+# lines 98-100: As education is not used, I do not think this is critical to 
+#   change, but wanted to note it in case education does get used at some 
+#   future point. Because of the way the education variables changed from 1970
+#   to 2010, I would be very careful about how you define these categories in 
+#   the text of the manuscript, as some college is mixed with high school
+#   graduate, etc
+
+
+
+
 
 
