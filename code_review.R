@@ -74,6 +74,15 @@
 #   the text of the manuscript, as some college is mixed with high school
 #   graduate, etc
 
+# line 197: When was Skagway-Yakutat-Angoon discontinued?
+
+# line 283: What does "low exposure contrasts mean"? Maybe clarify just a touch
+#   more here, if the code will be included in the manuscript. I'm unclear because
+#   Delaware, for example, has even fewer counties than Hawaii.
+
+
+
+
 
 
 
