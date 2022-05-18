@@ -100,7 +100,10 @@
 ## y_02_incom_prptry_1970.Rmd ##
 ################################
 
+# lines 80, 92, 106: Noting that the county variable was not selected here
 
+
+start at line 110
 
 
 

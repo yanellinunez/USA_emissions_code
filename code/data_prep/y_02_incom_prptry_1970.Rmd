@@ -17,7 +17,7 @@ Estimate property and income for 1970 using aggregated values and household coun
 
 Conclusions:
 
-We selected family mean income as the proxy to family median income for 1970. The correlation between the estimated mean family for 1970 and median family income for 1980 is 0.84. Overall all the estimated mean income is much lower than the median family income. 
+We selected family mean income as the proxy to family median income for 1970. The correlation between the estimated mean family for 1970 and median family income for 1980 is 0.84. Overall the estimated mean income is much lower than the median family income. 
 
 ```{r include=FALSE}
 
@@ -44,8 +44,8 @@ source(paste0(packages.folder,'packages_to_load.R'))
 ### a. Load hosehold counts and family counts 1970 datasets
 
 Notes:
-- The information in this dataset comes all from decennial census 
-- DC doesn't appear in this datasets for some reason
+- The information in this dataset comes from the decennial census 
+- DC doesn't appear in this dataset for some reason
 
 ```{r}
 
@@ -95,7 +95,7 @@ agg_incom_unrel <- read_csv(paste0(data.folder, "census_data/aggregated_unrelate
 
 ### d. Load aggregated property value 1970 dataset
 
-Missing data for adams county
+Missing data for Adams County, Wisconsin
 
 ```{r}
  
