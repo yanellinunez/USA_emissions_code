@@ -80,7 +80,25 @@
 #   more here, if the code will be included in the manuscript. I'm unclear because
 #   Delaware, for example, has even fewer counties than Hawaii.
 
-start at section 4
+# code chunk starting at line 308: Just a note that variables for 
+#   countynh and statenh for median house income and median family income are
+#   not included
+
+# line 412: Double check your choice of denominator here for perc_nohs -- I think this
+#   is usually divided by the total population aged 25 and older, because total_pop
+#   includes children who cannot yet have a high school degree, and this falsely
+#   inflates the percentage
+
+# line 422: the max for perc_hisp_org is greater than 100 (117.6991)
+
+# line 435: Confirming n=15546 is correct; 15781 possible county-year observations, 
+#   minus 78 counties for Puerto Rico in 2010 only, 4+5+5+5+5=24 counties for Hawaii 
+#   and 29+23+25+27+29=133 for Alaska
+
+
+################################
+## y_02_incom_prptry_1970.Rmd ##
+################################
 
 
 

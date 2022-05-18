@@ -299,7 +299,7 @@ summary(race_pov_edu_emp_merge)
 
 ## 5. Property value
 
-- Median house value for 2010 comes from the ACS 2008-2012 which is adjusted to 2012 inflation. Again, we do not used this in the analysis because we only need demographic data up to 2000.
+- Median house value for 2010 comes from the ACS 2008-2012 which is adjusted to 2012 inflation. Again, we do not use this in the analysis because we only need demographic data up to 2000.
 - Median house value data for 1980-2000 are from the decennial census
 - Median house value data are only available as a categorical variable or aggregated for year 1970 so we are not including 1970 data here
 
@@ -350,11 +350,11 @@ mutate(countyfp = str_pad(countyfp, 3, pad = "0"),
 ## 6. Household and family income
 
 Notes: 
-- For 2010 we using the ACS from 2008-2012 which is adjusted to 2012 inflation. Again, we do not used this in the analysis because we only need demographic data up to 2000.
+- For 2010 we are using the ACS from 2008-2012 which is adjusted to 2012 inflation. Again, we do not use this in the analysis because we only need demographic data up to 2000.
 - To facilitate things I rename 2008-2012 as 2010
 - Removed Alaska, Puerto Rico and Hawaii
 - Income data for 1980-2000 are from the decennial census
-- Income data are only available as a categorical variable or aggregated for year 1970 so we aren't not including 1970 data here
+- Income data are only available as a categorical variable or aggregated for year 1970 so we do not include 1970 data here
 - We have two variables for income: median house income & median family income
 
 
