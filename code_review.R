@@ -121,7 +121,20 @@
 ## y_03_urbanicity_epa_regions.Rmd ##
 #####################################
 
-# line 
+# code chunk starting at line 70: In this situation, I prefer to use case_when
+#   instead of nested ifelse statements. When I tried running both versions, the
+#   case_when version ran faster as well (though that could be something up
+#   with my computer lol). It would look like this:
+data_urbanicity <- data  %>%
+  mutate(urbanicity = as.factor(case_when(
+    tot_pop >= 50000                   ~ 'metropolitan',
+    tot_pop < 50000 & tot_pop >= 10000 ~ 'micropolitan',
+    tot_pop < 10000                    ~ 'non-urban'
+  )))
+# Ah I see you use case_when right below!
+
+
+
 
 
 

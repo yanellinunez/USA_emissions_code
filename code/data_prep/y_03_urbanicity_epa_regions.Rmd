@@ -214,7 +214,7 @@ end_time - start_time
 
 ### 6c. EPA regions map
 
-EPA regions are consisted throughout years. So here I plot 2000 to visualize. This is supplemental figure 1 (FS.1)
+EPA regions are consistent throughout years. So here I plot 2000 to visualize. This is supplemental figure 1 (FS.1)
 
 ```{r}
 
