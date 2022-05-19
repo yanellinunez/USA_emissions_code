@@ -203,7 +203,7 @@ data_1980_70 %>%
   facet_wrap(~state) +
   geom_point(alpha = 0.5) +
   ylab("Mean Property Value 1980") +
-  xlab("Media Property Value 1970") +
+  xlab("Median Property Value 1970") +
   theme(axis.text.x = element_text(angle = 90))
   
 
@@ -212,7 +212,7 @@ data_1980_70 %>%
 
 ### b. Histograms
 
-In the histograms we can see that the estimated mean and 1980 media distribution for income and property value does differ
+In the histograms we can see that the estimated mean and 1980 median distribution for income and property value does differ
 
 ```{r}
 
@@ -226,7 +226,7 @@ In the histograms we can see that the estimated mean and 1980 media distribution
   geom_histogram(binwidth = 100, aes(x = mean_fam_incom), fill = "orange", alpha = 0.5) +
    geom_histogram(binwidth = 100, aes(x = fam_median_incom1980), fill = "red", alpha = 0.5) +
   ggtitle("Income distribution 1970 vs 1980") +
-     xlab("Media/mean house income") +
+     xlab("Median/mean house income") +
   ylim(0,100) +
 ggtitle("Property value distribution 1970 vs 1980") +
   xlab("Median/mean") +
@@ -297,7 +297,7 @@ estimated_variables <- new_var %>%
 
 Notes:
 
-DC is missing info in property and income for 1970
+DC is missing info on property and income for 1970
 
 ```{r}
 

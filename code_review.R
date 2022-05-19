@@ -102,8 +102,28 @@
 
 # lines 80, 92, 106: Noting that the county variable was not selected here
 
+# line 147: I get an error with this mutate statement beause there isn't a variable
+#   called "county" --> in the join they became county.x and county.y
 
-start at line 110
+# line 186: Move package to packages_to_load.R?
+
+# line 189: the variable sum_agg_incom doesn't exist and is causing an error here
+
+# line 201: Woah, what's up with Colorado, New York, and Virgina?! Also noting
+#   that 4 rows were dropped with missing data, and I think the axis labels are
+#   reversed. Please also double check whether the labels should be mean or median,
+#   one label read "media" which I changed to median, but I'm not sure this is correct
+
+# line 309: mean_fam_income_variable has not been created, so cannot be joined
+
+
+#####################################
+## y_03_urbanicity_epa_regions.Rmd ##
+#####################################
+
+# line 
+
+
 
 
 
