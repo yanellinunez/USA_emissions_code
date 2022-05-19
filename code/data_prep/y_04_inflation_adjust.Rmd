@@ -44,7 +44,7 @@ data <- readRDS(paste0(data.folder, "generated_data/data_indp_varib_3.rds"))
 class(data)
 summary(data)
 
-# inflation adjustments factors 
+# inflation adjustment factors 
 
 cpi <- readxl::read_excel(paste0(data.folder, "census_data/CPI_U_RS_edit.xlsx")) %>%
   clean_names() %>%
@@ -77,9 +77,9 @@ knitr::kable(cpi_index)
 ```
 
 ## b. Adjust to 2010 dollars
--Numbers use for the adjustment below are from the index_fraction in the cpi knitr table above
+-Numbers used for the adjustment below are from the index_fraction in the cpi knitr table above
 -Remember census data is for the year prior (e.g. 2000 census has data from 1999)
--Data for 2008-2012 ACS (label as 2010 in this data) is adjusted to 2012. So here I'm adjusting the 2012 dollars to 2010 dollars
+-Data for 2008-2012 ACS (labeled as 2010 in this data) is adjusted to 2012. So here I'm adjusting the 2012 dollars to 2010 dollars
 ```{r}
 
 data_adjs <- data %>%

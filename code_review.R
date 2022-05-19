@@ -134,6 +134,22 @@ data_urbanicity <- data  %>%
 # Ah I see you use case_when right below!
 
 
+###############################
+## y_04_inflation_adjust.Rmd ##
+###############################
+
+# line 51 - Why is 2012 included? Ah I see the answer in line 82. Maybe add a 
+#   note around line 51 too?
+
+# line 86 - Why group by year here?
+
+
+#################################
+## y_05_population_density.Rmd ##
+#################################
+
+
+
 
 
 
