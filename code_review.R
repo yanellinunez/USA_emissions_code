@@ -192,7 +192,25 @@ missing2 <- poll_reltv_chg %>%
 + goem_hline(yintercept = 0, linetype = 'dashed')
 
 
+######################################
+## y_07_energy_indus_data_clean.Rmd ##
+######################################
 
+# line 150: lol! I always take the long way with missing, NaN, and infinite values!
 
+# lines 172-190: Here, I thought you were going to manually identify each pair
+#   of years for which both the numerator and denominator were 0 to confirm that
+#   these obs were all the NaN obs present. I don't think you need to, but I'm 
+#   not sure why these parts are needed if you do not do that.
 
+# line 200: I am having some trouble following why you use this method for identifying
+#   infinite values. What about using is.infinite? Then you don't need to do 
+#   lines 193-195, and it would work for ANY infinite values (not just ones 
+#   created by dividing by 0 in 2010)
+#   https://www.dummies.com/article/technology/programming-web-design/r/how-to-handle-infinity-in-r-141616/
+infinite <- data %>% filter(is.infinite(so2_indus_relat_chg))
+
+# line 204: Why remove all county-year observations that had one infinite value?
+#   Why not instead only remove the specific years with infinite obs? This would
+#   be removing 5 obs instead of removing 25 as you do here
 

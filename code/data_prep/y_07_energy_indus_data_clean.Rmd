@@ -55,7 +55,7 @@ data_filt_no10 <- data %>%
 
 ##. Visualizing Energy sector
 
-There are a couple of very extreme values because some counties have a very small number that changes to a very large number. This few extreme values completely drive the health models and leads to non-reliable extreme effect estimates
+There are a couple of very extreme values because some counties have a very small number that changes to a very large number. These few extreme values completely drive the health models and lead to non-reliable extreme effect estimates
 ```{r}
 
 # SO2 energy 
@@ -82,8 +82,8 @@ quantile(data$nox_energy_relat_chg, seq(0,1,0.05), na.rm=TRUE)
 
 ## 2. Energy sector
 
-- We selected the 95th percentile of the data to avoid extremely large values that are generated when a county's reference year has a extremely low emission flux.
-- These are the dataset that I used for the models for the energy sector
+- We selected the 95th percentile of the data to avoid extremely large values that are generated when a county's reference year has an extremely low emission flux.
+- These are the data that I used for the models for the energy sector
 
 Notes:
 
@@ -133,8 +133,8 @@ sd(data_nox_energy$nox_energy_relat_chg)
 - Counties that have zero in two consecutive years have a NaN value for the relative change (because 0-0/0 --> NaN). So I will replace this NaN with zero because basically the change in emissions, for the counties that have consecutive zeros, is zero!
 
 *Dealing with infinity values*
-- There is not best way to deal with infinity values so I removed all *infinity values*
-- The good thing is that there is only have 5 counties that have infinity values because they went from 0 in 2000 to nonzero in 2010 (nonzero - 0 / 0 --> infinity)
+- There is no best way to deal with infinity values so I removed all *infinity values*
+- The good thing is that there are only have 5 counties that have infinity values because they went from 0 in 2000 to nonzero in 2010 (nonzero - 0 / 0 --> infinity)
 
 
 
