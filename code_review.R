@@ -121,6 +121,8 @@
 ## y_03_urbanicity_epa_regions.Rmd ##
 #####################################
 
+# line 2: consider adding epa regions to the title too
+
 # code chunk starting at line 70: In this situation, I prefer to use case_when
 #   instead of nested ifelse statements. When I tried running both versions, the
 #   case_when version ran faster as well (though that could be something up
@@ -147,6 +149,15 @@ data_urbanicity <- data  %>%
 #################################
 ## y_05_population_density.Rmd ##
 #################################
+
+# line 2 - adjust title :)
+
+
+##################################
+## y_06_emissions_data_prep.Rmd ##
+##################################
+
+
 
 
 

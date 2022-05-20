@@ -56,7 +56,7 @@ us_cont_bds <- sf::st_read(paste0(yanelli_external, "spatial_data/cb_2018_us_nat
   sf::st_intersection(us_cont_bbox) %>%
   dplyr::select(geometry)
 
-# US states which I used in the following code chunck to add a "States" column to the 2010 spatial dataset 
+# US states which I used in the following code chunk to add a "States" column to the 2010 spatial dataset 
 us_states <- sf::st_read(paste0(yanelli_external, "spatial_data/cb_2018_us_state_20m/cb_2018_us_state_20m.shp")) %>%
   sf::st_transform(crs_wgs84) %>%
   dplyr::rename(State = NAME)
@@ -78,7 +78,7 @@ Note: this data is saved in my local drive. I download this data from the nhgis 
 
 ```{r counties_over_time, echo=FALSE}
 
-sf_use_s2(FALSE)  # the sf package was updated since Jaime created this code. This function specify to use the older form of sf. Otherwise the code doesn't work
+sf_use_s2(FALSE)  # the sf package was updated since Jaime created this code. This function specifies to use the older form of sf. Otherwise the code doesn't work
 
 us_counties_1970 <- sf::st_read(paste0(yanelli_external, "spatial_data/nhgis0018_shape/nhgis0018_shapefile_tl2000_us_county_1970/US_county_1970.shp")) %>%
   sf::st_transform(crs_wgs84) %>%
