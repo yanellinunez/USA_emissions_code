@@ -83,7 +83,7 @@ class(inde_vari)
 nox_transp <- readRDS(paste0(data.folder, "emissions_data/emis_nox_tr_county_df.rds")) %>%
   clean_names() %>%
   mutate(year = as.numeric(year)) %>%
-  mutate(state = if_else(state == "District of Columbia", "District Of Columbia", state)) # in the covariates dataframe the name is District 'Of' Columbia so I editing it here to match that format
+  mutate(state = if_else(state == "District of Columbia", "District Of Columbia", state)) # in the covariates dataframe the name is District 'Of' Columbia so I am  editing it here to match that format
 
 summary(nox_transp)
 
@@ -161,7 +161,7 @@ Notes:
 - Relative change was estimated as a percentage of the initial concentration
 - Relative change was estimated as a percentage of the initial concentration, thus, for variables that have a starting concentration of zero we get undefined values(number/zero --> undefined).
 
-- ***Beware, the variable 'name' seems to have discrepancies in writing and the relative matching to gisjoin. This is a not to myself to not use this variable.
+- ***Beware, the variable 'name' seems to have discrepancies in writing and the relative matching to gisjoin. This is a note to myself to not use this variable.
 
 ```{r}
   

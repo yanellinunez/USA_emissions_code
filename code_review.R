@@ -157,12 +157,39 @@ data_urbanicity <- data  %>%
 ## y_06_emissions_data_prep.Rmd ##
 ##################################
 
+# line 98: Instead of which, I used the code below to id the locations quicker
+nh3_agric %>% filter(is.na(nh3_agric))
 
+# line 162: Would it make sense to add a very small value to the 0 concentrations,
+#   so that they don't end up being dropped when the result is undefined? I am 
+#   thinking this because it may be the counties with 0 original concentrations
+#   that have large positive increases. I imagine you have have already
+#   considered this, but regardless of choice, consider also adding a sentence
+#   or note to the methods about this
 
+# I did not know about lag and lead, so this is very helpful for me!
 
+# line 200: Are the 24 missing observations that are not in the year 2010 all
+#   because of having 0 concentrations or infinite values? Also, I assume the
+#   larger difference in missing for SO2 is about the values that have a 0 
+#   concentration? Consider double checking (if you haven't already),
+#   because a few of the missing observations (not for S02) seem to have valid
+#   emissions values 
+missing1 <- poll_reltv_chg %>% 
+  filter(is.na(so2_indus_relat_chg)) %>% 
+  filter(year != 2010)
+missing2 <- poll_reltv_chg %>% 
+  filter(is.na(nox_trans_relat_chg)) %>% 
+  filter(year != 2010)
+# I see you explore this in the next code chunk! Consider mapping these
+# locations? 
 
+# lines 255, 259, and 263: these variables have not yet been created: 
+#   nox_trans_chg_med, nh3_agric_chg_med, so2_ener_chg_med
 
-
+# line 283: Consider adding a dashed horizontal line at 0 to make the facets
+#   easier to compare
++ goem_hline(yintercept = 0, linetype = 'dashed')
 
 
 
