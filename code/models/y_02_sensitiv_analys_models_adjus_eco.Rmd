@@ -11,17 +11,17 @@ editor_options:
   chunk_output_type: console
 ---
 
-Objective:  
+*Objective:*  
 
-These are the models for the sensitivity analysis testing for confounding by economic status
+Run sensitivity analysis testing for confounding by economic status
 
 Models:
-Include all economic variables, perc_white, and the racial independent variable of interest
+Include all economic variables, perc_white, and the race independent variable of interest
 
 Nonlinearities:
 - All economic variables include a penalized spline because we know based on the primary analysis that the associations for the economic variables are nonlinear. These models are not directly comparable to the primary analysis of course but that is a good indication that the eco variables may be nonlinear. If the variables turn out to be nonlinear, then the penalized spline will assigned degrees of freedom (df) = 1. 
 
-- We also include all racial variables with a penalize spline. If the association is linear then the penalized spline will assigned df = 1 and model the associaton linearly
+- We also include all race variables with a penalized spline. If the association is linear then the penalized spline will assigned df = 1 and model the association linearly
 
 
 
@@ -58,9 +58,9 @@ summary(so2_energy)
 
 ## 1. Prep function arguments
 
-I created a dataset with the arguments I need to run all of the models 
+I created a dataset with the info for the model functions' arguments (see functions.R script)
 
-We running one model for each racial/ethnic variable adjusting for all economic variables. Percent White is not included in the models_to_make dataset because all models are also adjusted for perc_white and we are extracting the results for perc_white from the model for perc_black
+We running one model for each race/ethnic variable adjusting for all economic variables. Percent White is not included in the models_to_make dataset because all models are also adjusted for perc_white and we are extracting the results for perc_white from the model for perc_black
 
 ```{r}
 
@@ -115,10 +115,11 @@ doSNOW::registerDoSNOW(cluster)
 
 ```
 
+
 ## 3. Run models
 
-- We using the foreach() function to loop our function over each row of the datasets definined in point 1.
-
+- We using the foreach() function to loop our function over each row of the datasets defined in point 1.
+Note this code chunk takes awhile to run. I recommend running it over night. 
 
 ```{r}
 
@@ -148,7 +149,6 @@ models_adjs_eco <- foreach(i = iterators::icount(nrow(models_to_make)), # iterat
 snow::stopCluster(cluster)
 close(pb)
 
-
 ```
 
 
@@ -156,7 +156,7 @@ close(pb)
 
 ```{r}
 
-saveRDS(models_adjs_eco, paste0(yanelli_external, "results_updated/sensit_analy_models_adjs_eco.rds"))
+#saveRDS(models_adjs_eco, paste0(yanelli_external, "results_updated/sensit_analy_models_adjs_eco.rds"))
 
 ```
 

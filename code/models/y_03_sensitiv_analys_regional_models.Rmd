@@ -11,23 +11,24 @@ editor_options:
   chunk_output_type: console
 ---
 
-Objective:  
+*Objective:*  
 
-Run regional models for the following sectors:
+-Run regional models for the following sectors:
 
 Industry SO2
 Transport NOx
 
-We only evaluate 3 independent variables: 
+-We only evaluate 3 independent variables: 
 
 Median family income
 Black
 White
 
-We have a total of:
+-We have a total of:
 
--8 EPA regions
+8 EPA regions
 
+Models are adjusted for population density, urbanicity, and year
 
 
 ```{r include=FALSE}
@@ -56,7 +57,8 @@ source(paste0(code.folder, 'data_loading.R'))
 
 ## 1. Prep function arguments
 
-This dataset includes information to run all models with nonlinear relationships
+I created a dataset with the info for the model functions' arguments (see functions.R script)
+
 
 ```{r}
 
@@ -113,15 +115,12 @@ models_to_make_eco <- models_to_make %>%
 ```
 
 
-## 2. Progress bar 
-
-Parallelize: runs the iterations in parallel across multiple cores to increase speed
-You computer has multiple processing cores but it only uses one to ran your R code. Paralizing the procesing means that you are telling your computer to run different portions of your code simultaneously in multiple cores. This results in an overall faster processing
+## 2. REGIONAL models median family income
 
 ```{r}
 
 #### set up a progress bar
-pb <- txtProgressBar(min = 0, max = nrow(models_to_make), width = 25, style = 3)
+pb <- txtProgressBar(min = 0, max = nrow(models_to_make_eco), width = 25, style = 3)
 progress <- function(p) setTxtProgressBar(pb, p)
 opts <- list(progress=progress)
 
@@ -130,14 +129,7 @@ cores <- ceiling(parallel::detectCores() / 2) # use half of the available cores
 cluster <- snow::makeCluster(cores) 
 doSNOW::registerDoSNOW(cluster)
 
-```
-
-
-## 3. REGIONAL models median family income
-
-```{r}
-
-### run the foreach() loop ( I am paralleling this process to make it faster)
+### Run models using foreach()
          
 models_regional_eco <- foreach(i = iterators::icount(nrow(models_to_make_eco)), # iterate across rows
                              .options.snow=opts, # the progress bar being sent to each core
@@ -183,16 +175,28 @@ models_regional_eco <- models_regional_eco %>%
   arrange(outcome, exposure, epa_reg)
 
 ### Save dataset
-saveRDS(models_regional_eco, paste0(yanelli_external, "results_updated/sensit_analys_models_regional_eco.rds"))
+#saveRDS(models_regional_eco, paste0(yanelli_external, "results_updated/sensit_analys_models_regional_eco.rds"))
 
 ```
 
 
-## 4. REGIONAL models Black/White
+## 3. REGIONAL models Black/White
+
+The code chunk takes a couple minutes to run
 
 ```{r}
 
-### run the foreach() loop ( I am paralleling this process to make it faster)
+#### set up a progress bar
+pb <- txtProgressBar(min = 0, max = nrow(models_to_make_race), width = 25, style = 3)
+progress <- function(p) setTxtProgressBar(pb, p)
+opts <- list(progress=progress)
+
+### code to paralized the processing among multiple cores
+cores <- ceiling(parallel::detectCores() / 2) # use half of the available cores 
+cluster <- snow::makeCluster(cores) 
+doSNOW::registerDoSNOW(cluster)
+
+### Run models using foreach()
          
 models_regional_race <- foreach(i = iterators::icount(nrow(models_to_make_race)), # iterate across rows
                              .options.snow=opts, # the progress bar being sent to each core
@@ -246,7 +250,7 @@ models_regional_race <- models_regional_race %>%
   arrange(outcome, exposure, epa_reg)
 
 ### Save dataset
-saveRDS(models_regional_race, paste0(yanelli_external, "results_updated/sensit_analys_models_regional_race.rds"))
+#saveRDS(models_regional_race, paste0(yanelli_external, "results_updated/sensit_analys_models_regional_race.rds"))
 
 ```
 

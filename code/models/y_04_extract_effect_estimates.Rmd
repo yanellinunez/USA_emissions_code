@@ -11,7 +11,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-Objective:  
+*Objective:*  
+
+To extract the effect estimates from the linear models
 
 ```{r include=FALSE}
 
@@ -45,7 +47,7 @@ linear_models <- readRDS(paste0(yanelli_external, "results_updated/models_linear
 
 ```
 
-## 1. Extract estimates
+## 2. Extract estimates
 
 ```{r}
 
@@ -102,11 +104,11 @@ coeff_summary <- linear_models %>%
 
 ```
 
-## 2. Save outputt
+## 3. Save output
 
 ```{r}
 
-linear_models_coeff <- write_csv(coeff_summary, paste0(output.folder, "linear_models_coeff.csv"))
+#linear_models_coeff <- write_csv(coeff_summary, paste0(output.folder, "linear_models_coeff.csv"))
 
 ```
 

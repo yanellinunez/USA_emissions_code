@@ -11,30 +11,35 @@ editor_options:
   chunk_output_type: console
 ---
 
-Objective:  
+Note: Some of the code chuncks take a while to run
 
-These are the models for the main analysis. 
+*Objective:*  
 
-Economic models:
+To run the models for the main analysis. 
+
+I save the gam model output and relationship curve in a dataset so that I can use it later to make figures etc. So here I am running the models, plotting the models, and saving the results. Here, I already know which relationships are linear and which are not. 
+
+#Economic models:
 Include one economic variable per model
 
-Hispanic models:
+#Hispanic models:
 Include % Hispanic as the exposure
 
-Asian and American Native:
-One mode per races variable adjusted for % White using s(perc_white)
+#Asian and American Native:
+One model per race variable adjusted for % White using s(perc_white)
 
-Black and White:
-These models include Black and White variables in the model. If nonlinear, the variable was included with a natural spline
+#Black and White:
+These models include Black and White variables in the model. If nonlinear, the variable was included with a natural spline, with 4 degrees of freedom and reference to the mean
 
 
 Notes: 
--Relationships that deviate from linearity  are included with a natural spline and 4 degrees of freedom with reference to the mean
--Four variables were included in all models to adjust for potential counfounding:
+-Relationships that deviate from linearity are included with a natural spline and 4 degrees of freedom with reference to the mean
+
+-Four variables were included in all models to adjust for potential confounding:
 1) Urbanicity - as a categorical variable
 2) Year - as a categorical variable
 3) EPA region - as categorical  
-4) Population density - with a penalized spline
+4) Population density - continuous with a penalized spline
 
 
 ```{r include=FALSE}
@@ -54,7 +59,7 @@ source(paste0(file.locations.folder,'external_file_locations.R'))
 source(paste0(packages.folder,'packages_to_load.R'))
 
 # load functions
-source(paste0(code.folder, 'models/functions.R'))
+source(paste0(code.folder, 'models/functions.R')) ## All functions I used in this .rmd are located in this script
 
 # load data
 source(paste0(code.folder, 'data_loading.R'))
@@ -70,22 +75,24 @@ summary(so2_energy)
 
 ## 1. Prep function arguments
 
-I created dataset with the arguments I need to run all of the models which I then split into the following:
+I created a dataset with the info for the model functions' arguments (see functions.R script), which I then split into the following subdatasets:
 
 Nonlinear_models: 
 1) economic variables --> all economic variables have a non-linear relationship with the outcome
 
 2) racial variables --> most racial variables are non-linear
-    2a. Asian, Hispanic, Native adjusted for s(perc_white)
-    2b. Black adjusted for ns(perc_white, df = 4)
+    2a. Asian, Hispanic, and American Native models are all adjusted for s(perc_white)
+    2b. Black and White are model together by adjusting the model with ns(perc_white, df = 4)
 
 Linear_models:
 
 1) racial variables --> only racial variables have linear associations
-    1a. Asian, Hispanic, Native adjusted for s(perc_white)
-    1b. Black adjusted for ns(perc_white, df = 4)
+    1a. Asian, Hispanic, and American Native models are all adjusted for s(perc_white)
+    1b. Black model adjusted for ns(perc_white, df = 4)
     1c. Single Hispanic model
 
+With these datasets, I can then just loop the model functions I made across the dataset rows to run all of the models    
+    
 Notes: 
 - I had to split the nonlinear models into economic and racial because the racial models are adjusted for percent white but the economic models are not, so I couldn't run them in the same batch with the workflow i have.
 - I also run the models for percent black and percent white separately because in this case we include both variables with a natural spline (for the other racial models we adjust using s(perc_white))
@@ -196,12 +203,14 @@ mutate(outcome = case_when(id == 1 ~ 'so2_energy_relat_chg',  ## add outcome col
 ## 2. Progress bar 
 
 Parallelize: runs the iterations in parallel across multiple cores to increase speed
-You computer has multiple processing cores but it only uses one to ran your R code. Parallelizing the procesing means that you are telling your computer to run different portions of your code simultaneously in multiple cores. This results in an overall faster processing
+You computer has multiple processing cores but it only uses one to ran your R code. Parallelizing the processing means that you are telling your computer to run different portions of your code simultaneously in multiple cores. This results in an overall faster processing
+
+Code for Progress bar and paralleling of point 3a.
 
 ```{r}
 
 #### set up a progress bar
-pb <- txtProgressBar(min = 0, max = nrow(models_to_make), width = 25, style = 3)
+pb <- txtProgressBar(min = 0, max = nrow(models_to_make_nonlinear_eco), width = 25, style = 3)
 progress <- function(p) setTxtProgressBar(pb, p)
 opts <- list(progress=progress)
 
@@ -214,11 +223,12 @@ doSNOW::registerDoSNOW(cluster)
 
 ## 3. Autoprocessing of NON-LINEAR models
 
-- We using the foreach() function to loop our function over each row of the datasets definined in point 1.
+- We using the foreach() function to loop our function over each row of the dataset 'models_to_make_nonlinear_eco'.
 
 ### 3a. Nonlinear economic and hispanic models
 
-This models are NOT adjusted for % white
+These models are NOT adjusted for % white
+The code chunk takes some time to run
 
 ```{r}
 
@@ -267,16 +277,26 @@ close(pb)
 ```
 
 
-
 ### 3a. Nonlinear racial models
 
 #### Asian & American Native 
 
 These models are adjusted for s(perc_white)
+The code chunk takes some time to run
 
 ```{r}
 
-### run the foreach() loop ( I am parallelizing this process to make it faster)
+#### set up a progress bar
+pb <- txtProgressBar(min = 0, max = nrow(models_to_make_nonlinear_race), width = 25, style = 3)
+progress <- function(p) setTxtProgressBar(pb, p)
+opts <- list(progress=progress)
+
+### code to paralize the processing among multiple cores
+cores <- ceiling(parallel::detectCores() / 2) # use half of the available cores 
+cluster <- snow::makeCluster(cores) 
+doSNOW::registerDoSNOW(cluster)
+
+### run models
          
 models_nonlin_race <- foreach(i = iterators::icount(nrow(models_to_make_nonlinear_race)), # iterate across rows
                              .options.snow=opts, # the progress bar being sent to each core
@@ -319,13 +339,25 @@ close(pb)
 
 ```
 
+
 #### Black & White 
 
 These models include black and white race percentage as nonlinear terms (natural splines)
+The code chunk takes some time to run
 
 ```{r}
 
-### run the foreach() loop ( I am parallelizing this process to make it faster)
+#### set up a progress bar
+pb <- txtProgressBar(min = 0, max = nrow(models_to_make_nonlinear_blk_wht), width = 25, style = 3)
+progress <- function(p) setTxtProgressBar(pb, p)
+opts <- list(progress=progress)
+
+### code to paralized the processing among multiple cores
+cores <- ceiling(parallel::detectCores() / 2) # use half of the available cores 
+cluster <- snow::makeCluster(cores) 
+doSNOW::registerDoSNOW(cluster)
+
+### run the models using a foreach() loop
          
 models_nonlin_blk_wht <- foreach(i = iterators::icount(nrow(models_to_make_nonlinear_blk_wht)), # iterate across rows
                              .options.snow=opts, # the progress bar being sent to each core
@@ -405,31 +437,28 @@ close(pb)
 
 ### 4a. Onebasis
 
-This to create the one basis for all linear models
+To plot the linear models in the same style than the nonlinear ones (using a reference to the mean), I need to use a onebasis for the independent variable. Here is the code to create the one basis for all linear models. 
 
 ```{r}
 ### run the foreach() loop to generate the onebasis 
          
-linear_onebasis <- foreach(i = iterators::icount(nrow(models_to_make_linear)), # iterate across rows
-                             #.options.snow=opts, # the progress bar being sent to each core
-                             #.packages=c("Epi", "magrittr", "dplyr", "janitor", "ggplot2"), # the packages being sent to each core
-                             #.export = ls(globalenv()),
-                             #.inorder = FALSE, # speeds up parallel programming
-                             .combine = rbind) %do% { # if you doing parallel programming use %dopar% otherwise use %do%
+foreach(i = iterators::icount(nrow(models_to_make_linear)), # iterate across rows
+                             .combine = rbind) %do% { 
   
   # make basis
   b <- one_basis(data = models_to_make_linear$data_spf[[i]],
                exposure = models_to_make_linear$exposure[[i]])
   
    assign(models_to_make_linear$basis_name[[i]], b) 
+   
   
 }
 
-remove(linear_onebasis) ## because each individual basis was individually save into the environment
 remove(b) ## this is basically the last i which is also save with a specific name in the environment
 
 
 ```
+
 
 ### Models
 
@@ -439,14 +468,17 @@ These models are adjusted for s(perc_white)
 
 ```{r}
 
-### foreach() loop to run the models (If I parallelize the process, it gives an error...)
+#### set up a progress bar
+pb <- txtProgressBar(min = 0, max = nrow(models_to_make_nonlinear_blk_wht), width = 25, style = 3)
+progress <- function(p) setTxtProgressBar(pb, p)
+opts <- list(progress=progress)
 
-linear_models_race <- foreach(i = iterators::icount(nrow(models_to_make_linear_race)), # iterate across rows
-                             .options.snow=opts, # the progress bar being sent to each core
-                            # .packages=c("Epi", "magrittr", "dplyr", "janitor", "ggplot2"), #packages being sent to each core
-                            # .export = ls(globalenv()),
-                             .inorder = FALSE, # speeds up parallel programming
-                             .combine = rbind) %do% { # if you doing parallel programing use %dopar% otherwise use %do%
+## Run models using a foreach() loop
+
+linear_models_race <- foreach(i = iterators::icount(nrow(models_to_make_nonlinear_blk_wht)), # iterate across rows
+                             .options.snow=opts, # the progress bar 
+                             .inorder = FALSE, 
+                             .combine = rbind) %do% { 
   
   # make models
       m <- run_model_race(data = models_to_make_linear_race$data_spf[[i]],
@@ -461,17 +493,15 @@ df
 
 remove(m)
 
-# stop the parellel processing
-#snow::stopCluster(cluster)
-#close(pb)
 
 ```
 
 #### Hispanic 
 
-Only the model for SO2 from Energy is linear for hispanics. This model is NOT adjusted for % White
+Only the model for SO2 from Energy is linear for hispanics. This model is NOT adjusted for % White because % White includes hispanic and nonhispanic white
 
 ```{r}
+
 hisp_linear_model <- run_model(data = models_to_make_linear$data_spf[[9]],
                             outcome = models_to_make_linear$outcome[[9]], 
                            exposure = models_to_make_linear$basis_name[[9]])
@@ -486,21 +516,24 @@ linear_models_race <- rbind(hisp_linear_model_df, linear_models_race) %>%
 
 ```
 
+
 #### Black & White 
 
 These two models include both black and white. Black is included it as linear term and White included as nonlinear term with a natural spline with 4df 
 
-
 ```{r}
 
-### foreach() loop to run the models (If I parallelize the process, it gives an error...)
+#### set up a progress bar
+pb <- txtProgressBar(min = 0, max = nrow(models_to_make_nonlinear_blk_wht), width = 25, style = 3)
+progress <- function(p) setTxtProgressBar(pb, p)
+opts <- list(progress=progress)
+
+### Run models
 
 linear_models_blk_wht <- foreach(i = iterators::icount(nrow(models_to_make_linear_blk_wht)), # iterate across rows
                              .options.snow=opts, # the progress bar being sent to each core
-                            # .packages=c("Epi", "magrittr", "dplyr", "janitor", "ggplot2"), #packages being sent to each core
-                            # .export = ls(globalenv()),
                              .inorder = FALSE, # speeds up parallel programming
-                             .combine = rbind) %do% { # if you doing parallel programing use %dopar% otherwise use %do%
+                             .combine = rbind) %do% { 
   
   # make models
       m <- run_model_blk(data = models_to_make_linear_blk_wht$data_spf[[i]],
@@ -509,16 +542,10 @@ linear_models_blk_wht <- foreach(i = iterators::icount(nrow(models_to_make_linea
   
    df <- models_to_make_linear_blk_wht[i,] %>% mutate(models = list(m))
    
-  
+   
+df
 
 }
-
-remove(m)
-
-# stop the parellel processing
-#snow::stopCluster(cluster)
-#close(pb)
-
 
 ```
 
@@ -623,14 +650,30 @@ pred_so2_energy_hisp <- crosspred(
 
 ### 4c. Plot linear models 
 
+Here I am making the plots for the linear models
+This code chunk takes a bit to run
+
 ```{r}
+
+#### set up a progress bar
+pb <- txtProgressBar(min = 0, max = nrow(linear_models), width = 25, style = 3)
+progress <- function(p) setTxtProgressBar(pb, p)
+opts <- list(progress=progress)
+
+### code to paralized the processing among multiple cores
+cores <- ceiling(parallel::detectCores() / 2) # use half of the available cores 
+cluster <- snow::makeCluster(cores) 
+doSNOW::registerDoSNOW(cluster)
+
+
+## Run models
 
 linear_plots <- foreach(i = iterators::icount(nrow(linear_models)), # iterate across rows
                              .options.snow=opts, # the progress bar being sent to each core
                              .packages=c("Epi", "magrittr", "dplyr", "janitor", "ggplot2"), # packages being sent to each core
                              .export = ls(globalenv()),
                              .inorder = FALSE, # speeds up parallel programming
-                             .combine = rbind) %dopar% { # if you doing parallel programing use %dopar% otherwise use %do%
+                             .combine = rbind) %dopar% { 
   
   # crosspred 
       ##pred <- crosspred(
@@ -654,7 +697,6 @@ linear_plots <- foreach(i = iterators::icount(nrow(linear_models)), # iterate ac
 }
 
 
-
 # stop the parellel processing
 snow::stopCluster(cluster)
 close(pb)
@@ -663,21 +705,21 @@ close(pb)
 
 
 ## 5. Save file
+No need to run this code
 ```{r}
 
-saveRDS(linear_plots, paste0(yanelli_external, "results_updated/models_linear.rds"))
+# saveRDS(linear_plots, paste0(yanelli_external, "results_updated/models_linear.rds"))
+
+#linear_plots <- readRDS(paste0(yanelli_external, "results_updated/models_linear.rds"))
 
 ```
 
 
-
 ## 6. Plot nonlinear white
 
-In the case of organic carbon from residential and so2 from industry, the association with Black is linear and with White nonlinear. In the code chunck above, I plot the linear association for Black and in this code chunck, using the same models, I plot the nonlinear associations for white
+In the case of organic carbon from residential and so2 from industry, the association with Black is linear and with White nonlinear. In the code chunck above, I plot the linear association for Black and in this code chunk, using the same models, I plot the nonlinear associations for White
 
 ```{r}
-
-linear_plots <- readRDS(paste0(yanelli_external, "results_updated/models_linear.rds"))
 
 nonl_white <- linear_plots %>%
   filter(outcome %in% c("oc_resid_relat_chg", "so2_indus_relat_chg")) %>%
@@ -686,13 +728,9 @@ nonl_white <- linear_plots %>%
   left_join(., models_to_make_nonlinear)
   
 
-
 # plot models for white
 
 nonl_white_plots <- foreach(i = iterators::icount(nrow(nonl_white)), # iterate across rows
-                             #.options.snow=opts, # the progress bar being sent to each core
-                            # .packages=c("Epi", "magrittr", "dplyr", "janitor", "ggplot2"), # packages being sent to each core
-                             #.export = ls(globalenv()),
                              .inorder = FALSE, # speeds up parallel programming
                              .combine = rbind) %do% { # if you doing parallel programing use %dopar% otherwise use %do%
 
@@ -715,7 +753,7 @@ nonl_white_plots <- foreach(i = iterators::icount(nrow(nonl_white)), # iterate a
 
 # save plots
 
-saveRDS(nonl_white_plots, paste0(yanelli_external, "results_updated/models_nonlin_wht.rds"))
+##saveRDS(nonl_white_plots, paste0(yanelli_external, "results_updated/models_nonlin_wht.rds"))
 
 ```
 
