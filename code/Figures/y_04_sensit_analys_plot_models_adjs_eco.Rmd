@@ -10,11 +10,11 @@ output:
 editor_options: 
   chunk_output_type: console
 ---
-Objective: 
+*Objective:* 
 
 Make Supplemental figure FS.5 
 
-Note: you won't be able to run this code because the results are saved on my local drive. 
+Note: This figure is based on the model results produced in 'y_02_sensitiv_analys_models_adjus_eco.rmd' from the models folder
 
 ```{r include=FALSE}
 

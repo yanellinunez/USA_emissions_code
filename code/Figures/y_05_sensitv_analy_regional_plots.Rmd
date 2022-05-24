@@ -11,11 +11,11 @@ editor_options:
   chunk_output_type: console
 ---
 
-Objective: 
+*Objective:* 
 
-Make supplemental figure FS.6
+The code produces Figure FS.6
 
-Note: you won't be able to run this code because the models are saved in my local drive (the files are way too big for GitHub)
+Note: this figure uses the results produce in 'y_03_sensitiv_regional_models.rmd' from the models folder
 
 ```{r include=FALSE}
 

@@ -1,5 +1,5 @@
 ---
-title: "Dose response figures"
+title: "Association curves figures"
 author: "Yanelli Nunez"
 date: "1/28/2022"
 output:
@@ -13,10 +13,9 @@ editor_options:
 
 Objective:  
 
-Plot the dose-responses 
+Plot the association curves for the main analysis
 
 
-Note, you won't be able to run this code because the model outputs are save in my local drive (they are pretty big)
 
 ```{r include=FALSE}
 
@@ -46,7 +45,7 @@ source(paste0(code.folder, 'data_loading.R'))
 
 ## 1. Load datasets 
 
-These are the model result
+Loading in the model results. These models were produce through the 'y_01_single-exp_nested_models_ns_mean_ref.Rmd' from the models folder
 
 ```{r}
 
@@ -71,7 +70,6 @@ models_nonlin_wht <- readRDS(paste0(yanelli_external, "results_updated/models_no
 ### 1a. Combine datasets
 Merging some of the datasets together to make the next steps easier
 ```{r}
-
 
 models_nonlin_wht <- models_nonlin_wht %>%
   rename(plots = plots_white)
@@ -132,6 +130,8 @@ so2_energy_perc_black <- models_nonlin_blk_wht$plots[[4]]
 ## 2. Plots Economy variables
 
 ### 2a. Histograms
+
+Density plots for the independent variables
 
 ```{r}
 
@@ -223,10 +223,14 @@ nox_commer_propty_val_adjs <- nox_commer_propty_val_adjs +
 
 ### 2b. Ensemble panel figure economic variables
 
+The code chunk produces the manuscripts' Figure 3
+
+Note the final figure was polish in power point
+
 ```{r}
 
 pdf(file = "curves_eco.pdf", width = 14, height = 20)            
- grid.arrange(dens_unempl,
+ grid.arrange(dens_unempl, 
               dens_poverty,
               dens_income,
               dens_propty,
@@ -277,6 +281,8 @@ dev.off()
 
 ### 2a. Histograms
 
+Density plots for economic variables
+
 ```{r}
 
 dens_black <- data_master %>%
@@ -323,6 +329,7 @@ dens_hisp <- data_master %>%
 ```
 
 ### 2b. Edit axis of Hispanic
+
 ```{r}
 
 so2_indus_perc_hisp_org <- so2_indus_perc_hisp_org +
@@ -350,6 +357,9 @@ xlim(0,100)
 
 
 ### 2c. Ensemble panel figure race
+
+Produce manuscript's Figure 2
+Note the final figures were polished in power point 
 
 ```{r}
 
