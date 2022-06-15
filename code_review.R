@@ -223,7 +223,9 @@ infinite <- data %>% filter(is.infinite(so2_indus_relat_chg))
 
 # line 20: In the manuscript you state that Asian and American Native were adjusted
 #   for percent white, implying that Hispanic was not. However, I don't see a race
-#   model included here without percent white included as a covariate
+#   model included here without percent white included as a covariate. Okay I see
+#   in y_01_single-exp... that you use the econ variable function for hispanic! 
+#   Nice!! Maybe clarify this in the header at line 14
 
 # line 20 vs 36: At line 20 you use s(perc_white), but then a natural spline with
 #   4 df on line 36. Why the difference? After reading the manuscript section, I
@@ -245,19 +247,31 @@ infinite <- data %>% filter(is.infinite(so2_indus_relat_chg))
 #   previous, with the exception of the added tensor term
 
 # line 357: Because perc_white is included in the model as a covariate, do you need
-#   an additional function for Hispanic where this variable is not included? This 
-#   is related to the first comment in this section 
+#   an additional function for Hispanic where this variable is not included? 
 
 
 ###################################################
 ## y_01_single-exp_nested_models_ns_mean_ref.Rmd ##
 ###################################################
 
+# lines 80-93: I find this a bit confusing, because it seems that all the race
+#   variables are both non-linear and linear? Is it that they are non-linear
+#   for some outcomes and linear for others? I recommend adding some more clarity 
+#   here in the notes
 
+# lines 104-112: How did you calculate the mean / where is the code for calculating
+#   the means? Consider using a variable for the means and wrapping each exposure
+#   input in a paste command. When I try to calculate the mean using 
+#   mean(data_full$perc_unemp) or mean(data_master$perc_unemp)I do not get the same value
 
+# line 125: Potential typo in the x_label for Median Property Value (currently 
+#   'Median Propty Value ($1000)')
 
+# brilliant set up here with the whole massive function input dataframe!
 
-
+# line 160: It is a little confusing that the label here includes 'hispanic' even
+#   though I think models with the hispanic variable aren't included here?
+# START AT LINE 144
 
 
 

@@ -11,7 +11,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-Note: Some of the code chuncks take a while to run
+Note: Some of the code chunks take a while to run
 
 *Objective:*  
 
