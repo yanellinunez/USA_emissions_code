@@ -214,3 +214,62 @@ infinite <- data %>% filter(is.infinite(so2_indus_relat_chg))
 #   Why not instead only remove the specific years with infinite obs? This would
 #   be removing 5 obs instead of removing 25 as you do here
 
+
+##*************************************************************Models
+
+#################
+## functions.R ##
+#################
+
+# line 20: In the manuscript you state that Asian and American Native were adjusted
+#   for percent white, implying that Hispanic was not. However, I don't see a race
+#   model included here without percent white included as a covariate
+
+# line 20 vs 36: At line 20 you use s(perc_white), but then a natural spline with
+#   4 df on line 36. Why the difference? After reading the manuscript section, I
+#   get that you use a penalized spline for covariates (in the case of line 20) 
+#   but then a natural spline when the variable is an exposure (in the case of line 36)
+#   Perhaps add a quick comment in the script to clarify this? It took me a minute
+#   to figure out why they were different. 
+
+# line 141: I am confused about why this section is included. Why is there a 
+#   cross basis for linear models? Is this where you test everything for non-linearity?
+
+# line 163: Should pred.est be pred_est ? 
+
+# line 220: Was this sensitivity analysis only run for some of the exposures (perc Asian,
+#   perc American Indian)? 
+#   Asking because s(perc_white) is included in the model, and I don't see other
+#   functions with the natural spline or without the perc_white covariate
+#   Note: in the manuscript, the methods say that this model was "identical" to the
+#   previous, with the exception of the added tensor term
+
+# line 357: Because perc_white is included in the model as a covariate, do you need
+#   an additional function for Hispanic where this variable is not included? This 
+#   is related to the first comment in this section 
+
+
+###################################################
+## y_01_single-exp_nested_models_ns_mean_ref.Rmd ##
+###################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
