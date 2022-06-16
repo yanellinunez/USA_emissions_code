@@ -269,9 +269,40 @@ infinite <- data %>% filter(is.infinite(so2_indus_relat_chg))
 
 # brilliant set up here with the whole massive function input dataframe!
 
-# line 160: It is a little confusing that the label here includes 'hispanic' even
-#   though I think models with the hispanic variable aren't included here?
-# START AT LINE 144
+# lines 160 and 191: It is a little confusing that the comment here includes 'hispanic' even
+#   though the models with the hispanic variable aren't included here (but are done
+#   with the eco variables)
+
+# line 263, 336: Consider changing this comment from "save our work" to "return our work" 
+#   because you aren't technically saving, just spitting it out from the function
+
+# line 266: I get the following warning message: 
+#   'Warning message:
+#    In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+#    already exporting variable(s): models_to_make_nonlinear_eco, plot_nonlin, run_model'
+#   I looked into this briefly, and it seems fine. I think it is just stating that
+#   even though you explicitly set .export, doParallel also found those variables
+#   automatically. Seems fine to me, and good to still explicitly set .export. See
+#   here for a discussion: https://stackoverflow.com/questions/48243404/doparalleldoparallelsnow-complains-when-foreach-export-is-specified
+#   (I get this warning for all doparallel calls)
+
+# line 473: Should this be models_to_make_linear_race? Not such a big deal as its
+#   just the progress bar
+
+# line 479: Should this be models_to_make_linear_race? I'm worried this might have
+#   dropped out the per_asian SO2 energy model --> yes when I run it, I only get
+#   4 observations instead of the 5 I should have, and reviewing the summaries shows
+#   that the asian S02 energy model is missing.
+#   To continue with the review I just replaced the dataframes with 
+#   models_to_make_linear_race in the console, but leave it to you to update the 
+#   script itself (just in case I am missing something) 
+
+# JAS: start again by running from section 4 onward, and beginning to review 
+#     thoroughly again at line 652
+
+
+
+
 
 
 
