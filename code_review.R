@@ -273,6 +273,11 @@ infinite <- data %>% filter(is.infinite(so2_indus_relat_chg))
 #   though the models with the hispanic variable aren't included here (but are done
 #   with the eco variables)
 
+# Section 2 is included here as a separate piece, but is then repeated again for
+# subsequent sections. I'm not sure if it is required ta be repeated or not, but
+# I would recommend either keeping it as a separate section OR repeating it with
+# each section that is run in parallel
+
 # line 263, 336: Consider changing this comment from "save our work" to "return our work" 
 #   because you aren't technically saving, just spitting it out from the function
 
@@ -297,8 +302,14 @@ infinite <- data %>% filter(is.infinite(so2_indus_relat_chg))
 #   models_to_make_linear_race in the console, but leave it to you to update the 
 #   script itself (just in case I am missing something) 
 
-# JAS: start again by running from section 4 onward, and beginning to review 
-#     thoroughly again at line 652
+# line 528: wrong dataframe listed for progress bar
+
+# About the progress bar: I do not see it working in my console for the non-parallelized 
+# sections even when it is invoked. I think remove from those sections becuase it
+# doesn't seem to be working and those sections run pretty fast anyway
+
+
+
 
 
 

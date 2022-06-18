@@ -271,7 +271,7 @@ close(pb)
 
 
 # save list dataset 
-saveRDS(models_nonlin_eco, '/Users/jennishearston/Desktop/YN/results_updated/models_nonlin_eco_hisp.rds')
+
 #saveRDS(models_nonlin_eco, paste0(yanelli_external, "results_updated/models_nonlin_eco_hisp.rds"))
 
 ```
@@ -335,7 +335,7 @@ close(pb)
 
 
 # save list dataset 
-saveRDS(models_nonlin_race, '/Users/jennishearston/Desktop/YN/results_updated/models_nonlin_asian_an.rds')
+
 #saveRDS(models_nonlin_race, paste0(yanelli_external, "results_updated/models_nonlin_asian_an.rds"))
 
 ```
@@ -402,7 +402,7 @@ close(pb)
 
 
 # save list dataset 
-saveRDS(models_nonlin_blk_wht, '/Users/jennishearston/Desktop/YN/results_updated/models_nonlin_blk_wht.rds')
+
 # saveRDS(models_nonlin_blk_wht, paste0(yanelli_external, "results_updated/models_nonlin_blk_wht.rds"))
 
 ```
@@ -718,7 +718,7 @@ No need to run this code
 
 ## 6. Plot nonlinear white
 
-In the case of organic carbon from residential and so2 from industry, the association with Black is linear and with White nonlinear. In the code chunck above, I plot the linear association for Black and in this code chunk, using the same models, I plot the nonlinear associations for White
+In the case of organic carbon from residential and so2 from industry, the association with Black is linear and with White nonlinear. In the code chunk above, I plot the linear association for Black and in this code chunk, using the same models, I plot the nonlinear associations for White
 
 ```{r}
 
