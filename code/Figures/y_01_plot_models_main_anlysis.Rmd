@@ -45,7 +45,7 @@ source(paste0(code.folder, 'data_loading.R'))
 
 ## 1. Load datasets 
 
-Loading in the model results. These models were produce through the 'y_01_single-exp_nested_models_ns_mean_ref.Rmd' from the models folder
+Loading in the model results. These models were produced through the 'y_01_single-exp_nested_models_ns_mean_ref.Rmd' from the models folder
 
 ```{r}
 
@@ -225,7 +225,7 @@ nox_commer_propty_val_adjs <- nox_commer_propty_val_adjs +
 
 The code chunk produces the manuscripts' Figure 3
 
-Note the final figure was polish in power point
+Note the final figure was polished in power point
 
 ```{r}
 

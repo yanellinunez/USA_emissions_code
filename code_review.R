@@ -309,21 +309,121 @@ infinite <- data %>% filter(is.infinite(so2_indus_relat_chg))
 # doesn't seem to be working and those sections run pretty fast anyway
 
 
+###############################################
+## y_02_sensitiv_analys_models_adjus_eco.Rmd ##
+###############################################
+
+# line 2: Consider changing the title in the floating header to reflect that the
+#   sensitivity analyses are adjusting for eco vars
+
+# lines 54-55: Why do you only review summaries for some dataframes? I'm just
+#   curious
+
+# line 143: Here I would rephrase the comment from "save" our work to "return" our
+#   work, just because the model isn't saved to a file here
+
+#Jenni: run from line 124 tonight
 
 
+#############################################
+## y_03_sesitiv_analys_regional_models.Rmd ##
+#############################################
+
+# lines 73-86: Instead of adding all 7 sectors, you could just add the 2 you need
+#   here, and then delete line 106. This would save you several lines of code
+
+# line 98: the 'add outcome column' note should be deleted here, as it does not apply
 
 
+# Where do you run the spatial sensitivity analyses? 
 
 
+#######################################
+## y_04_extract_effect_estimates.Rmd ##
+#######################################
+
+# line 54: Am I right that the order here must match the order in the linear_models
+#   df? if this is true, consider building the cb names again using what is available
+#   in linear_models rather than manually writing them in. This would make the code
+#   more robust to potential errors. Not such a big deal though,
+#   they are all in the correct order.
 
 
+##*************************************************************Figures
+
+########################################
+## y_01_plot_models_main_analysis.Rmd ##
+########################################
+
+# line 157: Consider adding a note to this plot that median family income is
+#   adjusted to 2010 US dollars (correct?)
+
+# line 165: Typo in x-label; "Propty" should be "Property"
+
+# code chunk starting on line 230 (econ main results): labels in the plot I run 
+#   compared to your final plot are not the same (for x and y axis and for exposures / outcomes)
+#   I will send you mine so you can see them as well. I assume you fixed up the 
+#   labels in PP? All the curves look the same to me
+
+# line 321 (dens_hispanic): Recieve this warning when running plot: 
+#   Removed 1 rows containing non-finite values (stat_density). 
+#   Not sure why one row should be removed or if this is important?
+
+# same comment as above for code chunk starting on line 364 (race main results)
+#   also received this warning: "Removed 1 row(s) containing missing values (geom_path)." 
+#   for seven geom_paths. Maybe these are all about the same row from % hispanic
+#   that is dropped in the density plot? Also, in your version of this plot, you
+#   labeled effect estimates for some plots. I find this a bit confusing actually
+#   because it isn't clear why those plots have the estimates on them (and a person
+#   might infer something about statistical significance from that)
 
 
+#####################
+## y_02_tables.Rmd ##
+#####################
+
+# line 2: Consider adjusting the title 
+
+# table 1: Why no 1980?
+
+# table 2: The air pollutants are not in the same order when you run them in R
+#  as the table in the manuscript (not that this really matters, just flagging it)
+
+# If you keep the Net Relative Change and Absolute Change in Table 2 in the 
+# manuscript, be sure to add the code to this file
 
 
+#############################
+## y_03_emissions_maps.Rmd ##
+#############################
+
+# lines 297-319: This is duplicated; NOx transport is done in the code chunk above
+
+# Can you send me the emissions maps created in this file? I don't see them in 
+# the materials I have. 
 
 
+#################################################
+## y_04_sensit_analys_plot_models_adjs_eco.Rmd ##
+#################################################
 
+# line 59 and on: For each of these plots, I get the error "Error in plot.new():
+#   figure margins too large. I'm not able to run any of the plots. Also, is there 
+#   code missing at the end for dev.off() or anything like that?
+
+
+###########################################
+## y_05_sensitv_analy_regional_plots.Rmd ##
+###########################################
+
+# I don't have a copy of these plots, but I will send you the versions I created so
+# you can compare. 
+
+# line 174: Consider adding some explanation here about what you are checking for
+#   in the code chunk below. (I'm also not sure what you are checking for)
+
+# line 188: I get the error about plot margins here too "Error in plot.new(): figure
+#   margins too large
 
 
 
