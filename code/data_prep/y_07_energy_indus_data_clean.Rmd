@@ -65,7 +65,7 @@ summary(data$so2_energy_relat_chg)
 mean(data$so2_energy_relat_chg, na.rm = TRUE)
 sd(data$so2_energy_relat_chg, na.rm = TRUE)
 # values above the 95th percentile are huge
-quantile(data$so2_energy_relat_chg, seq(0,1,0.05), na.rm=TRUE) 
+quantile(data$so2_energy_relat_chg, seq(0,1,0.01), na.rm=TRUE) 
 
 
 #NOx energy
@@ -76,7 +76,7 @@ summary(data$nox_energy_relat_chg)
 mean(data$nox_energy_relat_chg, na.rm = TRUE)
 sd(data$so2_energy_relat_chg, na.rm = TRUE)
 # values above the 95th percentile are huge
-quantile(data$nox_energy_relat_chg, seq(0,1,0.05), na.rm=TRUE) 
+quantile(data$nox_energy_relat_chg, seq(0,1,0.01), na.rm=TRUE) 
 
 ```
 
@@ -87,7 +87,8 @@ quantile(data$nox_energy_relat_chg, seq(0,1,0.05), na.rm=TRUE)
 
 Notes:
 
-Excluding the top 5 percentile values removes 3754 observations, which is 24.24% of the data (no bueno)
+Excluding the top 5 percentile values removes 3754 observations but 3133 are NA's (mostly for year 2010 because for this year we do not estimate the relative change). 621 observations correspond to the 5% values of the 5 percentile 
+
 
 ### 2a. SO2 energy 
 
@@ -95,8 +96,11 @@ Excluding the top 5 percentile values removes 3754 observations, which is 24.24%
 ```{r}
 
 # filter observations that are below the 95th percentile
-data_so2_energy <- data %>%
-  dplyr::filter(so2_energy_relat_chg <= quantile(data$so2_energy_relat_chg, 0.95, na.rm=TRUE ))
+data_so2_energy <- data_filt_no10 %>%
+  dplyr::filter(so2_energy_relat_chg <= quantile(data$so2_energy_relat_chg, 0.95, na.rm=TRUE))
+
+extreme_so2_energy <- data_filt_no10 %>%
+  dplyr::filter(so2_energy_relat_chg >= quantile(data$so2_energy_relat_chg, 0.95, na.rm=TRUE))
 
 summary(data_so2_energy)
 # much more reasonable
@@ -115,7 +119,7 @@ plot(density(data_so2_energy$so2_energy_relat_chg, na.rm = TRUE))
 
 # filter observations that are below the 95th percentile
 # Note that the code below removes the 2010 observations which have NA for the relative diff variables
-data_nox_energy <- data %>%
+data_nox_energy <- data_filt_no10 %>%
   dplyr::filter(nox_energy_relat_chg <= quantile(data$nox_energy_relat_chg, 0.95, na.rm=TRUE ))
 
 summary(data_nox_energy)

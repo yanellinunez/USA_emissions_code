@@ -164,7 +164,8 @@ start_time <- Sys.time()
 pdf(file = "so2_maps.pdf", width = 14, height = 6)
 
 data_sf %>%
-  filter(year %in% c(1970, 2010)) %>%
+  filter(year %in% c(1970, 2010),
+         state == "New York") %>%
   mutate(decile = cut_number(so2_industry, 10)) %>%
   ggplot() +
   geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
@@ -199,7 +200,8 @@ start_time <- Sys.time()
 pdf(file = "energy_so2_maps.pdf", width = 14, height = 6)
 
 data_sf %>%
-  filter(year %in% c(1970, 2010)) %>%
+  filter(year %in% c(1970, 2010),
+         state == "New York") %>%
   mutate(decile = cut_number(so2_ener, 10)) %>%
   ggplot() +
   geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
@@ -277,7 +279,8 @@ start_time <- Sys.time()
 pdf(file = "transport_nox_maps.pdf", width = 14, height = 6)
 
 data_sf %>%
-  filter(year %in% c(1970, 2010)) %>%
+  filter(year %in% c(1970, 2010),
+         state %in% "New York") %>%
   mutate(decile = cut_number(nox_trans, 10)) %>%
   ggplot() +
   geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
@@ -327,7 +330,8 @@ start_time <- Sys.time()
 pdf(file = "residen_oc_maps.pdf", width = 14, height = 6)
 
 data_sf %>%
-  filter(year %in% c(1970, 2010)) %>%
+  filter(year %in% c(1970, 2010),
+         state == "New York") %>%
   mutate(decile = cut_number(oc_residential, 10)) %>%
   ggplot() +
   geom_sf(colour = alpha("antiquewhite3", 0.25), size = 0.7) +
