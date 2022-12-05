@@ -15,7 +15,7 @@ editor_options:
 
 The code produces Figure FS.6
 
-Note: this figure uses the results produce in 'y_03_sensitiv_regional_models.rmd' from the models folder
+Note: this figure uses the results produced in 'y_03_sensitiv_regional_models.rmd' from the models folder
 
 ```{r include=FALSE}
 

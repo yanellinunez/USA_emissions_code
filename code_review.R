@@ -214,3 +214,218 @@ infinite <- data %>% filter(is.infinite(so2_indus_relat_chg))
 #   Why not instead only remove the specific years with infinite obs? This would
 #   be removing 5 obs instead of removing 25 as you do here
 
+
+##*************************************************************Models
+
+#################
+## functions.R ##
+#################
+
+# line 20: In the manuscript you state that Asian and American Native were adjusted
+#   for percent white, implying that Hispanic was not. However, I don't see a race
+#   model included here without percent white included as a covariate. Okay I see
+#   in y_01_single-exp... that you use the econ variable function for hispanic! 
+#   Nice!! Maybe clarify this in the header at line 14
+
+# line 20 vs 36: At line 20 you use s(perc_white), but then a natural spline with
+#   4 df on line 36. Why the difference? After reading the manuscript section, I
+#   get that you use a penalized spline for covariates (in the case of line 20) 
+#   but then a natural spline when the variable is an exposure (in the case of line 36)
+#   Perhaps add a quick comment in the script to clarify this? It took me a minute
+#   to figure out why they were different. 
+
+# line 141: I am confused about why this section is included. Why is there a 
+#   cross basis for linear models? Is this where you test everything for non-linearity?
+
+# line 163: Should pred.est be pred_est ? 
+
+# line 220: Was this sensitivity analysis only run for some of the exposures (perc Asian,
+#   perc American Indian)? 
+#   Asking because s(perc_white) is included in the model, and I don't see other
+#   functions with the natural spline or without the perc_white covariate
+#   Note: in the manuscript, the methods say that this model was "identical" to the
+#   previous, with the exception of the added tensor term
+
+# line 357: Because perc_white is included in the model as a covariate, do you need
+#   an additional function for Hispanic where this variable is not included? 
+
+
+###################################################
+## y_01_single-exp_nested_models_ns_mean_ref.Rmd ##
+###################################################
+
+# lines 80-93: I find this a bit confusing, because it seems that all the race
+#   variables are both non-linear and linear? Is it that they are non-linear
+#   for some outcomes and linear for others? I recommend adding some more clarity 
+#   here in the notes
+
+# lines 104-112: How did you calculate the mean / where is the code for calculating
+#   the means? Consider using a variable for the means and wrapping each exposure
+#   input in a paste command. When I try to calculate the mean using 
+#   mean(data_full$perc_unemp) or mean(data_master$perc_unemp)I do not get the same value
+
+# line 125: Potential typo in the x_label for Median Property Value (currently 
+#   'Median Propty Value ($1000)')
+
+# brilliant set up here with the whole massive function input dataframe!
+
+# lines 160 and 191: It is a little confusing that the comment here includes 'hispanic' even
+#   though the models with the hispanic variable aren't included here (but are done
+#   with the eco variables)
+
+# Section 2 is included here as a separate piece, but is then repeated again for
+# subsequent sections. I'm not sure if it is required ta be repeated or not, but
+# I would recommend either keeping it as a separate section OR repeating it with
+# each section that is run in parallel
+
+# line 263, 336: Consider changing this comment from "save our work" to "return our work" 
+#   because you aren't technically saving, just spitting it out from the function
+
+# line 266: I get the following warning message: 
+#   'Warning message:
+#    In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+#    already exporting variable(s): models_to_make_nonlinear_eco, plot_nonlin, run_model'
+#   I looked into this briefly, and it seems fine. I think it is just stating that
+#   even though you explicitly set .export, doParallel also found those variables
+#   automatically. Seems fine to me, and good to still explicitly set .export. See
+#   here for a discussion: https://stackoverflow.com/questions/48243404/doparalleldoparallelsnow-complains-when-foreach-export-is-specified
+#   (I get this warning for all doparallel calls)
+
+# line 473: Should this be models_to_make_linear_race? Not such a big deal as its
+#   just the progress bar
+
+# line 479: Should this be models_to_make_linear_race? I'm worried this might have
+#   dropped out the per_asian SO2 energy model --> yes when I run it, I only get
+#   4 observations instead of the 5 I should have, and reviewing the summaries shows
+#   that the asian S02 energy model is missing.
+#   To continue with the review I just replaced the dataframes with 
+#   models_to_make_linear_race in the console, but leave it to you to update the 
+#   script itself (just in case I am missing something) 
+
+# line 528: wrong dataframe listed for progress bar
+
+# About the progress bar: I do not see it working in my console for the non-parallelized 
+# sections even when it is invoked. I think remove from those sections becuase it
+# doesn't seem to be working and those sections run pretty fast anyway
+
+
+###############################################
+## y_02_sensitiv_analys_models_adjus_eco.Rmd ##
+###############################################
+
+# line 2: Consider changing the title in the floating header to reflect that the
+#   sensitivity analyses are adjusting for eco vars
+
+# lines 54-55: Why do you only review summaries for some dataframes? I'm just
+#   curious
+
+# line 143: Here I would rephrase the comment from "save" our work to "return" our
+#   work, just because the model isn't saved to a file here
+
+#Jenni: run from line 124 tonight
+
+
+#############################################
+## y_03_sesitiv_analys_regional_models.Rmd ##
+#############################################
+
+# lines 73-86: Instead of adding all 7 sectors, you could just add the 2 you need
+#   here, and then delete line 106. This would save you several lines of code
+
+# line 98: the 'add outcome column' note should be deleted here, as it does not apply
+
+
+# Where do you run the spatial sensitivity analyses? 
+
+
+#######################################
+## y_04_extract_effect_estimates.Rmd ##
+#######################################
+
+# line 54: Am I right that the order here must match the order in the linear_models
+#   df? if this is true, consider building the cb names again using what is available
+#   in linear_models rather than manually writing them in. This would make the code
+#   more robust to potential errors. Not such a big deal though,
+#   they are all in the correct order.
+
+
+##*************************************************************Figures
+
+########################################
+## y_01_plot_models_main_analysis.Rmd ##
+########################################
+
+# line 157: Consider adding a note to this plot that median family income is
+#   adjusted to 2010 US dollars (correct?)
+
+# line 165: Typo in x-label; "Propty" should be "Property"
+
+# code chunk starting on line 230 (econ main results): labels in the plot I run 
+#   compared to your final plot are not the same (for x and y axis and for exposures / outcomes)
+#   I will send you mine so you can see them as well. I assume you fixed up the 
+#   labels in PP? All the curves look the same to me
+
+# line 321 (dens_hispanic): Recieve this warning when running plot: 
+#   Removed 1 rows containing non-finite values (stat_density). 
+#   Not sure why one row should be removed or if this is important?
+
+# same comment as above for code chunk starting on line 364 (race main results)
+#   also received this warning: "Removed 1 row(s) containing missing values (geom_path)." 
+#   for seven geom_paths. Maybe these are all about the same row from % hispanic
+#   that is dropped in the density plot? Also, in your version of this plot, you
+#   labeled effect estimates for some plots. I find this a bit confusing actually
+#   because it isn't clear why those plots have the estimates on them (and a person
+#   might infer something about statistical significance from that)
+
+
+#####################
+## y_02_tables.Rmd ##
+#####################
+
+# line 2: Consider adjusting the title 
+
+# table 1: Why no 1980?
+
+# table 2: The air pollutants are not in the same order when you run them in R
+#  as the table in the manuscript (not that this really matters, just flagging it)
+
+# If you keep the Net Relative Change and Absolute Change in Table 2 in the 
+# manuscript, be sure to add the code to this file
+
+
+#############################
+## y_03_emissions_maps.Rmd ##
+#############################
+
+# lines 297-319: This is duplicated; NOx transport is done in the code chunk above
+
+# Can you send me the emissions maps created in this file? I don't see them in 
+# the materials I have. 
+
+
+#################################################
+## y_04_sensit_analys_plot_models_adjs_eco.Rmd ##
+#################################################
+
+# line 59 and on: For each of these plots, I get the error "Error in plot.new():
+#   figure margins too large. I'm not able to run any of the plots. Also, is there 
+#   code missing at the end for dev.off() or anything like that?
+
+
+###########################################
+## y_05_sensitv_analy_regional_plots.Rmd ##
+###########################################
+
+# I don't have a copy of these plots, but I will send you the versions I created so
+# you can compare. 
+
+# line 174: Consider adding some explanation here about what you are checking for
+#   in the code chunk below. (I'm also not sure what you are checking for)
+
+# line 188: I get the error about plot margins here too "Error in plot.new(): figure
+#   margins too large
+
+
+
+
+

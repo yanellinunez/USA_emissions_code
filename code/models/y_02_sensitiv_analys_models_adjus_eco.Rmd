@@ -60,7 +60,7 @@ summary(so2_energy)
 
 I created a dataset with the info for the model functions' arguments (see functions.R script)
 
-We running one model for each race/ethnic variable adjusting for all economic variables. Percent White is not included in the models_to_make dataset because all models are also adjusted for perc_white and we are extracting the results for perc_white from the model for perc_black
+We run one model for each race/ethnic variable adjusting for all economic variables. Percent White is not included in the models_to_make dataset because all models are also adjusted for perc_white and we are extracting the results for perc_white from the model for perc_black
 
 ```{r}
 
@@ -99,7 +99,7 @@ mutate(outcome = case_when(id == 1 ~ 'so2_energy_relat_chg',  ## add outcome col
 ## 2. Progress bar 
 
 Parallelize: runs the iterations in parallel across multiple cores to increase speed
-You computer has multiple processing cores but it only uses one to ran your R code. Parallelizing the procesing means that you are telling your computer to run different portions of your code simultaneously in multiple cores. This results in an overall faster processing
+Your computer has multiple processing cores but it only uses one to run your R code. Parallelizing the processing means that you are telling your computer to run different portions of your code simultaneously in multiple cores. This results in overall faster processing
 
 ```{r}
 
@@ -108,7 +108,7 @@ pb <- txtProgressBar(min = 0, max = nrow(models_to_make), width = 25, style = 3)
 progress <- function(p) setTxtProgressBar(pb, p)
 opts <- list(progress=progress)
 
-### code to paralized the processing among multiple cores
+### code to paralize the processing among multiple cores
 cores <- ceiling(parallel::detectCores() / 2) # use half of the available cores 
 cluster <- snow::makeCluster(cores) 
 doSNOW::registerDoSNOW(cluster)
@@ -157,7 +157,6 @@ close(pb)
 ```{r}
 
 #saveRDS(models_adjs_eco, paste0(yanelli_external, "results_updated/sensit_analy_models_adjs_eco.rds"))
-
 ```
 
 

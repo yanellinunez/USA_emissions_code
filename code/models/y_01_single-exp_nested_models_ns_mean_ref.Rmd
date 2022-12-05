@@ -11,7 +11,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-Note: Some of the code chuncks take a while to run
+Note: Some of the code chunks take a while to run
 
 *Objective:*  
 
@@ -203,7 +203,7 @@ mutate(outcome = case_when(id == 1 ~ 'so2_energy_relat_chg',  ## add outcome col
 ## 2. Progress bar 
 
 Parallelize: runs the iterations in parallel across multiple cores to increase speed
-You computer has multiple processing cores but it only uses one to ran your R code. Parallelizing the processing means that you are telling your computer to run different portions of your code simultaneously in multiple cores. This results in an overall faster processing
+You computer has multiple processing cores but it only uses one to run your R code. Parallelizing the processing means that you are telling your computer to run different portions of your code simultaneously in multiple cores. This results in overall faster processing
 
 Code for Progress bar and paralleling of point 3a.
 
@@ -214,7 +214,7 @@ pb <- txtProgressBar(min = 0, max = nrow(models_to_make_nonlinear_eco), width = 
 progress <- function(p) setTxtProgressBar(pb, p)
 opts <- list(progress=progress)
 
-### code to paralized the processing among multiple cores
+### code to parallelize the processing among multiple cores
 cores <- ceiling(parallel::detectCores() / 2) # use half of the available cores 
 cluster <- snow::makeCluster(cores) 
 doSNOW::registerDoSNOW(cluster)
@@ -223,7 +223,7 @@ doSNOW::registerDoSNOW(cluster)
 
 ## 3. Autoprocessing of NON-LINEAR models
 
-- We using the foreach() function to loop our function over each row of the dataset 'models_to_make_nonlinear_eco'.
+- We use the foreach() function to loop our function over each row of the dataset 'models_to_make_nonlinear_eco'.
 
 ### 3a. Nonlinear economic and hispanic models
 
@@ -327,6 +327,7 @@ models_nonlin_race <- foreach(i = iterators::icount(nrow(models_to_make_nonlinea
   df
   
 }
+
 
 # stop the parellel processing
 snow::stopCluster(cluster)
@@ -437,7 +438,7 @@ close(pb)
 
 ### 4a. Onebasis
 
-To plot the linear models in the same style than the nonlinear ones (using a reference to the mean), I need to use a onebasis for the independent variable. Here is the code to create the one basis for all linear models. 
+To plot the linear models in the same style as the nonlinear ones (using a reference to the mean), I need to use a onebasis for the independent variable. Here is the code to create the one basis for all linear models. 
 
 ```{r}
 ### run the foreach() loop to generate the onebasis 
@@ -454,7 +455,7 @@ foreach(i = iterators::icount(nrow(models_to_make_linear)), # iterate across row
   
 }
 
-remove(b) ## this is basically the last i which is also save with a specific name in the environment
+remove(b) ## this is basically the last i which is also saved with a specific name in the environment
 
 
 ```
@@ -717,7 +718,7 @@ No need to run this code
 
 ## 6. Plot nonlinear white
 
-In the case of organic carbon from residential and so2 from industry, the association with Black is linear and with White nonlinear. In the code chunck above, I plot the linear association for Black and in this code chunk, using the same models, I plot the nonlinear associations for White
+In the case of organic carbon from residential and so2 from industry, the association with Black is linear and with White nonlinear. In the code chunk above, I plot the linear association for Black and in this code chunk, using the same models, I plot the nonlinear associations for White
 
 ```{r}
 

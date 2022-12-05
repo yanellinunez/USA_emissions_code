@@ -1,7 +1,7 @@
 
 
 # This R script contains all functions require to run the analyses models 
-# The script is call in the first code chunk in each of the .rmds so no need run separately 
+# The script is called in the first code chunk in each of the .rmds so no need run separately 
 
 ######################
 ## Models Functions ##
@@ -110,7 +110,7 @@ plot_nonlin <- function(model, data, exposure, x_label, color) {
 # predict 
 pred <- predict(model, se.fit = TRUE, type = "terms") 
 
-# poolish predictions
+# polish predictions
 pred_df <- tibble(pred$fit[,1], pred$se.fit[,1], get(data)[, exposure]) %>%
   as.data.frame() %>%
   clean_names()  %>%
