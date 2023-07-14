@@ -13,7 +13,7 @@ editor_options:
 
 Objective:  
 
-- Remove the extreme values from the energy sector (SO2 and NOx) 
+- Remove the extreme values from the SO2 and NOx energy sector 
 - Convert NaN to zeros and remove the few infinity values in SO2 industry
 
 Note: I commented out the line code for saving the generated dataset because if ran it will overwrite the already saved dataset
@@ -53,9 +53,10 @@ data_filt_no10 <- data %>%
 
 ```
 
-##. Visualizing Energy sector
+## 2. Visualizing Energy sector
 
 There are a couple of very extreme values because some counties have a very small number that changes to a very large number. These few extreme values completely drive the health models and lead to non-reliable extreme effect estimates
+
 ```{r}
 
 # SO2 energy 
@@ -80,7 +81,7 @@ quantile(data$nox_energy_relat_chg, seq(0,1,0.01), na.rm=TRUE)
 
 ```
 
-## 2. Energy sector
+## 3. Energy sector
 
 - We selected the 95th percentile of the data to avoid extremely large values that are generated when a county's reference year has an extremely low emission flux.
 - These are the data that I used for the models for the energy sector
@@ -161,6 +162,9 @@ so2_review <- data_filt_no10 %>%
  mutate_at("so2_indus_relat_chg",  ~replace(., is.nan(.), 0)) %>% ##  replace NaN values with zero
   dplyr::filter(!is.infinite(so2_indus_relat_chg)) ## remove observations (NOT COUNTIES) with infinity values
 
+# save file 
+# okay so now the dataset that I have for industry is correct
+#saveRDS(so2_review, paste0(data.folder, "generated_data/master_so2_industry.rds"))
 
 ################# From here and below it was a shit show that i don't know why I did all of this nonsense #######
 
@@ -231,9 +235,6 @@ sum(is.na(so2_indus_new$so2_indus_relat_chg))
 summary(so2_indus_new)
 summary(data)
 
-# save file
-### No need to save again this file
-##saveRDS(so2_indus_new, paste0(data.folder, "generated_data/master_so2_industry.rds"))
 
 ```
 
