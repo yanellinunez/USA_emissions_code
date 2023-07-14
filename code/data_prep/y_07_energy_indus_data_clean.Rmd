@@ -13,7 +13,7 @@ editor_options:
 
 Objective:  
 
-- Remove the extreme values from the energy sector (SO2 and NOx) 
+- Remove the extreme values from the SO2 and NOx energy sector 
 - Convert NaN to zeros and remove the few infinity values in SO2 industry
 
 Note: I commented out the line code for saving the generated dataset because if ran it will overwrite the already saved dataset
@@ -53,9 +53,10 @@ data_filt_no10 <- data %>%
 
 ```
 
-##. Visualizing Energy sector
+## 2. Visualizing Energy sector
 
 There are a couple of very extreme values because some counties have a very small number that changes to a very large number. These few extreme values completely drive the health models and lead to non-reliable extreme effect estimates
+
 ```{r}
 
 # SO2 energy 
@@ -65,7 +66,7 @@ summary(data$so2_energy_relat_chg)
 mean(data$so2_energy_relat_chg, na.rm = TRUE)
 sd(data$so2_energy_relat_chg, na.rm = TRUE)
 # values above the 95th percentile are huge
-quantile(data$so2_energy_relat_chg, seq(0,1,0.05), na.rm=TRUE) 
+quantile(data$so2_energy_relat_chg, seq(0,1,0.01), na.rm=TRUE) 
 
 
 #NOx energy
@@ -76,18 +77,19 @@ summary(data$nox_energy_relat_chg)
 mean(data$nox_energy_relat_chg, na.rm = TRUE)
 sd(data$so2_energy_relat_chg, na.rm = TRUE)
 # values above the 95th percentile are huge
-quantile(data$nox_energy_relat_chg, seq(0,1,0.05), na.rm=TRUE) 
+quantile(data$nox_energy_relat_chg, seq(0,1,0.01), na.rm=TRUE) 
 
 ```
 
-## 2. Energy sector
+## 3. Energy sector
 
 - We selected the 95th percentile of the data to avoid extremely large values that are generated when a county's reference year has an extremely low emission flux.
 - These are the data that I used for the models for the energy sector
 
 Notes:
 
-Excluding the top 5 percentile values removes 3754 observations, which is 24.24% of the data (no bueno)
+Excluding the top 5 percentile values removes 3754 observations but 3133 are NA's (mostly for year 2010 because for this year we do not estimate the relative change). 621 observations correspond to the 5% values of the 5 percentile 
+
 
 ### 2a. SO2 energy 
 
@@ -95,8 +97,11 @@ Excluding the top 5 percentile values removes 3754 observations, which is 24.24%
 ```{r}
 
 # filter observations that are below the 95th percentile
-data_so2_energy <- data %>%
-  dplyr::filter(so2_energy_relat_chg <= quantile(data$so2_energy_relat_chg, 0.95, na.rm=TRUE ))
+data_so2_energy <- data_filt_no10 %>%
+  dplyr::filter(so2_energy_relat_chg <= quantile(data$so2_energy_relat_chg, 0.95, na.rm=TRUE))
+
+extreme_so2_energy <- data_filt_no10 %>%
+  dplyr::filter(so2_energy_relat_chg <= quantile(data$so2_energy_relat_chg, 0.95, na.rm=TRUE))
 
 summary(data_so2_energy)
 # much more reasonable
@@ -115,7 +120,7 @@ plot(density(data_so2_energy$so2_energy_relat_chg, na.rm = TRUE))
 
 # filter observations that are below the 95th percentile
 # Note that the code below removes the 2010 observations which have NA for the relative diff variables
-data_nox_energy <- data %>%
+data_nox_energy <- data_filt_no10 %>%
   dplyr::filter(nox_energy_relat_chg <= quantile(data$nox_energy_relat_chg, 0.95, na.rm=TRUE ))
 
 summary(data_nox_energy)
@@ -147,6 +152,22 @@ Below are notes I was making for myself. Feel free to ignore
 
 
 ```{r}
+
+##### THIS IS WHAT I SHOULD HAVE DONE TO REMOVE ONLY THE OBSERVATIONS WITH INFINITY VALUES RATHER THAT COMPLETELY
+##### REMOVING THE COUNTIES FROM THE DATASET. I SHOULD ONLY REMOVE THE OBSERVATIONS WITH INFINITY VALUES.
+##### ONCE I HEAR BACK FROM REVIEWERS I NEED TO RE-RUN THE INDUSTRY ANALYSIS USING THE DATASET THAT ONLY EXCLUDES OBSERVATIONS RATHER 
+##### THAT REMOVING THE COUNTIES FROM THE WHOLE ANALYSIS
+
+so2_review <- data_filt_no10 %>%
+ mutate_at("so2_indus_relat_chg",  ~replace(., is.nan(.), 0)) %>% ##  replace NaN values with zero
+  dplyr::filter(!is.infinite(so2_indus_relat_chg)) ## remove observations (NOT COUNTIES) with infinity values
+
+# save file 
+# okay so now the dataset that I have for industry is correct
+#saveRDS(so2_review, paste0(data.folder, "generated_data/master_so2_industry.rds"))
+
+################# From here and below it was a shit show that i don't know why I did all of this nonsense #######
+
 ### I definitely went the long way here... 
 # view distribution
 histogram(data$so2_industry)
@@ -202,7 +223,8 @@ separate(ID_county, c("state", "county"), sep = "_")
 
 # remove counties with infinity values and replace NaN with "0"
 so2_indus_new <- anti_join(data, infinity_counties) %>%
- mutate_at("so2_indus_relat_chg",  ~replace(., is.nan(.), 0))
+ mutate_at("so2_indus_relat_chg",  ~replace(., is.nan(.), 0)) %>%
+  dplyr::filter(year != "2010")
 
 summary(so2_indus_new)
 
@@ -213,9 +235,6 @@ sum(is.na(so2_indus_new$so2_indus_relat_chg))
 summary(so2_indus_new)
 summary(data)
 
-# save file
-### No need to save again this file
-##saveRDS(so2_indus_new, paste0(data.folder, "generated_data/master_so2_industry.rds"))
 
 ```
 

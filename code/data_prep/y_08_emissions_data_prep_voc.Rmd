@@ -1,0 +1,247 @@
+---
+title: "Matching emissions and census data"
+author: "Yanelli Nunez"
+date: "2/25/2021"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+Objective:
+
+Estimate VOC emission change and relative change and add these data to the ongoing datasets
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+#source(paste0(file.locations.folder,'file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+
+```
+
+
+## 1. Load data
+
+
+```{r}
+
+# emissions data only
+emi_data <- readRDS(paste0(data.folder, "generated_data/emissions_all_data.rds")) 
+
+# independent variables joined with emissions data ("master" dataset)
+master <- readRDS(paste0(data.folder, "generated_data/master_data.rds")) 
+
+```
+
+
+## 2. Pollutants data
+
+Here we are only preparing the VOC data. Note that there are multiple VOCs, so we summed up all VOCs into a total VOC value and worked with that total value
+
+- VOC from energy --> min 0.00083
+
+Below info is just for references or reminder of where the other pollutants stand
+
+- NOx from transport
+- SO2 from energy  --> minimum value is zero
+- NH3 from agriculture
+- NOx from energy --> minimum value is zero
+- SO2 from industry --> minimum value is zero
+- OC from residential 
+- NOx from commercial
+
+
+
+```{r}
+
+# VOC energy
+
+voc_energ <- readRDS(paste0(data.folder, "emissions_data/us_counties_vocs.rds")) %>%
+  clean_names() %>%
+  dplyr::select(1:5, voc_total) %>%
+  mutate(year = as.numeric(year)) %>%
+  mutate(state = if_else(state == "District of Columbia", "District Of Columbia", state)) %>% # in the covariates dataframe the name is District 'Of' Columbia so I am  editing it here to match that format
+  mutate(name = if_else(gisjoin == "G1200250", "Miami-Dade", name), # rename Dade to Miami-Dade so it is consistent naming across the study period
+         gisjoin = if_else(gisjoin == "G1200250", "G1200860", gisjoin)) %>%
+  rename(voc_energ = voc_total)
+
+
+summary(voc_energ)
+hist(voc_energ$voc_energ)
+
+
+# add VOC data to the emissions dataset
+
+pollu_data <- left_join(emi_data, voc_energ) 
+
+class(pollu_data)
+summary(pollu_data)
+
+# save files with all emission year 1970 to 2017
+# saveRDS(pollu_data, paste0(data.folder, "generated_data/emissions_all_data.rds"))
+
+```
+
+### 2a. Estimate emission differences and relat change (years 1970 to 2010)
+
+Notes: 
+
+- Relative change was estimated as a percentage of the initial concentration
+- Relative change was estimated as a percentage of the initial concentration, thus, for variables that have a starting concentration of zero we get undefined values(number/zero --> undefined).
+
+- ***Beware, the variable 'name' seems to have discrepancies in writing and the relative matching to gisjoin. This is a note to myself to not use this variable.
+
+```{r}
+  
+  
+voc_reltv_chg <- voc_energ %>%
+  filter(year != 2017) %>%
+  mutate(gisjoin = as.factor(gisjoin)) %>%
+  group_by(state, gisjoin) %>%
+ arrange(., year, .by_group = TRUE) %>%
+    mutate(voc_energ_diff = (voc_energ - dplyr::lag(voc_energ)),
+           voc_energ_diff = dplyr::lead(voc_energ_diff)) %>%  # 'lead' to assign difference value to earlier year
+  ungroup() %>%
+  mutate(voc_energ_relat_chg = voc_energ_diff/voc_energ*100) %>% # relative change
+   as.data.frame() %>%
+   mutate(name = if_else(state == "District Of Columbia", "District of Columbia", name),
+          year = as.factor(year))
+
+summary(voc_reltv_chg)
+class(poll_reltv_chg)
+hist(voc_reltv_chg$voc_energ_relat_chg)
+
+# read ongoing data
+poll_reltv_chg <- readRDS(paste0(data.folder, "generated_data/emissions_diff_reltv_chg.rds"))
+
+# add voc data to the ongoing dataset of pollutatns
+reltv_chg_join <- left_join(poll_reltv_chg, voc_reltv_chg)
+
+# save file
+#saveRDS(reltv_chg_join, paste0(data.folder, "generated_data/emissions_diff_reltv_chg.rds"))
+
+```
+
+
+### 3c. Add VOC data to previous master dataset 
+
+```{r}
+
+master_update_voc <- left_join(master, voc_reltv_chg)
+
+summary(master_update_voc)
+class(master_update_voc)
+
+colnames(master_update_voc)
+
+#saveRDS(master_update_voc, paste0(data.folder, "generated_data/master_data.rds"))
+
+```
+
+
+## 4. Visualizations
+
+A couple of counties are missing emissions data. They are small areas and peninsulas 
+
+```{r}
+
+missing_emissions <- master_update_voc %>%
+dplyr::select(gisjoin, year, state, county, tot_pop, area_km2, pop_density, 48:71) %>%
+  filter(year != 2010)
+
+colnames(missing_emissions)
+
+summary(missing_emissions)
+
+```
+
+Notes:
+
+
+```{r}
+
+# Organize data for figures 
+
+data_fig <- master_update_voc %>%
+  dplyr::select(year, state, county, 48:71) %>%
+  gather(variable, estimate, 4:27) %>%
+  unite(ID, c("state", "county"), sep = "_", remove = FALSE) %>%
+  mutate(ID = as.factor(ID),
+         variable = as.factor(variable))
+
+colnames(data_fig)
+
+  
+# re order factor 
+data_fig$variable <- factor(data_fig$variable, levels = c(
+                "nox_trans",
+                "nox_trans_diff",
+                "nox_trans_relat_chg",
+                
+                "nh3_agric",
+                "nh3_agric_diff",
+                "nh3_agric_relat_chg",
+            
+                "so2_ener",
+                "so2_energy_diff",
+                "so2_energy_relat_chg",
+            
+                "oc_residential",
+                "oc_resd_diff",
+                "oc_resid_relat_chg",
+                
+                "nox_commercial",
+                "nox_commer_diff",
+                "nox_commer_relat_chg",
+                
+                "so2_industry",
+                "so2_indus_diff",
+                "so2_indus_relat_chg",
+                
+                "nox_ener",
+                "nox_energy_diff",
+                "nox_energy_relat_chg",
+                
+                "voc_energ",
+                "voc_energ_diff",
+                "voc_energ_relat_chg"))
+
+# variable distribution 
+
+# density plot
+data_fig %>%
+  ggplot(aes(estimate)) +
+  facet_wrap(~variable, scales = "free") +
+  geom_density(aes(y = ..ndensity..))
+
+# box plot
+ data_fig %>%
+  ggplot(aes(y = estimate)) +
+  facet_wrap(~variable, scales = "free") +
+ geom_boxplot(aes(x=variable)) +
+  # geom_point(aes(x = variable, color = ID), alpha = 0.5, size = 0.5) +
+theme(legend.position = "none") 
+ 
+ 
+ 
+
+#ggplotly(box_plots, tooltip = c("ID", "estimate"))
+
+```
+

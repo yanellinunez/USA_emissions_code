@@ -418,3 +418,43 @@ pdf(file = "curves_race.pdf", width = 14, height = 20)
 dev.off() 
 
 ```
+
+## 3. ISEE Poster figure
+
+```{r}
+
+pdf(file = "isee_income.pdf", width = 12, height = 2.5)            
+ grid.arrange(so2_energy_fam_incom_adjs + ylab(expression(Energy~SO[2])),
+              so2_indus_fam_incom_adjs + ylab(expression(Industry~SO[2])),
+              nox_trans_fam_incom_adjs + ylab(expression(Transport~NO[x])),
+              oc_resid_fam_incom_adjs + ylab("Residential OC"),
+              dens_income + ylab("Density"),
+              
+               nrow = 1, ncol = 5)
+            # left = gridtext::richtext_grob("Industry: SO<sub>2</sub> (% chg)", rot=90,
+             #gp=gpar(fontsize=18,font=8)))
+dev.off() 
+
+pdf(file = "isee_race.pdf", width = 11, height = 5)            
+ grid.arrange(dens_white,
+              dens_black,
+              dens_am_nat,
+              dens_hisp,
+   
+              so2_indus_perc_white,
+              so2_indus_perc_black,
+              so2_indus_perc_nativ,
+              so2_indus_perc_hisp_org,
+              
+              nox_energy_perc_white,
+              nox_energy_perc_black,
+              nox_energy_perc_nativ,
+              nox_energy_perc_hisp_org,
+              
+               nrow = 3, ncol = 4)
+            # left = gridtext::richtext_grob("Industry: SO<sub>2</sub> (% chg)", rot=90,
+             #gp=gpar(fontsize=18,font=8)))
+dev.off() 
+
+```
+
