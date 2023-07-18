@@ -272,10 +272,11 @@ close(pb)
 
 # save list dataset 
 
-#saveRDS(models_nonlin_eco, paste0(yanelli_external, "results_updated/models_nonlin_eco_hisp.rds"))
+#saveRDS(models_nonlin_eco, paste0(yanelli_external, "results_updated/models_nonlin_eco_hisp_revised.rds"))
 
 ```
 
+**waiting for this code chunk to run**
 
 ### 3a. Nonlinear racial models
 
@@ -470,13 +471,13 @@ These models are adjusted for s(perc_white)
 ```{r}
 
 #### set up a progress bar
-pb <- txtProgressBar(min = 0, max = nrow(models_to_make_nonlinear_blk_wht), width = 25, style = 3)
+pb <- txtProgressBar(min = 0, max = nrow(models_to_make_linear_race), width = 25, style = 3)
 progress <- function(p) setTxtProgressBar(pb, p)
 opts <- list(progress=progress)
 
 ## Run models using a foreach() loop
 
-linear_models_race <- foreach(i = iterators::icount(nrow(models_to_make_nonlinear_blk_wht)), # iterate across rows
+linear_models_race <- foreach(i = iterators::icount(nrow(models_to_make_linear_race)), # iterate across rows
                              .options.snow=opts, # the progress bar 
                              .inorder = FALSE, 
                              .combine = rbind) %do% { 
@@ -525,7 +526,7 @@ These two models include both black and white. Black is included it as linear te
 ```{r}
 
 #### set up a progress bar
-pb <- txtProgressBar(min = 0, max = nrow(models_to_make_nonlinear_blk_wht), width = 25, style = 3)
+pb <- txtProgressBar(min = 0, max = nrow(models_to_make_linear_blk_wht), width = 25, style = 3)
 progress <- function(p) setTxtProgressBar(pb, p)
 opts <- list(progress=progress)
 

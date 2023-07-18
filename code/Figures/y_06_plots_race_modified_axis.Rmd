@@ -13,7 +13,7 @@ editor_options:
 
 Objective:  
 
-Plot the association curves for the main analysis
+Edit the 
 
 
 
@@ -76,11 +76,80 @@ models_nonlin_wht <- models_nonlin_wht %>%
   rename(plots = plots_white)
 
 models_nonlinear <- rbind(models_nonlin_asian_an, models_nonlin_eco_hisp) %>%
-  rbind(., models_nonlin_wht)
+  rbind(., models_nonlin_wht) %>%
+  dplyr::filter(exposure %in% c("perc_nativ", "perc_black", "perc_asian", "perc_white", "perc_hisp_org"))
+
+
+# merging the nonlinear and linear data lists 
+models_merged <- rbind(models_nonlinear, models_linear)
 
 rm(models_nonlin_asian_an)
 rm(models_nonlin_eco_hisp)
 rm(models_nonlin_wht)
+```
+
+## 2. 
+
+```{r}
+
+## Estimate max and min values for all race/ethnicity variables based on the 3th and 97th #percentiles
+#quantile(data_master$perc_hisp_org, c(.03, .97)) # 0, 36
+#quantile(data_master$perc_asian, c(.03, .95)) # 0, 13
+#quantile(data_master$perc_black, c(.03, .97)) # 0, 50
+#quantile(data_master$perc_nativ, c(.03, .97)) # 0, 9
+#quantile(data_master$perc_white, c(.03, .97)) # 46, 100
+#
+#
+## add columns to data list with max and min x values
+#models_x_value <- models_edit %>%
+#  mutate(x_min = if_else(exposure != "perc_white", 0, 45),
+#         x_max = if_else(exposure == "perc_hisp_org", 35,
+#                 if_else(exposure == "perc_asian", 15,
+#                 if_else(exposure == "perc_black", 50,
+#                 if_else(exposure == "perc_nativ", 10, 100)))))
+#
+
+# Set up axis transformations
+
+sqr_root <- function(x) x ^ (1/2)
+sqr <- function(x) x ^ 2
+
+# Function for left-skewed transformation
+trans_sqr <- trans_new(name = "square",
+transform = sqr,
+inverse = sqr_root)  
+
+# Function for right-skewed transformation
+trans_sqr_root <- trans_new(name = "square root",
+transform = sqr_root,
+inverse = sqr) 
+
+# Add column to table indicating what transformation function to use
+
+models_trans <- models_merged %>%
+  mutate(trans_type = if_else(exposure == "perc_white", "trans_sqr", "trans_sqr_root")) %>%
+  mutate(trans_type = as.name(trans_type))
+
+# Use foreach() to modify x axis scale
+
+transf_axis <- foreach(i = iterators::icount(nrow(models_trans)), # iterate across rows
+                             .combine = rbind) %do% { 
+
+# Transform x-axis scale of plots                               
+plot <- models_trans$plots[[i]] +
+coord_trans(x = get(models_trans$trans_type[[i]]))
+
+# Add new plots to data list
+df <- models_trans %>% 
+  mutate(plots_scaled = list(plot)) %>%
+  dplyr::select(-plots) %>%
+  arrange(outcome)
+
+# Save work 
+df
+
+                             }
+
 
 ```
 

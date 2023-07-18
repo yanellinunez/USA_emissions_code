@@ -142,7 +142,6 @@ sd(data_nox_energy$nox_energy_relat_chg)
 - The good thing is that there are only have 5 counties that have infinity values because they went from 0 in 2000 to nonzero in 2010 (nonzero - 0 / 0 --> infinity)
 
 
-
 Below are notes I was making for myself. Feel free to ignore 
 - 640 observations have zeros for SO2 industry 
 - Only 11 counties have zero at 1970

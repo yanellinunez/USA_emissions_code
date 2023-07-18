@@ -49,7 +49,8 @@ list.of.packages = c('tidyverse',
                      'dlnm',
                      'foreach', # for looping
                      'gtsummary',
-                     'here') # for making tables
+                     'here', # for making tables
+                     'scales')
 
 # check if list of packages is installed. If not, it will install ones not yet installed
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
