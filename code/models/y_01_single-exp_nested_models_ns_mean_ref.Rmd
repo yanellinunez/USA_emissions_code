@@ -11,7 +11,11 @@ editor_options:
   chunk_output_type: console
 ---
 
-Note: Some of the code chunks take a while to run
+July 18, 2023 update: 
+
+I re-ran all of these models using the updated data for SO2 industry. The SO2 updated data includes a couple more observations since initially we have remove all counties that had at least one infinity value and I updated this filter to specifically remove only the observations with infinity values. So re running all these models should only change the results for SO2 industry, and given that it is only a couple more observations, I don't anticipate the results to change that much. If major changes are observed then we might need to also re-run the sensitivity analysis so those models are updated with the new SO2 industry data as well. 
+
+Note that while re-running the models, I found minor discrepancies in the code with some of the foreach() loop referring to the wrong dataset. This is why I re-run all models rather than just the industry SO2.
 
 *Objective:*  
 
@@ -546,7 +550,10 @@ linear_models_blk_wht <- foreach(i = iterators::icount(nrow(models_to_make_linea
    
 df
 
-}
+                             }
+
+rm(m)
+
 
 ```
 
@@ -709,7 +716,7 @@ close(pb)
 No need to run this code
 ```{r}
 
-# saveRDS(linear_plots, paste0(yanelli_external, "results_updated/models_linear.rds"))
+#saveRDS(linear_plots, paste0(yanelli_external, "results_updated/models_linear_revised.rds"))
 
 #linear_plots <- readRDS(paste0(yanelli_external, "results_updated/models_linear.rds"))
 
@@ -754,7 +761,7 @@ nonl_white_plots <- foreach(i = iterators::icount(nrow(nonl_white)), # iterate a
 
 # save plots
 
-##saveRDS(nonl_white_plots, paste0(yanelli_external, "results_updated/models_nonlin_wht.rds"))
+#saveRDS(nonl_white_plots, paste0(yanelli_external, "results_updated/models_nonlin_wht_revised.rds"))
 
 ```
 
