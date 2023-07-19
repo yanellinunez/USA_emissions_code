@@ -276,7 +276,6 @@ close(pb)
 
 ```
 
-**waiting for this code chunk to run**
 
 ### 3a. Nonlinear racial models
 

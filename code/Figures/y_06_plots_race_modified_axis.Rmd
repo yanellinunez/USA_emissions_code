@@ -49,19 +49,19 @@ Loading in the model results. These models were produced through the 'y_01_singl
 
 ```{r}
 
-models_linear <- readRDS(paste0(yanelli_external, "results_updated/models_linear.rds")) %>%
+models_linear <- readRDS(paste0(yanelli_external, "results_updated/models_linear_revised.rds")) %>%
   arrange(outcome)
 
-models_nonlin_asian_an <- readRDS(paste0(yanelli_external, "results_updated/models_nonlin_asian_an.rds")) %>%
+models_nonlin_asian_an <- readRDS(paste0(yanelli_external, "results_updated/models_nonlin_asian_an_revised.rds")) %>%
   arrange(outcome)
 
-models_nonlin_blk_wht <- readRDS(paste0(yanelli_external, "results_updated/models_nonlin_blk_wht.rds")) %>%
+models_nonlin_blk_wht <- readRDS(paste0(yanelli_external, "results_updated/models_nonlin_blk_wht_revised.rds")) %>%
   arrange(outcome)
 
-models_nonlin_eco_hisp <- readRDS(paste0(yanelli_external, "results_updated/models_nonlin_eco_hisp.rds")) %>%
+models_nonlin_eco_hisp <- readRDS(paste0(yanelli_external, "results_updated/models_nonlin_eco_hisp_revised.rds")) %>%
   arrange(outcome)
 
-models_nonlin_wht <- readRDS(paste0(yanelli_external, "results_updated/models_nonlin_wht.rds")) %>%
+models_nonlin_wht <- readRDS(paste0(yanelli_external, "results_updated/models_nonlin_wht_revised.rds")) %>%
   arrange(outcome)
 
 ```
@@ -110,7 +110,6 @@ rm(models_nonlin_wht)
 #
 
 # Set up axis transformations
-
 sqr_root <- function(x) x ^ (1/2)
 sqr <- function(x) x ^ 2
 
@@ -127,8 +126,7 @@ inverse = sqr)
 # Add column to table indicating what transformation function to use
 
 models_trans <- models_merged %>%
-  mutate(trans_type = if_else(exposure == "perc_white", "trans_sqr", "trans_sqr_root")) %>%
-  mutate(trans_type = as.name(trans_type))
+  mutate(trans_type = if_else(exposure == "perc_white", "trans_sqr", "trans_sqr_root")) 
 
 # Use foreach() to modify x axis scale
 
@@ -136,12 +134,12 @@ transf_axis <- foreach(i = iterators::icount(nrow(models_trans)), # iterate acro
                              .combine = rbind) %do% { 
 
 # Transform x-axis scale of plots                               
-plot <- models_trans$plots[[i]] +
-coord_trans(x = get(models_trans$trans_type[[i]]))
+plot_scaled <- models_trans$plots[[i]] +
+               coord_trans(x = get(models_trans$trans_type[[i]]))
 
 # Add new plots to data list
-df <- models_trans %>% 
-  mutate(plots_scaled = list(plot)) %>%
+df <- models_trans[i,] %>% 
+  mutate(plots_scaled = list(plot_scaled)) %>%
   dplyr::select(-plots) %>%
   arrange(outcome)
 
@@ -151,6 +149,12 @@ df
                              }
 
 
+```
+
+
+```{r}
+test <- models_nonlinear$plots[[17]] +
+               coord_trans(x = get(models_trans$trans_type[[10]]))
 ```
 
 
