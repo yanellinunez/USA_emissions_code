@@ -94,7 +94,7 @@ nonlinear_rnm <- models_nonlinear %>%
   unite(name, outcome:exposure, sep = "_") %>%
   mutate(name = str_remove(name, "_relat_chg"))
 
-# extract nonlinear using assign and foreach()
+# extract plots to environment using assign and foreach()
 foreach(i = iterators::icount(nrow(nonlinear_rnm)), # iterate across rows
                              .combine = rbind) %do% { 
   

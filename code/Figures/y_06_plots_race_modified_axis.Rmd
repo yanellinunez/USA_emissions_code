@@ -83,9 +83,12 @@ models_nonlinear <- rbind(models_nonlin_asian_an, models_nonlin_eco_hisp) %>%
 # merging the nonlinear and linear data lists 
 models_merged <- rbind(models_nonlinear, models_linear)
 
-rm(models_nonlin_asian_an)
 rm(models_nonlin_eco_hisp)
+rm(models_nonlin_asian_an)
 rm(models_nonlin_wht)
+rm(models_nonlinear)
+rm(models_linear)
+
 ```
 
 ## 2. 
@@ -126,16 +129,22 @@ inverse = sqr)
 # Add column to table indicating what transformation function to use
 
 models_trans <- models_merged %>%
-  mutate(trans_type = if_else(exposure == "perc_white", "trans_sqr", "trans_sqr_root")) 
+  mutate(trans_type = if_else(exposure == "perc_white", "trans_sqr", "trans_sqr_root"),
+         xend = if_else(exposure %in% c("perc_white", "perc_hisp_org", "perc_nativ", "perc_black"), 100, 50))
 
 # Use foreach() to modify x axis scale
 
 transf_axis <- foreach(i = iterators::icount(nrow(models_trans)), # iterate across rows
                              .combine = rbind) %do% { 
 
-# Transform x-axis scale of plots                               
+# Transform x-axis scale of plots  
+                               
+models_trans$plots[[i]]$layers[[3]] <- NULL
+
 plot_scaled <- models_trans$plots[[i]] +
-               coord_trans(x = get(models_trans$trans_type[[i]]))
+               coord_trans(x = get(models_trans$trans_type[[i]]), expand = FALSE) +
+  geom_segment(aes(x = 0, y = 0, xend = models_trans$xend[[i]], yend = 0), linetype = 2, size =0.5) +
+  xlim(0, models_trans$xend[[i]])
 
 # Add new plots to data list
 df <- models_trans[i,] %>% 
@@ -143,18 +152,21 @@ df <- models_trans[i,] %>%
   dplyr::select(-plots) %>%
   arrange(outcome)
 
+
+
 # Save work 
 df
 
                              }
 
 
-```
+# checks 
+
+transf_axis$plots_scaled[[12]]
+models_trans$plots[[12]] 
 
 
-```{r}
-test <- models_nonlinear$plots[[17]] +
-               coord_trans(x = get(models_trans$trans_type[[10]]))
+
 ```
 
 
@@ -162,42 +174,67 @@ test <- models_nonlinear$plots[[17]] +
 
 ```{r}
 
-### nonlinear
-nonlinear_rnm <- models_nonlinear %>%
+### add a name column
+models_rnm <- transf_axis %>%
   unite(name, outcome:exposure, sep = "_") %>%
   mutate(name = str_remove(name, "_relat_chg"))
 
-# extract nonlinear using assign and foreach()
-foreach(i = iterators::icount(nrow(nonlinear_rnm)), # iterate across rows
+# extract models to environment using assign() and foreach()
+foreach(i = iterators::icount(nrow(models_rnm)), # iterate across rows
                              .combine = rbind) %do% { 
   
-assign(nonlinear_rnm$name[[i]], nonlinear_rnm$plots[[i]])
-                             }
-
-### linear 
-linear_rnm <- models_linear %>%
-   unite(name, outcome:exposure, sep = "_") %>%
-  mutate(name = str_remove(name, "_relat_chg"))
-
-
-# extract nonlinear using assign and foreach()
-foreach(i = iterators::icount(nrow(linear_rnm)), # iterate across rows
-                             .combine = rbind) %do% { 
-  
-assign(linear_rnm$name[[i]], linear_rnm$plots[[i]])
+assign(models_rnm$name[[i]], models_rnm$plots_scaled[[i]])
                              }
 
 
-### other white and black nonlinear models
-nh3_agric_perc_white <- models_nonlin_blk_wht$plots_white[[1]]
-nox_commer_perc_white <- models_nonlin_blk_wht$plots_white[[2]]
-nox_trans_perc_white <- models_nonlin_blk_wht$plots_white[[3]]
-so2_energy_perc_white <- models_nonlin_blk_wht$plots_white[[4]]
+### Other white and black nonlinear models
 
-nh3_agric_perc_black <- models_nonlin_blk_wht$plots[[1]]
-nox_commer_perc_black <- models_nonlin_blk_wht$plots[[2]]
-nox_trans_perc_black <- models_nonlin_blk_wht$plots[[3]]
-so2_energy_perc_black <- models_nonlin_blk_wht$plots[[4]]
+## Percent White
+
+models_nonlin_blk_wht_edit <- foreach(i = iterators::icount(nrow(models_nonlin_blk_wht)), 
+                             .combine = rbind) %do% { 
+
+models_nonlin_blk_wht$plots_white[[1]]$layers[[3]] <- NULL
+
+models_nonlin_blk_wht
+
+}
+
+rm(models_nonlin_blk_wht)
+
+nh3_agric_perc_white <- models_nonlin_blk_wht_edit$plots_white[[1]] +
+                        coord_trans(x = trans_sqr, expand = FALSE) +
+    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+
+nox_commer_perc_white <- models_nonlin_blk_wht_edit$plots_white[[2]] +
+                        coord_trans(x = trans_sqr, expand = FALSE) +
+    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+
+nox_trans_perc_white <- models_nonlin_blk_wht_edit$plots_white[[3]] +
+                        coord_trans(x = trans_sqr, expand = FALSE) +
+    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+
+so2_energy_perc_white <- models_nonlin_blk_wht_edit$plots_white[[4]] +
+                        coord_trans(x = trans_sqr, expand = FALSE) +
+    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+
+
+## Percent Black
+nh3_agric_perc_black <- models_nonlin_blk_wht_edit$plots[[1]] +
+           coord_trans(x = trans_sqr_root, expand = FALSE) +
+    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+
+nox_commer_perc_black <- models_nonlin_blk_wht_edit$plots[[2]] +
+           coord_trans(x = trans_sqr_root, expand = FALSE) +
+    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+
+nox_trans_perc_black <- models_nonlin_blk_wht_edit$plots[[3]] +
+           coord_trans(x = trans_sqr_root, expand = FALSE) +
+    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+
+so2_energy_perc_black <- models_nonlin_blk_wht_edit$plots[[4]] +
+           coord_trans(x = trans_sqr_root, expand = FALSE) +
+    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
 
 ```
 
@@ -363,70 +400,48 @@ Density plots for economic variables
 dens_black <- data_master %>%
   ggplot(aes(x = perc_black)) +
   geom_density(aes(y =..scaled..)) +
+  coord_trans(x = trans_sqr_root, expand = FALSE) +
   theme_minimal(base_size = 15) +
   ylab("") +
   xlab("% Black") +
-  xlim(-3,86.5)
+  xlim(0, 100)
 
 dens_white <- data_master %>%
   ggplot(aes(x = perc_white)) +
    geom_density(aes(y =..scaled..)) +
+  coord_trans(x = trans_sqr, expand = FALSE) +
   theme_minimal(base_size = 15) +
   ylab("") +
   xlab("% White") +
-  xlim(0, 104)
+  xlim(0, 100)
 
 dens_asian <- data_master %>%
   ggplot(aes(x = perc_asian)) +
   geom_density(aes(y =..scaled..)) +
+  coord_trans(x = trans_sqr_root, expand = FALSE) +
   theme_minimal(base_size = 15) +
   ylab("") +
   xlab("% Asian") +
-  xlim(-0.28,45)
+  xlim(0,50)
 
 
 dens_am_nat <- data_master %>%
   ggplot(aes(x = perc_nativ)) +
    geom_density(aes(y =..scaled..)) +
+  coord_trans(x = trans_sqr_root, expand = FALSE) +
   theme_minimal(base_size = 15) +
   ylab("") +
   xlab("% American Native") +
-  xlim(-0.17, 95)
+  xlim(0, 100)
 
 dens_hisp <- data_master %>%
   ggplot(aes(x = perc_hisp_org)) +
    geom_density(aes(y =..scaled..)) +
+  coord_trans(x = trans_sqr_root, expand = FALSE) +
   theme_minimal(base_size = 15) +
   ylab("") +
   xlab("% Hispanic") +
-  xlim(-0.65, 100)
-
-```
-
-### 2b. Edit axis of Hispanic
-
-```{r}
-
-so2_indus_perc_hisp_org <- so2_indus_perc_hisp_org +
-   xlim(0,100) 
-
-so2_energy_perc_hisp_org <- so2_energy_perc_hisp_org +
-  xlim(0,100)
-
-nox_energy_perc_hisp_org <- nox_energy_perc_hisp_org +
-  xlim(0,100)
-
-nh3_agric_perc_hisp_org  <- nh3_agric_perc_hisp_org  +
-xlim(0,100)
-
-nox_trans_perc_hisp_org <- nox_trans_perc_hisp_org +
-xlim(0,100)
-
-oc_resid_perc_hisp_org <-  oc_resid_perc_hisp_org +
-xlim(0,100)
-
-nox_commer_perc_hisp_org <- nox_commer_perc_hisp_org +
-xlim(0,100)
+  xlim(0, 100)
 
 ```
 

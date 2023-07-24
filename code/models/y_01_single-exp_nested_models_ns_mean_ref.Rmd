@@ -219,7 +219,7 @@ progress <- function(p) setTxtProgressBar(pb, p)
 opts <- list(progress=progress)
 
 ### code to parallelize the processing among multiple cores
-cores <- ceiling(parallel::detectCores() / 2) # use half of the available cores 
+cores <- ceiling(parallel::detectCores() / 5) # use half of the available cores 
 cluster <- snow::makeCluster(cores) 
 doSNOW::registerDoSNOW(cluster)
 
@@ -276,7 +276,7 @@ close(pb)
 
 # save list dataset 
 
-#saveRDS(models_nonlin_eco, paste0(yanelli_external, "results_updated/models_nonlin_eco_hisp_revised.rds"))
+saveRDS(models_nonlin_eco, paste0(yanelli_external, "results_updated/models_nonlin_eco_hisp_revised.rds"))
 
 ```
 
@@ -669,7 +669,7 @@ progress <- function(p) setTxtProgressBar(pb, p)
 opts <- list(progress=progress)
 
 ### code to paralized the processing among multiple cores
-cores <- ceiling(parallel::detectCores() / 2) # use half of the available cores 
+cores <- ceiling(parallel::detectCores() / 5) # use half of the available cores 
 cluster <- snow::makeCluster(cores) 
 doSNOW::registerDoSNOW(cluster)
 
@@ -761,7 +761,7 @@ nonl_white_plots <- foreach(i = iterators::icount(nrow(nonl_white)), # iterate a
 
 # save plots
 
-#saveRDS(nonl_white_plots, paste0(yanelli_external, "results_updated/models_nonlin_wht_revised.rds"))
+saveRDS(nonl_white_plots, paste0(yanelli_external, "results_updated/models_nonlin_wht_revised.rds"))
 
 ```
 
