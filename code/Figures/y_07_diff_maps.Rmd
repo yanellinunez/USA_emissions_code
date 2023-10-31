@@ -270,7 +270,7 @@ start_time <- Sys.time()
 map_1 <- data_sf %>%
  # filter(state == "New York") %>%
   ggplot() +
-  geom_sf(colour = alpha("black", 0.25), size = 0.5) +
+  geom_sf(colour = alpha("black", 0.25), size = 0.1) +
   aes(fill = so2_ind_breaks) +
   #scale_fill_viridis(name=SO[2]~"Industry", option = "viridis", discrete = TRUE)    
   scale_fill_manual(name=SO[2]~"Industry", values = my_grays, na.translate = FALSE) +
@@ -278,7 +278,8 @@ map_1 <- data_sf %>%
    theme(legend.title=element_text(size = 7),
          legend.text = element_text(size = 7),
          legend.key.width=unit(0.3, "cm")) +
-   guides(fill = guide_legend(override.aes = list(linesize = 5)))
+   guides(fill = guide_legend(override.aes = list(linesize = 0.1)))
+
   #       strip.text = element_text(size = 30)
   #      axis.line = element_blank(), 
   #      axis.text = element_blank(),
@@ -308,14 +309,14 @@ start_time <- Sys.time()
 map_2 <- data_sf %>%
  # mutate(decile = cut_interval(so2_energy_relat_chg, 5)) %>%
   ggplot() +
-  geom_sf(colour = alpha("black", 0.25), size = 0.5) +
+  geom_sf(colour = alpha("black", 0.25), size = 0.1) +
   aes(fill = energy_so2_breaks) +
   scale_fill_manual(name=SO[2]~"Energy", values = my_blues, na.translate = FALSE) +
  theme_bw(base_size = 8) +
    theme(legend.title=element_text(size = 7),
          legend.text = element_text(size = 7),
          legend.key.width=unit(0.3, "cm")) +
-   guides(fill = guide_legend(override.aes = list(linetype = 0.2)))
+  guides(fill = guide_legend(override.aes = list(linesize = 0.1)))
 
 
 #dev.off()
@@ -337,14 +338,14 @@ start_time <- Sys.time()
 map_3 <- data_sf %>%
   filter(year %in% c(1970, 2010)) %>%
   ggplot() +
-  geom_sf(colour = alpha("black", 0.25), size = 0.5) +
+  geom_sf(colour = alpha("black", 0.25), size = 0.1) +
   aes(fill = energy_nox_breaks) +
   scale_fill_manual(name=NO[x]~"Energy", values = my_pinks, na.translate = FALSE) +
  theme_bw(base_size = 8) +
    theme(legend.title=element_text(size = 7),
          legend.text = element_text(size = 7),
          legend.key.width=unit(0.3, "cm")) +
-   guides(fill = guide_legend(override.aes = list(linetype = 0.2)))
+  guides(fill = guide_legend(override.aes = list(linesize = 0.1)))
 
 
 #dev.off()
@@ -365,14 +366,14 @@ start_time <- Sys.time()
 
 map_4 <- data_sf %>%
   ggplot() +
-  geom_sf(colour = alpha("black", 0.25), size = 0.5) +
+  geom_sf(colour = alpha("black", 0.25), size = 0.1) +
   aes(fill = nh3_agr_breaks) +
   scale_fill_manual(name=NH[3]~"Agriculture", values = my_greens, na.translate = FALSE) +
  theme_bw(base_size = 8) +
    theme(legend.title=element_text(size = 7),
          legend.text = element_text(size = 7),
          legend.key.width=unit(0.3, "cm")) +
-   guides(fill = guide_legend(override.aes = list(linetype = 0.2)))
+    guides(fill = guide_legend(override.aes = list(linesize = 0.1)))
 
 
 #dev.off()
@@ -391,14 +392,14 @@ start_time <- Sys.time()
 
 map_5 <- data_sf %>%
   ggplot() +
-  geom_sf(colour = alpha("black", 0.25), size = 0.5) +
+  geom_sf(colour = alpha("black", 0.25), size = 0.1) +
   aes(fill = nox_trans_breaks) +
   scale_fill_manual(name=NO[x]~"Transport", values = my_orang, na.translate = FALSE) +
  theme_bw(base_size = 8) +
    theme(legend.title=element_text(size = 7),
          legend.text = element_text(size = 7),
          legend.key.width=unit(0.3, "cm")) +
-   guides(fill = guide_legend(override.aes = list(linetype = 0.2)))
+ guides(fill = guide_legend(override.aes = list(linesize = 0.1)))
 
 #dev.off()
 end_time <- Sys.time()
@@ -418,14 +419,14 @@ start_time <- Sys.time()
 
 map_6 <- data_sf %>%
   ggplot() +
-  geom_sf(colour = alpha("black", 0.25), size = 0.5) +
+  geom_sf(colour = alpha("black", 0.25), size = 0.1) +
   aes(fill = oc_resid_breaks) +
   scale_fill_manual(name="OC Residential", values = my_browns, na.translate = FALSE) +
  theme_bw(base_size = 8) +
    theme(legend.title=element_text(size = 7),
          legend.text = element_text(size = 7),
          legend.key.width=unit(0.3, "cm")) +
-   guides(fill = guide_legend(override.aes = list(linetype = 0.2)))
+   guides(fill = guide_legend(override.aes = list(linesize = 0.1)))
 
 #dev.off()
 end_time <- Sys.time()
@@ -445,14 +446,14 @@ start_time <- Sys.time()
 
 map_7 <- data_sf %>%
   ggplot() +
-  geom_sf(colour = alpha("black", 0.25), size = 0.5) +
+  geom_sf(colour = alpha("black", 0.25), size = 0.1) +
   aes(fill = nox_commer_breaks) +
   scale_fill_manual(name=NO[x]~"Commercial", values = my_purpls, na.translate = FALSE) +
  theme_bw(base_size = 8) +
    theme(legend.title=element_text(size = 7),
          legend.text = element_text(size = 7),
          legend.key.width=unit(0.3, "cm")) +
-   guides(fill = guide_legend(override.aes = list(linetype = 0.2)))
+ guides(fill = guide_legend(override.aes = list(linesize = 0.1)))
   
 
 
