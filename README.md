@@ -1,6 +1,4 @@
 
-<br>
-
 ## An Environmental Justice Analysis of Air Pollution Emissions in the United States from 1970 to 2010
 
 This repository houses the code and data used in the analysis presented in the peer-reviewed article: *An Environmental Justice Analysis of Air Pollution Emissions in the United States from 1970 to 2010*.
@@ -10,14 +8,14 @@ Below is the description of the repository's content. Please contact the corresp
 #######################################################################
 
 - 0_00_create_folder_structure.R
-Creates folder structure and directories of the repository. No need to run or review
+Creates folder structure and directories of the repository. 
 
 #######################################################################
 
 **Data Folder**
 
 - emissions_data: sub-folder containing the county-level emissions estimates for the seven pollutants analyzed
-- census_data: sub-folder containing all census data variables we used as independent variables. The CPI_U_RS.xlsx/CPI_URS_edit.xlsx contain indexes we used to adjust the dollar variables to 2010 dollars. 
+- census_data: sub-folder containing all census data variables we used as independent variables. The CPI_U_RS.xlsx/CPI_URS_edit.xlsx contain indexes we used to adjust the dollar variables to 2010 dollars 
 - generated_data: sub-folder containing the generated files from the cleaning and compiling of census and emissions data. The descriptions for each dataset within this sub-folder are below.  
 
 *Generated datasets descriptions*:
@@ -47,14 +45,14 @@ data_loading.R: this R script is called from within each of models .rmds
 - data_explor: sub-folder containing a single .rmd file with code to estimate the correlation among the independent variables
 - models: sub-folder containing all models used for the main and sensitivity analyses
 - figures: sub-folder housing the code that makes the paper figures
-- packages: sub-folder housing a script that loads all packages needed. 
+- packages: sub-folder housing a script that loads all packages needed
 
 #######################################################################
 
 **Figures Folder**
-This folder contains some of the paper figures/tables but not all because some were too large. 
+This folder contains some of the paper figures/tables but not all because some were too large.
 
 #######################################################################
 
 **Output Folder**
-This folder has a single .csv file with the coefficients from the linear models
+This folder has a single .csv file with the coefficients from the linear models.
