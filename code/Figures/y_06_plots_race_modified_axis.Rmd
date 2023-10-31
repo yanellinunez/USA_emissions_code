@@ -13,9 +13,9 @@ editor_options:
 
 Objective:  
 
-Edit the 
+I re-run all of the models with the updated datasets (only the SO2 industry data changed). Here I re-plot all of the race variables association curves.
 
-
+This code generates manuscript Figure 2 and 3
 
 ```{r include=FALSE}
 
@@ -91,26 +91,13 @@ rm(models_linear)
 
 ```
 
-## 2. 
+
+
+## 2. Modified axis scales
+
+To address reviewers comments about the visibility of the curve, we scaled the axis of distributions that were left-skewed by squaring and the axis of distributions that were right skewed by square rooting.
 
 ```{r}
-
-## Estimate max and min values for all race/ethnicity variables based on the 3th and 97th #percentiles
-#quantile(data_master$perc_hisp_org, c(.03, .97)) # 0, 36
-#quantile(data_master$perc_asian, c(.03, .95)) # 0, 13
-#quantile(data_master$perc_black, c(.03, .97)) # 0, 50
-#quantile(data_master$perc_nativ, c(.03, .97)) # 0, 9
-#quantile(data_master$perc_white, c(.03, .97)) # 46, 100
-#
-#
-## add columns to data list with max and min x values
-#models_x_value <- models_edit %>%
-#  mutate(x_min = if_else(exposure != "perc_white", 0, 45),
-#         x_max = if_else(exposure == "perc_hisp_org", 35,
-#                 if_else(exposure == "perc_asian", 15,
-#                 if_else(exposure == "perc_black", 50,
-#                 if_else(exposure == "perc_nativ", 10, 100)))))
-#
 
 # Set up axis transformations
 sqr_root <- function(x) x ^ (1/2)
@@ -132,26 +119,28 @@ models_trans <- models_merged %>%
   mutate(trans_type = if_else(exposure == "perc_white", "trans_sqr", "trans_sqr_root"),
          xend = if_else(exposure %in% c("perc_white", "perc_hisp_org", "perc_nativ", "perc_black"), 100, 50))
 
+# Remove old horizontal line -- it looks like in these case I don't have to remove the hline (remains correct even after editing the x scale so is okay to keep it)
+
+
 # Use foreach() to modify x axis scale
 
 transf_axis <- foreach(i = iterators::icount(nrow(models_trans)), # iterate across rows
                              .combine = rbind) %do% { 
 
 # Transform x-axis scale of plots  
-                               
-models_trans$plots[[i]]$layers[[3]] <- NULL
 
 plot_scaled <- models_trans$plots[[i]] +
-               coord_trans(x = get(models_trans$trans_type[[i]]), expand = FALSE) +
-  geom_segment(aes(x = 0, y = 0, xend = models_trans$xend[[i]], yend = 0), linetype = 2, size =0.5) +
-  xlim(0, models_trans$xend[[i]])
+               xlim(0, models_trans$xend[[i]]) +
+               coord_trans(x = get(models_trans$trans_type[[i]]), expand = FALSE) 
+ # geom_segment(aes(x = 0, y = 0, xend = models_trans$xend[[i]], yend = 0), linetype = 2, linewidth = 0.5) 
+ 
+
 
 # Add new plots to data list
 df <- models_trans[i,] %>% 
   mutate(plots_scaled = list(plot_scaled)) %>%
   dplyr::select(-plots) %>%
   arrange(outcome)
-
 
 
 # Save work 
@@ -162,9 +151,8 @@ df
 
 # checks 
 
-transf_axis$plots_scaled[[12]]
-models_trans$plots[[12]] 
-
+transf_axis$plots_scaled[[24]]
+models_trans$plots[[9]] 
 
 
 ```
@@ -190,51 +178,40 @@ assign(models_rnm$name[[i]], models_rnm$plots_scaled[[i]])
 ### Other white and black nonlinear models
 
 ## Percent White
+nh3_agric_perc_white <- models_nonlin_blk_wht$plots_white[[1]] +
+                         xlim(0, 100) +
+                        coord_trans(x = trans_sqr, expand = FALSE) 
 
-models_nonlin_blk_wht_edit <- foreach(i = iterators::icount(nrow(models_nonlin_blk_wht)), 
-                             .combine = rbind) %do% { 
+nox_commer_perc_white <- models_nonlin_blk_wht$plots_white[[2]] +
+                         xlim(0, 100) +
+                        coord_trans(x = trans_sqr, expand = FALSE) 
 
-models_nonlin_blk_wht$plots_white[[1]]$layers[[3]] <- NULL
+nox_trans_perc_white <- models_nonlin_blk_wht$plots_white[[3]] +
+                           xlim(0, 100) +
+                        coord_trans(x = trans_sqr, expand = FALSE)
 
-models_nonlin_blk_wht
-
-}
-
-rm(models_nonlin_blk_wht)
-
-nh3_agric_perc_white <- models_nonlin_blk_wht_edit$plots_white[[1]] +
-                        coord_trans(x = trans_sqr, expand = FALSE) +
-    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
-
-nox_commer_perc_white <- models_nonlin_blk_wht_edit$plots_white[[2]] +
-                        coord_trans(x = trans_sqr, expand = FALSE) +
-    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
-
-nox_trans_perc_white <- models_nonlin_blk_wht_edit$plots_white[[3]] +
-                        coord_trans(x = trans_sqr, expand = FALSE) +
-    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
-
-so2_energy_perc_white <- models_nonlin_blk_wht_edit$plots_white[[4]] +
-                        coord_trans(x = trans_sqr, expand = FALSE) +
-    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+so2_energy_perc_white <- models_nonlin_blk_wht$plots_white[[4]] +
+                           xlim(0, 100) +
+                        coord_trans(x = trans_sqr, expand = FALSE) 
 
 
 ## Percent Black
-nh3_agric_perc_black <- models_nonlin_blk_wht_edit$plots[[1]] +
-           coord_trans(x = trans_sqr_root, expand = FALSE) +
-    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+nh3_agric_perc_black <- models_nonlin_blk_wht$plots[[1]] +
+                           xlim(0, 100) +
+           coord_trans(x = trans_sqr_root, expand = FALSE) 
 
-nox_commer_perc_black <- models_nonlin_blk_wht_edit$plots[[2]] +
-           coord_trans(x = trans_sqr_root, expand = FALSE) +
-    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+nox_commer_perc_black <- models_nonlin_blk_wht$plots[[2]] +
+                           xlim(0, 100) +
+           coord_trans(x = trans_sqr_root, expand = FALSE) 
 
-nox_trans_perc_black <- models_nonlin_blk_wht_edit$plots[[3]] +
-           coord_trans(x = trans_sqr_root, expand = FALSE) +
-    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+nox_trans_perc_black <- models_nonlin_blk_wht$plots[[3]] +
+                           xlim(0, 100) +
+           coord_trans(x = trans_sqr_root, expand = FALSE) 
 
-so2_energy_perc_black <- models_nonlin_blk_wht_edit$plots[[4]] +
-           coord_trans(x = trans_sqr_root, expand = FALSE) +
-    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0), linetype = 2, size =0.5) 
+
+so2_energy_perc_black <- models_nonlin_blk_wht$plots[[4]] +
+                           xlim(0, 100) +
+           coord_trans(x = trans_sqr_root, expand = FALSE)
 
 ```
 

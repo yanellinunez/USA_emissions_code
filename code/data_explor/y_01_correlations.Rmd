@@ -60,7 +60,8 @@ summary(data_scaled)
 - Percent Asian is positively correlated with percent Hispanic
 - I double checked the data generation process and everything seems correct so the correlation results accurately represent our data 
 
-This is supplemental figure FS.4
+This code generates Supplementary Fig. 1
+
 ```{r}
 
 exp_var <- data_scaled %>%

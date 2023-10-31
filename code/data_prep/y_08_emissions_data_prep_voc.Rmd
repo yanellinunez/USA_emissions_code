@@ -13,7 +13,11 @@ editor_options:
 
 Objective:
 
-Estimate VOC emission change and relative change and add these data to the ongoing datasets
+Estimate VOC emission change and relative change and add these data to the ongoing datasets.
+
+Note:
+
+Even thought we prepared VOC data, we decided not to perform an analysis for VOC emissions. this decision was based on the fact that our manuscript already included a large number of models and it was proven difficult to digest all results in a single manuscript. Adding one more pollution sector would have made the results and analysis even more dense. 
 
 ```{r include=FALSE}
 

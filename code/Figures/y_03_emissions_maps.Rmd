@@ -13,7 +13,7 @@ editor_options:
 
 *Objective:* 
 
-This code generates manuscript's Figure 1 (the emissions maps)
+Create maps of the emissions in two time points (1970 and 2010) from all air pollution source sectors analyzed. This figure was not included in the manuscript.  
 
 Note: you won't be able to run this code because the geometries are saved in my local drive
 
@@ -371,3 +371,60 @@ end_time <- Sys.time()
 end_time - start_time  
 
 ```
+
+
+### 4. Mapping using Leaflet
+
+```{r}
+
+crs_wgs84 <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+# prepare data and select single year
+data_nh3 <- data_sf %>% 
+  dplyr::filter(year == 2010) %>%
+  mutate(nh3_cat = if_else(nh3_agric <= 0.5, "< 0.5",
+                   if_else(nh3_agric > 0.5 & nh3_agric <= 1, "(0.5 - 1]",
+                   if_else(nh3_agric > 1 & nh3_agric <=2, "(1 - 2]", 
+                   if_else(nh3_agric > 2 & nh3_agric <= 5, "(2 - 5]", "> 5"))))) %>%
+  mutate(nh3_cat = factor(nh3_cat, levels = c("< 0.5", "(0.5 - 1]", "(1 - 2]","(2 - 5]", "> 5"))) %>% 
+  as.data.frame() %>% 
+       st_as_sf() %>%
+  st_collection_extract(.) %>% # to convert the geometries from geometry collection back to multipolygon. The polygons were converted to polygons during the process of aggregating the years. In leaflet, we can't plot geometry collections
+  st_transform(crs_wgs84)
+
+class(data_nh3)
+data_nh3$geometry
+
+# Specify color pallet
+color_pal <- colorFactor(palette = c("#f7fcfd",
+#"#e5f5f9",
+#"#ccece6",
+"#99d8c9",
+#"#66c2a4",
+#"#41ae76",
+"#238b45",
+#"#006d2c",
+"#00441b", 
+"#000000"),
+domain = data_nh3$nh3_cat)
+
+# Map
+leaflet(data = data_nh3) %>%
+        addTiles() %>%
+        setView(lng = -99.01, lat = 41.83, zoom = 4.5) %>%
+        addPolygons(data = data_nh3, 
+                   color = "black",
+                  weight = 0.3,
+               fillColor = ~color_pal(data_nh3$nh3_cat),
+             fillOpacity = 0.7,
+                  # popup = polyPopup,
+  highlight = highlightOptions(weight = 2,
+                               color = "blue",
+                               bringToFront = TRUE)) %>%
+                                addLegend(pal = color_pal,
+                                          values = data_nh3$nh3_cat, 
+                                          opacity = 0.9, 
+                                          title = "kg/km<sup>2</sup>/day", 
+                                          position = "topright")
+```
+

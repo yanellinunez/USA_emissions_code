@@ -13,7 +13,7 @@ editor_options:
 
 *Objective:* 
 
-The code produces Figure FS.6
+The code produces Supplementary Fig. 4 and 5
 
 Note: this figure uses the results produced in 'y_03_sensitiv_regional_models.rmd' from the models folder
 

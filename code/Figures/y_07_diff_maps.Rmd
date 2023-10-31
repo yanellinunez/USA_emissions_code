@@ -1,0 +1,492 @@
+---
+title: "emissions maps"
+author: "Yanelli Nunez"
+date: "3/1/2022"
+output:
+ html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+*Objective:* 
+
+This code generates manuscript's Figure 1 (emissions difference from 1970 to 2010). This figure substituted the previous figures showing concentrations in the 1970 and 2010 time point (y_03_emissions_maps.Rmd). 
+
+
+```{r include=FALSE}
+
+rm(list=ls())
+
+# 1a Declare root directory
+
+project.folder <- paste0(print(here::here()),'/')
+
+# add folder locations
+source(paste0(project.folder,'0_00_create_folder_structure.R'))
+
+# add file locations
+source(paste0(file.locations.folder,'external_file_locations.R'))
+
+# load packages
+source(paste0(packages.folder,'packages_to_load.R'))
+
+# load functions
+ source(paste0(code.folder, 'models/functions.R'))
+
+# load data
+source(paste0(code.folder, 'data_loading.R'))
+
+```
+
+
+## 1. Load data & edit
+
+```{r}
+
+class(data_full)
+summary(data_full)
+
+diff_data <- data_full %>% 
+   dplyr::select(gisjoin, year, state, county, name, epa_reg, tot_pop, 48:54) %>% 
+  dplyr::filter(year %in% c("1970", "2010")) %>% 
+    mutate(gisjoin = as.factor(gisjoin)) %>%
+  group_by(state, gisjoin) %>%
+   arrange(., year, .by_group = TRUE) %>%
+    mutate(nox_trans_diff = (nox_trans - dplyr::lag(nox_trans)),
+           nox_trans_diff = dplyr::lead(nox_trans_diff),
+           nh3_agric_diff = (nh3_agric - dplyr::lag(nh3_agric)),
+           nh3_agric_diff = dplyr::lead(nh3_agric_diff),
+           so2_energy_diff = (so2_ener - dplyr::lag(so2_ener)),
+           so2_energy_diff = dplyr::lead(so2_energy_diff),
+           nox_energy_diff = (nox_ener - dplyr::lag(nox_ener)),
+           nox_energy_diff = dplyr::lead(nox_energy_diff),
+           so2_indus_diff = (so2_industry - dplyr::lag(so2_industry)),
+           so2_indus_diff = dplyr::lead(so2_indus_diff),
+           oc_resd_diff = (oc_residential - dplyr::lag(oc_residential)),
+           oc_resd_diff = dplyr::lead(oc_resd_diff),
+           nox_commer_diff = (nox_commercial - dplyr::lag(nox_commercial)),
+           nox_commer_diff = dplyr::lead(nox_commer_diff)) %>% 
+  ungroup() %>%
+  mutate(nox_trans_relat_chg = nox_trans_diff/nox_trans*100, # relative change
+         nh3_agric_relat_chg = nh3_agric_diff/nh3_agric*100,
+         oc_resid_relat_chg = oc_resd_diff/oc_residential*100,
+         nox_commer_relat_chg = nox_commer_diff/nox_commercial*100, 
+         so2_energy_relat_chg = so2_energy_diff/so2_ener*100,
+         nox_energy_relat_chg = nox_energy_diff/nox_ener*100, 
+         so2_indus_relat_chg = so2_indus_diff/so2_industry*100) %>%
+   as.data.frame() %>%
+  dplyr::filter(year == "1970") %>% 
+  dplyr::select(1:7, 15:28) %>%
+  mutate_at("so2_indus_relat_chg",  ~replace(., is.nan(.), 0)) %>% 
+  mutate(energy_so2_breaks = 
+                        if_else(so2_energy_relat_chg >= -100 & so2_energy_relat_chg <= -80, "[-100, -80]", 
+                        if_else(so2_energy_relat_chg > -80 & so2_energy_relat_chg <= -60, "(-80, -60]", 
+                        if_else(so2_energy_relat_chg > -60 & so2_energy_relat_chg <= 0, "(-60, 0]", 
+                        if_else(so2_energy_relat_chg > 0 & so2_energy_relat_chg <= 300, "(0, 300]", "> 300"))))) %>% 
+  mutate(energy_so2_breaks = factor(energy_so2_breaks, levels = c("[-100, -80]", "(-80, -60]", "(-60, 0]", 
+                                                                  "(0, 300]", "> 300"))) %>%
+   mutate(energy_nox_breaks = 
+                        if_else(nox_energy_relat_chg >= -100 & nox_energy_relat_chg <= -80, "[-100, -75]", 
+                        if_else(nox_energy_relat_chg > -80 & nox_energy_relat_chg <= -60, "(-75, -50]", 
+                        if_else(nox_energy_relat_chg > -60 & nox_energy_relat_chg <= 0, "(-50, 0]", 
+                        if_else(nox_energy_relat_chg > 0 & nox_energy_relat_chg <= 300, "(0, 300]", "> 300"))))) %>% 
+  mutate(energy_nox_breaks = factor(energy_nox_breaks, levels = c("[-100, -75]", "(-75, -50]", "(-50, 0]", 
+                                                                  "(0, 300]", "> 300"))) %>% 
+  mutate(oc_resid_breaks = 
+                        if_else(oc_resid_relat_chg >= -25 & oc_resid_relat_chg <= 0, "[-25, 0]", 
+                        if_else(oc_resid_relat_chg > 0 & oc_resid_relat_chg <= 10, "(0, 10]", 
+                        if_else(oc_resid_relat_chg > 10 & oc_resid_relat_chg <= 20, "(10, 20]", 
+                        if_else(oc_resid_relat_chg > 20 & oc_resid_relat_chg <= 100, "(20, 100]", "> 100"))))) %>% 
+  mutate(oc_resid_breaks = factor(oc_resid_breaks, levels = c("[-25, 0]", "(0, 10]", "(10, 20]", 
+                                                                  "(20, 100]", "> 100"))) %>% 
+  mutate(nox_commer_breaks = 
+                        if_else(nox_commer_relat_chg >= -77 & nox_commer_relat_chg <= -50, "[-77, -50]", 
+                        if_else(nox_commer_relat_chg > -50 & nox_commer_relat_chg <= -25, "(-50, -25]", 
+                        if_else(nox_commer_relat_chg > -25 & nox_commer_relat_chg <= 0, "(-25, 0]", 
+                        if_else(nox_commer_relat_chg > 0 & nox_commer_relat_chg <= 50, "(0, 50]", "> 50"))))) %>% 
+  mutate(nox_commer_breaks = factor(nox_commer_breaks, levels = c("[-77, -50]", "(-50, -25]", "(-25, 0]", 
+                                                                  "(0, 50]", "> 50"))) %>% 
+  mutate(so2_ind_breaks = 
+                        if_else(so2_indus_relat_chg >= -100 & so2_indus_relat_chg <= -90, "[-100, -90]", 
+                        if_else(so2_indus_relat_chg > -90 & so2_indus_relat_chg <= -80, "(-90, -80]", 
+                        if_else(so2_indus_relat_chg > -80 & so2_indus_relat_chg <= -50, "(-80, -50]", 
+                        if_else(so2_indus_relat_chg > -50 & so2_indus_relat_chg <= -20, "(-50, -20]", "(-20, 0]"))))) %>% 
+  mutate(so2_ind_breaks = factor(so2_ind_breaks, levels = c("[-100, -90]", "(-90, -80]", "(-80, -50]", 
+                                                                  "(-50, -20]", "(-20, 0]"))) %>% 
+   mutate(nh3_agr_breaks = 
+                        if_else(nh3_agric_relat_chg >= 1 & nh3_agric_relat_chg <= 25, "[1, 25]", 
+                        if_else(nh3_agric_relat_chg > 25 & nh3_agric_relat_chg <= 50, "(25, 50]", 
+                        if_else(nh3_agric_relat_chg > 50 & nh3_agric_relat_chg <= 75, "(50, 75]", 
+                        if_else(nh3_agric_relat_chg > 75 & nh3_agric_relat_chg <= 100, "(75, 100]", "(100, 185]"))))) %>% 
+  mutate(nh3_agr_breaks = factor(nh3_agr_breaks, levels = c("[1, 25]", "(25, 50]", "(50, 75]", 
+                                                                  "(75, 100]", "(100, 185]"))) %>% 
+  mutate(nox_trans_breaks = 
+                        if_else(nox_trans_relat_chg >= -80 & nox_trans_relat_chg <= -70, "[-80, -70]", 
+                        if_else(nox_trans_relat_chg > -70 & nox_trans_relat_chg <= -60, "(-70, -60]", 
+                        if_else(nox_trans_relat_chg > -60 & nox_trans_relat_chg <= -50, "(-60, -50]",
+                        if_else(nox_trans_relat_chg > -50 & nox_trans_relat_chg <= -1, "(-50, -1]", "(-1, 3]"))))) %>% 
+  mutate(nox_trans_breaks = factor(nox_trans_breaks, levels = c("[-80, -70]", "(-70, -60]", "(-60, -50]", 
+                                                                  "(-50, -1]", "(-1, 3]")))
+  
+summary(diff_data)
+  
+
+```
+
+## 2. Spatial Geometries
+
+Note that the spatial geometries are not included in the GitHub repository because of size limits. You can download the county geometries directly for years 1970 and 2010 directly from nhgis.org.
+
+```{r}
+
+# geometries 
+geometries <- readRDS(paste0(yanelli_external, "spatial_data/updated_generated_files/geometries_counties.rds")) %>%
+  mutate(name = if_else(gisjoin == "G1200250", "Miami-Dade county", name), # rename Dade to Miami-Dade so it is consistent naming across the 4 years
+         gisjoin = if_else(gisjoin == "G1200250", "G1200860", gisjoin),
+         name = if_else(gisjoin == "G1200860", "Miami-Dade", name)) # rename Dade to Miami-Dade so it is consistent naming across the 4 years
+
+class(geometries) 
+geometries$geometry
+
+
+data_sf <- geometries %>%
+  dplyr::right_join(., diff_data)
+
+summary(data_sf)
+class(data_sf)
+
+```
+
+
+## 3. My color palette 
+
+```{r}
+
+my_cols_het <- c("#7fc97f", "#beaed4", "#fdc086", "#999999", "#386cb0", "#f0027f", "#bf5b17", "#377eb8", "#a65628")
+
+my_purpls <- c("#efedf5", 
+#"#dadaeb", 
+"#bcbddc", 
+#"#9e9ac8", 
+"#807dba", 
+#"#6a51a3", 
+#"#54278f", 
+"#3f007d", 
+#"#1D0633", 
+"#000000")
+
+my_greens <- c( "#f7fcfd",
+  "#99d8c9", 
+  "#238b45",
+  "#00441b", 
+  "#000000")
+
+my_blues <- c( "#f7fbff",
+# "#deebf7",
+# "#c6dbef",
+ "#9ecae1",
+# "#6baed6",
+ "#4292c6",
+# "#2171b5",
+ "#08519c",
+ #"#08306b", 
+ "#000000")
+
+my_orang <- c(
+  "#fff5eb",
+# "#fee6ce",
+#  "#fdd0a2",
+  "#fdae6b",
+#  "#fd8d3c",
+  "#f16913",
+#  "#d94801",
+  "#a63603",
+#  "#7f2704",
+  "#000000") 
+
+my_pinks <- c(
+ "#fff7f3",
+#  "#fde0dd",
+#  "#fcc5c0",
+  "#fa9fb5",
+#  "#f768a1",
+#  "#dd3497",
+  "#ae017e",
+ # "#7a0177",
+  "#49006a",
+  "#000000"
+)
+
+my_grays <- c(
+  "#ffffff",
+#  "#f7fbff",
+#  "#f0f0f0",
+#  "#d9d9d9",
+  #"ivory3",
+  "#bdbdbd",
+ # "#969696",
+  "#737373",
+  "#525252",
+ # "#252525",
+  "#000000"
+)
+
+my_browns <- c(
+"cornsilk",
+#  "wheat",
+  "burlywood",
+ # "tan3",
+  #"peru",
+  "tan4",
+#  "sienna",
+  #"saddlebrown",
+   "salmon4",
+#  "#993404",
+  "#662506",
+  "#000000" 
+)
+
+
+```
+
+
+## 3. Map
+
+### 3a. Industry, SO2 emissions
+
+```{r}
+
+# function for mapping 
+# mapping <- function(data, year){
+
+start_time <- Sys.time()    
+pdf(file = "so2_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+ # filter(state == "New York") %>%
+  ggplot() +
+  geom_sf(colour = alpha("black", 0.25), size = 0.7) +
+  aes(fill = so2_ind_breaks) +
+  #scale_fill_viridis(name=SO[2]~"Industry", option = "viridis", discrete = TRUE)    
+  scale_fill_manual(name=SO[2]~"Industry", values = my_grays, na.translate = FALSE) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+  #       strip.text = element_text(size = 30)
+  #      axis.line = element_blank(), 
+  #      axis.text = element_blank(),
+  #      axis.ticks = element_blank(), 
+  #      axis.title = element_blank(),
+  #      plot.title = element_text(size=20)) 
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+#}
+
+
+```
+
+
+### 3a. Energy, SO2 emissions
+
+
+```{r}
+
+
+start_time <- Sys.time()    
+pdf(file = "energy_so2_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+ # mutate(decile = cut_interval(so2_energy_relat_chg, 5)) %>%
+  ggplot() +
+  geom_sf(colour = alpha("black", 0.25), size = 0.7) +
+  aes(fill = energy_so2_breaks) +
+  scale_fill_manual(name=SO[2]~"Energy", values = my_blues, na.translate = FALSE) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+### 3a. Energy, NOx emissions
+
+
+```{r}
+
+
+start_time <- Sys.time()    
+pdf(file = "energy_nox_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  filter(year %in% c(1970, 2010)) %>%
+  ggplot() +
+  geom_sf(colour = alpha("black", 0.25), size = 0.7) +
+  aes(fill = energy_nox_breaks) +
+  scale_fill_manual(name=NO[x]~"Energy", values = my_pinks, na.translate = FALSE) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+### 3a. Agriculture, NH3 emissions
+
+
+```{r}
+
+
+start_time <- Sys.time()    
+pdf(file = "agricul_nh3_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  ggplot() +
+  geom_sf(colour = alpha("black", 0.25), size = 0.7) +
+  aes(fill = nh3_agr_breaks) +
+  scale_fill_manual(name=NH[3]~"Agriculture", values = my_greens, na.translate = FALSE) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+### 3a. Transportation, NOx emissions
+
+```{r}
+
+start_time <- Sys.time()    
+pdf(file = "transport_nox_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  ggplot() +
+  geom_sf(colour = alpha("black", 0.25), size = 0.7) +
+  aes(fill = nox_trans_breaks) +
+  scale_fill_manual(name=NO[x]~"Transport", values = my_orang, na.translate = FALSE) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+
+```
+
+
+### 3a. Residencial, OC emissions
+
+
+```{r}
+
+start_time <- Sys.time()    
+pdf(file = "residen_oc_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  ggplot() +
+  geom_sf(colour = alpha("black", 0.25), size = 0.7) +
+  aes(fill = oc_resid_breaks) +
+  scale_fill_manual(name="OC Residential", values = my_browns, na.translate = FALSE) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+### 3a. Commercial, NOx emissions
+
+**need to make breaks manually**
+
+```{r}
+
+start_time <- Sys.time()    
+pdf(file = "commercial_nox_maps.pdf", width = 14, height = 6)
+
+data_sf %>%
+  ggplot() +
+  geom_sf(colour = alpha("black", 0.25), size = 0.7) +
+  aes(fill = nox_commer_breaks) +
+  scale_fill_manual(name=NO[x]~"Commercial", values = my_purpls, na.translate = FALSE) +
+  theme_void() +
+   theme(legend.title=element_text(size=12))
+
+dev.off()
+end_time <- Sys.time()
+end_time - start_time  
+
+```
+
+
+### 4. Mapping using Leaflet
+
+```{r}
+
+crs_wgs84 <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+# prepare data and select single year
+data_nh3 <- data_sf %>% 
+  dplyr::filter(year == 2010) %>%
+  mutate(nh3_cat = if_else(nh3_agric <= 0.5, "< 0.5",
+                   if_else(nh3_agric > 0.5 & nh3_agric <= 1, "(0.5 - 1]",
+                   if_else(nh3_agric > 1 & nh3_agric <=2, "(1 - 2]", 
+                   if_else(nh3_agric > 2 & nh3_agric <= 5, "(2 - 5]", "> 5"))))) %>%
+  mutate(nh3_cat = factor(nh3_cat, levels = c("< 0.5", "(0.5 - 1]", "(1 - 2]","(2 - 5]", "> 5"))) %>% 
+  as.data.frame() %>% 
+       st_as_sf() %>%
+  st_collection_extract(.) %>% # to convert the geometries from geometry collection back to multipolygon. The polygons were converted to polygons during the process of aggregating the years. In leaflet, we can't plot geometry collections
+  st_transform(crs_wgs84)
+
+class(data_nh3)
+data_nh3$geometry
+
+# Specify color pallet
+color_pal <- colorFactor(palette = c("#f7fcfd",
+#"#e5f5f9",
+#"#ccece6",
+"#99d8c9",
+#"#66c2a4",
+#"#41ae76",
+"#238b45",
+#"#006d2c",
+"#00441b", 
+"#000000"),
+domain = data_nh3$nh3_cat)
+
+# Map
+leaflet(data = data_nh3) %>%
+        addTiles() %>%
+        setView(lng = -99.01, lat = 41.83, zoom = 4.5) %>%
+        addPolygons(data = data_nh3, 
+                   color = "black",
+                  weight = 0.3,
+               fillColor = ~color_pal(data_nh3$nh3_cat),
+             fillOpacity = 0.7,
+                  # popup = polyPopup,
+  highlight = highlightOptions(weight = 2,
+                               color = "blue",
+                               bringToFront = TRUE)) %>%
+                                addLegend(pal = color_pal,
+                                          values = data_nh3$nh3_cat, 
+                                          opacity = 0.9, 
+                                          title = "kg/km<sup>2</sup>/day", 
+                                          position = "topright")
+```
+

@@ -12,7 +12,9 @@ editor_options:
 ---
 *Objective:* 
 
-Make Supplemental figure FS.5 
+Create Supplementary Fig. 3
+
+Sensitivity analysis adjusting for socieconomic confounding. 
 
 Note: This figure is based on the model results produced in 'y_02_sensitiv_analys_models_adjus_eco.rmd' from the models folder
 

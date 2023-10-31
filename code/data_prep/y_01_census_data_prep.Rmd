@@ -403,7 +403,7 @@ income_merged <- full_join(median_house_incom, median_family_incom)
 
 ```
 
-## 7. Estimate percentages for race/ethnicity, poperty, and unemployment variables  
+## 7. Estimate percentages for race/ethnicity, poverty, and unemployment variables  
 
 ```{r}
 
